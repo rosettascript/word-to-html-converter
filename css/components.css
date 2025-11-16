@@ -1,0 +1,363 @@
+/* ==========================================================================
+   Components - Reusable UI Components
+   ========================================================================== */
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+button {
+  font-family: var(--font-primary);
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition-fast);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Primary Button */
+.cta-button {
+  display: inline-block;
+  padding: var(--space-md) var(--space-2xl);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: white;
+  background: linear-gradient(135deg, var(--color-accent-taupe), var(--color-accent-terracotta));
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.cta-button:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(201, 168, 143, 0.4);
+  color: white;
+}
+
+.cta-button:active {
+  transform: scale(0.98);
+}
+
+.cta-button:focus-visible {
+  outline: 2px solid var(--color-accent-taupe);
+  outline-offset: 4px;
+}
+
+/* Secondary Button */
+.secondary-button {
+  padding: var(--space-md) var(--space-2xl);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent-taupe);
+  background: transparent;
+  border: 1.5px solid var(--color-accent-taupe);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.secondary-button:hover {
+  background: rgba(201, 168, 143, 0.1);
+  transform: scale(1.02);
+}
+
+/* Icon Button */
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: var(--space-sm);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 1px solid var(--color-accent-taupe);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.icon-button:hover {
+  color: var(--color-text-primary);
+  background: rgba(201, 168, 143, 0.1);
+  border-color: var(--color-text-primary);
+  transform: scale(1.05);
+}
+
+.icon-button:active {
+  transform: scale(0.95);
+}
+
+.icon-button .icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Clear Button */
+.clear-button {
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 1px solid var(--color-accent-taupe);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.clear-button:hover {
+  color: var(--color-text-primary);
+  background: rgba(201, 168, 143, 0.1);
+}
+
+/* ==========================================================================
+   Form Elements
+   ========================================================================== */
+
+/* Text Input */
+input[type="text"],
+input[type="url"] {
+  width: 100%;
+  padding: var(--space-md);
+  font-family: var(--font-primary);
+  font-size: var(--font-size-body);
+  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(201, 168, 143, 0.4);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-medium);
+}
+
+input[type="text"]:focus,
+input[type="url"]:focus {
+  outline: none;
+  border-color: var(--color-accent-taupe);
+}
+
+input[type="text"]::placeholder,
+input[type="url"]::placeholder {
+  color: var(--color-text-secondary);
+}
+
+/* Checkbox */
+input[type="checkbox"] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-right: var(--space-sm);
+  border: 1.5px solid rgba(201, 168, 143, 0.4);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  flex-shrink: 0;
+}
+
+input[type="checkbox"]:hover {
+  border-color: rgba(201, 168, 143, 0.6);
+}
+
+input[type="checkbox"]:checked {
+  background: var(--color-accent-taupe);
+  border-color: var(--color-accent-taupe);
+}
+
+input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--color-accent-taupe);
+  outline-offset: 2px;
+}
+
+/* Radio Button */
+input[type="radio"] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid rgba(201, 168, 143, 0.4);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  flex-shrink: 0;
+}
+
+input[type="radio"]:checked {
+  border-color: var(--color-accent-taupe);
+  background: var(--color-accent-taupe);
+}
+
+input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+}
+
+input[type="radio"]:focus-visible {
+  outline: 2px solid var(--color-accent-taupe);
+  outline-offset: 2px;
+}
+
+/* Textarea */
+textarea {
+  width: 100%;
+  min-height: 300px;
+  padding: var(--space-md);
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(201, 168, 143, 0.4);
+  border-radius: var(--radius-md);
+  resize: vertical;
+  transition: border-color var(--transition-medium);
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--color-accent-taupe);
+}
+
+/* ==========================================================================
+   Cards
+   ========================================================================== */
+
+.card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(201, 168, 143, 0.4);
+  border-radius: var(--radius-md);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 24px rgba(201, 168, 143, 0.35);
+}
+
+/* ==========================================================================
+   Badges & Tags
+   ========================================================================== */
+
+.badge {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  background: linear-gradient(135deg, rgba(201, 168, 143, 0.3), rgba(212, 181, 168, 0.3));
+  border: 0.5px solid rgba(201, 168, 143, 0.4);
+  border-radius: var(--radius-pill);
+  transition: all var(--transition-fast);
+}
+
+/* ==========================================================================
+   Toast Notification
+   ========================================================================== */
+
+.toast {
+  position: fixed;
+  bottom: var(--space-xl);
+  right: var(--space-xl);
+  padding: var(--space-md) var(--space-xl);
+  background: var(--color-accent-sage);
+  color: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  font-weight: var(--font-weight-medium);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all var(--transition-medium);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Status & Error Messages
+   ========================================================================== */
+
+.status-message {
+  display: inline-block;
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+}
+
+.status-message.processing {
+  color: var(--color-accent-taupe);
+}
+
+.status-message.success {
+  color: var(--color-success);
+}
+
+.error-message {
+  padding: var(--space-md) var(--space-lg);
+  margin-top: var(--space-lg);
+  font-size: var(--font-size-body);
+  color: var(--color-error);
+  background: rgba(212, 165, 116, 0.1);
+  border: 1.5px solid rgba(212, 165, 116, 0.5);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.error-message::before {
+  content: '⚠️';
+  font-size: 20px;
+}
+
+/* ==========================================================================
+   Loading States
+   ========================================================================== */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(201, 168, 143, 0.1) 0%,
+    rgba(201, 168, 143, 0.2) 50%,
+    rgba(201, 168, 143, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

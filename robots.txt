@@ -1,0 +1,14 @@
+# Word to HTML Converter - Robots.txt
+# Allow all search engines to crawl all content
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://rosettascript.github.io/word-to-html-converter/sitemap.xml
+
+# Disallow crawling of specific file types (if needed)
+Disallow: /*.json$
+Disallow: /node_modules/
+Disallow: /.git/
+

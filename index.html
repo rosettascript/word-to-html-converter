@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Meta Tags -->
+  <title>Word to HTML Converter - Clean HTML from Word Documents | Free Online Tool</title>
+  <meta name="description" content="Free online tool to convert Word-to-HTML output. Remove inline styles, preserve semantic structure, and format HTML for Shopify Blogs, Shopify Shoppables, or regular use. 100% client-side processing.">
+  <meta name="keywords" content="word to html, html converter, clean html, remove inline styles, shopify blog, shopify shoppables, word html cleaner">
+  <meta name="author" content="Kim Galicia">
+  
+  <!-- Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self';
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' data: blob:;
+    font-src 'self';
+    connect-src 'self';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    object-src 'none';
+  ">
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://rosettascript.github.io/word-to-html-converter/">
+  
+  <!-- Sitemap -->
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="/word-to-html-converter/sitemap.xml">
+  
+  <!-- Open Graph / Social Media -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Word to HTML Converter - Clean HTML from Word Documents">
+  <meta property="og:description" content="Free online word to HTML converter. Remove inline styles, preserve structure, and format for Shopify. 100% client-side processing with instant results.">
+  <meta property="og:url" content="https://rosettascript.github.io/word-to-html-converter/">
+  <meta property="og:image" content="https://rosettascript.github.io/word-to-html-converter/assets/og-image.png">
+  <meta property="og:site_name" content="Word to HTML Converter">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Word to HTML Converter - Clean HTML from Word Documents">
+  <meta name="twitter:description" content="Free online word to HTML converter. Remove inline styles, preserve structure, and format for Shopify.">
+  <meta name="twitter:image" content="https://rosettascript.github.io/word-to-html-converter/assets/og-image.png">
+  
+  <!-- Favicon (add your favicon files) -->
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/sections.css">
+  <link rel="stylesheet" href="css/converter.css">
+  
+  <!-- Schema.org Structured Data - Software Application -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Word to HTML Converter",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any",
+    "description": "Free online word to HTML converter that removes inline styles from Word documents and formats clean HTML for Shopify blogs, Shopify Shoppables, or regular use. 100% client-side processing with instant results.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "url": "https://rosettascript.github.io/word-to-html-converter/",
+    "softwareVersion": "1.0",
+    "author": {
+      "@type": "Person",
+      "name": "Kim Galicia"
+    },
+    "featureList": [
+      "Instant HTML processing as you paste",
+      "Three output modes: Regular, Shopify Blogs, Shopify Shoppables",
+      "Removes inline styles and classes automatically",
+      "100% client-side processing for privacy",
+      "Full-width workspace for large documents",
+      "Code preview and rendered HTML preview"
+    ],
+    "browserRequirements": "Requires JavaScript. Modern browsers (Chrome, Firefox, Safari, Edge)"
+  }
+  </script>
+  
+  <!-- Schema.org Structured Data - FAQ Page -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I use this word to HTML converter?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Using this word to HTML converter is simple: paste your Word-generated HTML into the input area on the left, select your desired output mode from the dropdown (Regular, Shopify Blogs, or Shopify Shoppables), and the cleaned HTML appears instantly in the output area. You can customize the conversion with optional features like adding strong tags to headers or converting internal links to relative paths. Once processed, copy the cleaned HTML to your clipboard or download it as a file."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What's the difference between the three output modes?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Regular mode provides basic cleaning—removes inline styles, classes, and unnecessary attributes while preserving semantic structure. Shopify Blogs mode optimizes content for Shopify blog posts with special formatting for Key Takeaways sections, list combining, and external link attributes. Shopify Shoppables mode creates compact formatting for Shopify product descriptions with aggressive whitespace minification."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my content safe? Where is it stored?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, your content is completely safe with this word to HTML converter. All processing happens entirely in your browser using client-side JavaScript. Nothing is sent to a server, and nothing is stored anywhere—not even locally. Your content never leaves your device, ensuring 100% privacy and security."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens to images in my HTML?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "This word to HTML converter automatically removes all images from the cleaned output to avoid broken image links and bloated base64-encoded image data that Microsoft Word often includes. The input area displays your original HTML with images for reference, but the final converted HTML excludes them."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use this word to HTML converter for large documents?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolutely! This word to HTML converter can handle documents of all sizes with instant processing as you paste. The full-width layout provides ample space for working with lengthy blog posts, articles, or product descriptions. The converter processes everything client-side in your browser, so there are no file size restrictions or upload limits."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What browsers work with this word to HTML converter?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "This word to HTML converter works in all modern browsers (last 2 versions): Chrome, Firefox, Safari, and Microsoft Edge. It requires ES6 module support and modern JavaScript APIs, which are standard in all current browsers."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What optional features does this word to HTML converter offer?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "This word to HTML converter includes several customization options: Put strong tags in headers (default ON in Shopify modes) wraps header content in strong tags for added emphasis; Convert internal links to relative paths automatically detects your domain and converts absolute URLs to relative paths; and Remove paragraph spacers (Shopify Blogs only) lets you control whether to keep or remove spacing paragraphs between sections."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  
+  <!-- Skip to Main Content (Accessibility) -->
+  <a href="#converter-section" class="skip-link">Skip to main content</a>
+  
+  <!-- Hero Section -->
+  <section id="hero" class="hero-section">
+    <div class="hero-container">
+      <h1 class="hero-title">Word to HTML Converter</h1>
+      <p class="hero-subtitle">
+        The best free word to HTML converter that cleans Word documents instantly. 
+        Remove inline styles, preserve structure, and format for Shopify or regular use.
+      </p>
+      <p class="hero-features">
+        ✨ Instant Processing &nbsp;•&nbsp; 🔒 100% Client-Side &nbsp;•&nbsp; 🎨 Three Output Modes
+      </p>
+      <a href="#converter-section" class="cta-button">Try It Now</a>
+    </div>
+  </section>
+  
+  <!-- Converter Section (Main Tool) -->
+  <section id="converter-section" class="converter-section">
+    <div class="converter-container">
+      <h2 class="section-title">Convert Your HTML</h2>
+      
+      <div class="converter-layout">
+        <!-- Toolbar Sidebar -->
+        <aside class="converter-toolbar">
+          <div class="toolbar-section">
+            <label for="mode-select" class="toolbar-title">Output Mode</label>
+            <!-- Mode Selector -->
+            <select id="mode-select" name="mode" class="mode-dropdown">
+              <option value="regular">Regular</option>
+              <option value="shopify-blogs">Shopify Blogs</option>
+              <option value="shopify-shoppables">Shopify Shoppables</option>
+            </select>
+          </div>
+          
+          <div class="toolbar-section">
+            <h3 class="toolbar-title">Options</h3>
+            <!-- Optional Features (Checkboxes) -->
+            <div class="optional-features">
+              <label class="feature-checkbox">
+                <input type="checkbox" id="strong-in-headers">
+                <span>Put &lt;strong&gt; tags in headers</span>
+              </label>
+              <label class="feature-checkbox">
+                <input type="checkbox" id="remove-domain">
+                <span>Convert internal links to relative paths</span>
+              </label>
+              <label class="feature-checkbox">
+                <input type="checkbox" id="remove-paragraph-spacers">
+                <span>Remove paragraph spacers</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- Domain Input (for internal link detection) - Hidden: automatic detection -->
+          <div class="domain-input-wrapper" style="display: none;">
+            <label for="base-domain">Your website domain (optional):</label>
+            <input 
+              type="text" 
+              id="base-domain" 
+              placeholder="https://example.com"
+              aria-label="Base domain for internal link detection"
+            >
+          </div>
+        </aside>
+        
+        <!-- Input/Output Grid -->
+        <div class="converter-main">
+          <div class="converter-grid">
+            <div class="input-panel">
+              <div class="panel-header">
+                <h3>Input HTML</h3>
+                <button class="clear-button" id="clear-input" aria-label="Clear input">Clear</button>
+              </div>
+              <div 
+                id="input-html" 
+                class="html-input-rendered"
+                data-placeholder="Paste your Word-to-HTML content here..."
+                aria-label="HTML input area"
+                role="textbox"
+                aria-readonly="true"
+              ></div>
+              <div class="panel-footer">
+                <span class="char-count" id="input-char-count">0 characters</span>
+              </div>
+            </div>
+            
+            <!-- Output Area -->
+            <div class="output-panel">
+              <div class="panel-header">
+                <h3>Cleaned HTML</h3>
+                <div class="output-controls">
+                  <button class="icon-button" id="toggle-preview" aria-label="Toggle preview mode" title="Toggle preview">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                  <button class="icon-button" id="copy-output" aria-label="Copy to clipboard" title="Copy">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                  </button>
+                  <button class="icon-button" id="download-output" aria-label="Download HTML file" title="Download">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Code View -->
+              <div id="output-code-view" class="output-view active">
+                <pre><code id="output-html" class="html-output"></code></pre>
+              </div>
+              
+              <!-- Preview View (Rendered HTML) -->
+              <div id="output-preview-view" class="output-view">
+                <iframe 
+                  id="preview-frame"
+                  sandbox="allow-same-origin"
+                  title="HTML Preview"
+                ></iframe>
+              </div>
+              
+              <div class="panel-footer">
+                <span class="status-message" id="status-message" aria-live="polite"></span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Error Display -->
+          <div id="error-display" class="error-message" role="alert" aria-live="assertive" style="display: none;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Features Section -->
+  <section id="features" class="features-section">
+    <div class="features-container">
+      <h2 class="section-title">Word to HTML Converter Features</h2>
+      <div class="features-grid">
+        
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Instant Processing</h3>
+          <p>This word to HTML converter provides automatic conversion as you paste with smart debouncing. See cleaned results instantly in real-time.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <h3>Three Output Modes</h3>
+          <p>Choose the perfect word to HTML converter mode: Regular for basic cleaning, Shopify Blogs for blog posts, or Shopify Shoppables for product descriptions.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🧹</div>
+          <h3>Style Removal</h3>
+          <p>Our word to HTML converter automatically removes inline styles, classes, and unnecessary attributes while preserving semantic structure.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🖼️</div>
+          <h3>Image-Free Output</h3>
+          <p>This word to HTML converter automatically removes all images from output to avoid broken links and base64 bloat.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">👁️</div>
+          <h3>Preview Toggle</h3>
+          <p>The word to HTML converter lets you switch between HTML code view and rendered preview to see exactly how your content will look.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>100% Client-Side</h3>
+          <p>This word to HTML converter processes everything in your browser. Your content never leaves your device.</p>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <!-- About Section -->
+  <section id="about" class="about-section">
+    <div class="container">
+      <h2 class="section-title">About This Word to HTML Converter</h2>
+      <div class="about-content">
+        <p>
+          This word to HTML converter is a free, client-side tool designed to clean HTML output from Microsoft Word documents. 
+          When you paste content from Word into a CMS like Shopify, WordPress, or any other platform, it often includes excessive inline 
+          styles, classes, and formatting bloat that can break your site's design and slow page load times.
+        </p>
+        <p>
+          Our word to HTML converter strips away those unwanted styles while preserving the semantic structure of your content—headings, 
+          paragraphs, lists, links, and emphasis remain intact. Choose from three specialized output modes (Regular, Shopify Blogs, Shopify Shoppables) 
+          tailored for different use cases, and enjoy instant processing with a full-width workspace. Your data never leaves your browser, 
+          ensuring complete privacy and security with this word to HTML converter.
+        </p>
+        <p class="about-highlight">
+          Built with vanilla JavaScript. No frameworks, no dependencies, no tracking. 100% free word to HTML converter.
+        </p>
+      </div>
+    </div>
+  </section>
+  
+  <!-- FAQ Section -->
+  <section id="faq" class="faq-section">
+    <div class="container">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        
+        <details class="faq-item">
+          <summary class="faq-question">How do I use this word to HTML converter?</summary>
+          <div class="faq-answer">
+            <p>Using this word to HTML converter is simple: paste your Word-generated HTML into the input area on the left, select your desired output mode from the dropdown (Regular, Shopify Blogs, or Shopify Shoppables), and the cleaned HTML appears instantly in the output area. You can customize the conversion with optional features like adding strong tags to headers or converting internal links to relative paths. Once processed, copy the cleaned HTML to your clipboard or download it as a file.</p>
+          </div>
+        </details>
+        
+        <details class="faq-item">
+          <summary class="faq-question">What's the difference between the three output modes?</summary>
+          <div class="faq-answer">
+            <p><strong>Regular:</strong> This word to HTML converter mode provides basic cleaning—removes inline styles, classes, and unnecessary attributes while preserving semantic structure like headings, paragraphs, and lists.</p>
+            <p><strong>Shopify Blogs:</strong> The word to HTML converter optimizes content for Shopify blog posts with special formatting for "Key Takeaways" sections, list combining, external link attributes (target="_blank"), and optional paragraph spacers between sections.</p>
+            <p><strong>Shopify Shoppables:</strong> This word to HTML converter mode creates compact formatting for Shopify product descriptions with aggressive whitespace minification and streamlined HTML output.</p>
+          </div>
+        </details>
+        
+        <details class="faq-item">
+          <summary class="faq-question">Is my content safe? Where is it stored?</summary>
+          <div class="faq-answer">
+            <p>Yes, your content is completely safe with this word to HTML converter. All processing happens entirely in your browser using client-side JavaScript. Nothing is sent to a server, and nothing is stored anywhere—not even locally. Your content never leaves your device, ensuring 100% privacy and security. This word to HTML converter runs completely offline once the page is loaded.</p>
+          </div>
+        </details>
+        
+        <details class="faq-item">
+          <summary class="faq-question">What happens to images in my HTML?</summary>
+          <div class="faq-answer">
+            <p>This word to HTML converter automatically removes all images from the cleaned output to avoid broken image links and bloated base64-encoded image data that Microsoft Word often includes. The input area displays your original HTML with images for reference, but the final converted HTML excludes them. This keeps your output clean, lightweight, and ready for your CMS where you'll typically upload images separately.</p>
+          </div>
+        </details>
+        
+        <details class="faq-item">
+          <summary class="faq-question">Can I use this word to HTML converter for large documents?</summary>
+          <div class="faq-answer">
+            <p>Absolutely! This word to HTML converter can handle documents of all sizes with instant processing as you paste. The full-width layout provides ample space for working with lengthy blog posts, articles, or product descriptions. The converter processes everything client-side in your browser, so there are no file size restrictions or upload limits. Whether you're converting a short paragraph or a 10,000-word article, this word to HTML converter delivers instant results.</p>
+          </div>
+        </details>
+        
+        <details class="faq-item">
+          <summary class="faq-question">What browsers work with this word to HTML converter?</summary>
+          <div class="faq-answer">
+            <p>This word to HTML converter works in all modern browsers (last 2 versions): Chrome, Firefox, Safari, and Microsoft Edge. It requires ES6 module support and modern JavaScript APIs, which are standard in all current browsers. The word to HTML converter is fully responsive and works on desktop, tablet, and mobile devices, though a larger screen provides the best experience for working with extensive HTML code.</p>
+          </div>
+        </details>
+        
+        <details class="faq-item">
+          <summary class="faq-question">What optional features does this word to HTML converter offer?</summary>
+          <div class="faq-answer">
+            <p>This word to HTML converter includes several customization options: <strong>Put &lt;strong&gt; tags in headers</strong> (default ON in Shopify modes) wraps header content in strong tags for added emphasis; <strong>Convert internal links to relative paths</strong> automatically detects your domain and converts absolute URLs to relative paths; and <strong>Remove paragraph spacers</strong> (Shopify Blogs only) lets you control whether to keep or remove spacing paragraphs between sections. These options give you precise control over your HTML output.</p>
+          </div>
+        </details>
+        
+      </div>
+    </div>
+  </section>
+  
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer-text">
+        &copy; 2025 Word to HTML Converter. Free to use for personal and commercial projects.
+      </p>
+      <p class="footer-links">
+        <a href="https://github.com/rosettascript/word-to-html-converter" target="_blank" rel="noopener noreferrer">GitHub</a>
+        &nbsp;•&nbsp;
+        <a href="#about">About</a>
+        &nbsp;•&nbsp;
+        <a href="#faq">FAQ</a>
+      </p>
+    </div>
+  </footer>
+  
+  <!-- Toast Notification (for copy/download success) -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  
+  <!-- JavaScript Modules -->
+  <script type="module" src="js/main.js"></script>
+  
+</body>
+</html>
+

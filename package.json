@@ -1,0 +1,39 @@
+{
+  "name": "word-to-html-converter",
+  "version": "1.0.0",
+  "description": "A free, client-side tool for cleaning Word-to-HTML output. Remove inline styles, preserve semantic structure, and format HTML for Shopify or regular use.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "dev": "python3 -m http.server 5173",
+    "serve": "npx serve ."
+  },
+  "keywords": [
+    "word-to-html",
+    "html-cleaner",
+    "shopify",
+    "html-converter",
+    "inline-styles",
+    "semantic-html"
+  ],
+  "author": "Kim Galicia",
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^1.0.0",
+    "jsdom": "^23.0.0",
+    "@vitest/ui": "^1.0.0",
+    "@vitest/coverage-v8": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/word-to-html-converter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/word-to-html-converter/issues"
+  },
+  "homepage": "https://yourusername.github.io/word-to-html-converter/"
+}
+
+

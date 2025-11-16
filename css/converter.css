@@ -1,0 +1,613 @@
+/* ==========================================================================
+   Converter Section - Main Tool Interface
+   ========================================================================== */
+
+.converter-section {
+  background: var(--color-bg-primary);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: var(--space-3xl) 0;
+}
+
+/* Wide container for converter section with side margins */
+.converter-container {
+  width: 100%;
+  max-width: 2000px;
+  margin: 0 auto;
+  padding: 0 var(--gutter-mobile);
+}
+
+@media (min-width: 640px) {
+  .converter-container {
+    padding: 0 var(--gutter-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .converter-container {
+    padding: 0 var(--gutter-desktop);
+  }
+}
+
+@media (min-width: 1440px) {
+  .converter-container {
+    padding: 0 calc(var(--gutter-desktop) * 1.5);
+  }
+}
+
+/* Section title within converter */
+.converter-section .section-title {
+  margin-bottom: var(--space-2xl);
+}
+
+/* ==========================================================================
+   Converter Layout - Sidebar + Main
+   ========================================================================== */
+
+.converter-layout {
+  display: flex;
+  gap: var(--space-xl);
+  flex-direction: column;
+}
+
+@media (min-width: 1024px) {
+  .converter-layout {
+    flex-direction: row;
+  }
+}
+
+/* Toolbar Sidebar */
+.converter-toolbar {
+  flex-shrink: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+@media (min-width: 1024px) {
+  .converter-toolbar {
+    width: 280px;
+  }
+}
+
+.toolbar-section {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(201, 168, 143, 0.4);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.toolbar-title {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid rgba(201, 168, 143, 0.2);
+}
+
+/* Main Content Area */
+.converter-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ==========================================================================
+   Mode Selector (Dropdown)
+   ========================================================================== */
+
+.mode-dropdown {
+  width: 100%;
+  padding: var(--space-md);
+  font-family: var(--font-primary);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid rgba(201, 168, 143, 0.4);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23C9A88F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-md) center;
+  background-size: 20px;
+  padding-right: calc(var(--space-md) + 28px);
+}
+
+.mode-dropdown:hover {
+  border-color: rgba(201, 168, 143, 0.6);
+  background-color: rgba(201, 168, 143, 0.05);
+}
+
+.mode-dropdown:focus {
+  outline: none;
+  border-color: var(--color-accent-taupe);
+  box-shadow: 0 0 0 3px rgba(201, 168, 143, 0.2);
+}
+
+.mode-dropdown:focus-visible {
+  outline: 2px solid var(--color-accent-taupe);
+  outline-offset: 2px;
+}
+
+/* Style the dropdown options */
+.mode-dropdown option {
+  padding: var(--space-md);
+  background: white;
+  color: var(--color-text-primary);
+}
+
+/* ==========================================================================
+   Optional Features (Checkboxes)
+   ========================================================================== */
+
+.optional-features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.feature-checkbox {
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-body);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.feature-checkbox:hover {
+  color: var(--color-text-primary);
+}
+
+.feature-checkbox input[type="checkbox"]:checked + span {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ==========================================================================
+   Domain Input
+   ========================================================================== */
+
+.domain-input-wrapper {
+  margin-top: var(--space-lg);
+}
+
+.domain-input-wrapper label {
+  display: block;
+  margin-bottom: var(--space-sm);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+/* ==========================================================================
+   Converter Grid (Input/Output)
+   ========================================================================== */
+
+.converter-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-xl);
+}
+
+@media (min-width: 768px) {
+  .converter-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ==========================================================================
+   Input & Output Panels
+   ========================================================================== */
+
+.input-panel,
+.output-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(201, 168, 143, 0.4);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-lg);
+  border-bottom: 1px solid rgba(201, 168, 143, 0.2);
+}
+
+.panel-header h3 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: 0;
+}
+
+.output-controls {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.panel-footer {
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid rgba(201, 168, 143, 0.2);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ==========================================================================
+   HTML Input Rendered View
+   ========================================================================== */
+
+.html-input-rendered {
+  flex: 1;
+  height: 600px;
+  min-height: 600px;
+  max-height: 600px;
+  min-width: 0;
+  border: none;
+  border-radius: 0;
+  padding: var(--space-lg);
+  font-family: var(--font-primary);
+  font-size: var(--font-size-body);
+  font-weight: 400;
+  line-height: var(--line-height-body);
+  color: var(--color-text-primary);
+  background: transparent;
+  overflow-y: auto;
+  overflow-x: auto;
+  cursor: text;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.html-input-rendered:focus {
+  outline: none;
+}
+
+/* Placeholder styling when empty */
+.html-input-rendered:empty::before {
+  content: attr(data-placeholder);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* Semantic HTML styling inside input */
+.html-input-rendered h1 {
+  font-size: 48px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+
+.html-input-rendered h2 {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+
+.html-input-rendered h3 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+
+.html-input-rendered h4,
+.html-input-rendered h5,
+.html-input-rendered h6 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+
+.html-input-rendered p {
+  margin-bottom: 16px;
+  font-weight: 400;
+}
+
+.html-input-rendered ul,
+.html-input-rendered ol {
+  margin-bottom: 16px;
+  padding-left: 32px;
+  font-weight: 400;
+}
+
+.html-input-rendered li {
+  margin-bottom: 4px;
+  font-weight: 400;
+}
+
+.html-input-rendered strong,
+.html-input-rendered b {
+  font-weight: 600;
+}
+
+.html-input-rendered em,
+.html-input-rendered i {
+  font-style: italic;
+}
+
+.html-input-rendered sup {
+  vertical-align: super;
+  font-size: 0.75em;
+}
+
+.html-input-rendered sub {
+  vertical-align: sub;
+  font-size: 0.75em;
+}
+
+.html-input-rendered a {
+  color: var(--color-accent-taupe);
+  text-decoration: underline;
+}
+
+.html-input-rendered blockquote {
+  border-left: 3px solid #C9A88F;
+  padding-left: 24px;
+  margin: 16px 0;
+  font-style: italic;
+  color: #666;
+  font-weight: 400;
+}
+
+.html-input-rendered div,
+.html-input-rendered span {
+  font-weight: 400;
+}
+
+.html-input-rendered table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+
+.html-input-rendered th,
+.html-input-rendered td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  font-weight: 400;
+}
+
+.html-input-rendered th {
+  background: rgba(201, 168, 143, 0.1);
+  font-weight: 600;
+}
+
+.html-input-rendered img {
+  max-width: 100%;
+  height: auto;
+  margin: var(--space-md) 0;
+  border-radius: var(--radius-sm);
+}
+
+/* ==========================================================================
+   HTML Output Display
+   ========================================================================== */
+
+.output-view {
+  display: none;
+  flex: 1;
+  height: 600px;
+  min-height: 600px;
+  max-height: 600px;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.output-view.active {
+  display: block;
+}
+
+#output-code-view {
+  padding: var(--space-lg);
+  height: 100%;
+  min-width: 0;
+}
+
+#output-code-view pre {
+  margin: 0;
+}
+
+#output-code-view code {
+  display: block;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  white-space: pre;
+  word-wrap: normal;
+  overflow-wrap: normal;
+}
+
+/* Syntax Highlighting Colors */
+.syntax-tag {
+  color: #C9A88F;  /* Taupe - HTML tags */
+  font-weight: var(--font-weight-medium);
+}
+
+.syntax-attribute {
+  color: #A8BCBC;  /* Dusty Teal - Attributes */
+}
+
+.syntax-string {
+  color: #9FB8AD;  /* Sage Frost - Strings/values */
+}
+
+.syntax-bracket {
+  color: var(--color-text-secondary);  /* Brackets < > */
+}
+
+.syntax-operator {
+  color: var(--color-text-secondary);  /* = sign */
+}
+
+.syntax-comment {
+  color: var(--color-text-secondary);  /* Comments */
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* ==========================================================================
+   Preview Frame
+   ========================================================================== */
+
+#output-preview-view {
+  padding: 0;
+  overflow: hidden;
+}
+
+#preview-frame {
+  width: 100%;
+  height: 600px;
+  min-height: 600px;
+  max-height: 600px;
+  border: none;
+  background: white;
+}
+
+/* ==========================================================================
+   Character Count
+   ========================================================================== */
+
+.char-count {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+}
+
+/* ==========================================================================
+   Status Message in Output Footer
+   ========================================================================== */
+
+.status-message {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.status-message::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-text-secondary);
+}
+
+.status-message.processing::before {
+  background: var(--color-accent-taupe);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.status-message.success::before {
+  background: var(--color-success);
+}
+
+.status-message.error::before {
+  background: var(--color-error);
+}
+
+/* ==========================================================================
+   Error Display
+   ========================================================================== */
+
+.error-message {
+  margin-top: var(--space-lg);
+  padding: var(--space-lg);
+  background: rgba(212, 165, 116, 0.1);
+  border: 1.5px solid rgba(212, 165, 116, 0.5);
+  border-radius: var(--radius-md);
+  color: var(--color-error);
+  font-size: var(--font-size-body);
+}
+
+/* ==========================================================================
+   Custom Scrollbars
+   ========================================================================== */
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+.html-input-rendered::-webkit-scrollbar,
+.output-view::-webkit-scrollbar,
+#output-code-view pre::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.html-input-rendered::-webkit-scrollbar-track,
+.output-view::-webkit-scrollbar-track,
+#output-code-view pre::-webkit-scrollbar-track {
+  background: rgba(201, 168, 143, 0.1);
+  border-radius: var(--radius-sm);
+}
+
+.html-input-rendered::-webkit-scrollbar-thumb,
+.output-view::-webkit-scrollbar-thumb,
+#output-code-view pre::-webkit-scrollbar-thumb {
+  background: rgba(201, 168, 143, 0.4);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.html-input-rendered::-webkit-scrollbar-thumb:hover,
+.output-view::-webkit-scrollbar-thumb:hover,
+#output-code-view pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 168, 143, 0.6);
+}
+
+/* Firefox */
+.html-input-rendered,
+.output-view,
+#output-code-view pre {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201, 168, 143, 0.4) rgba(201, 168, 143, 0.1);
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  .output-controls {
+    flex-wrap: wrap;
+  }
+  
+  .panel-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+}
+
+@media (max-width: 767px) {
+  .converter-grid {
+    gap: var(--space-lg);
+  }
+  
+  .html-input-rendered,
+  .output-view,
+  #preview-frame {
+    height: 400px;
+    min-height: 400px;
+    max-height: 400px;
+  }
+}
+

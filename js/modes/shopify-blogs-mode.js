@@ -1,0 +1,85 @@
+/**
+ * Shopify Blogs Mode Processor
+ * Optimized for Shopify blog posts with special handling for Key Takeaways
+ */
+
+import { applyStrongInHeaders } from '../features/strong-in-headers.js';
+import { removeDomainFromLinks } from '../features/remove-domain-links.js';
+import { normalizeWhitespace } from '../features/whitespace-normalize.js';
+import { combineLists } from '../features/list-combiner.js';
+import { addExternalLinkAttributes } from '../features/external-link-attributes.js';
+import { processKeyTakeaways } from '../features/key-takeaways.js';
+import { removeBrAndEmptyP } from '../features/remove-br-and-empty-p.js';
+import { removeH1AfterKeyTakeaways } from '../features/remove-h1-after-key-takeaways.js';
+import { removeSpaceAfterFAQHeaders } from '../features/remove-space-after-faq-headers.js';
+import { cleanAnchorWhitespace } from '../features/clean-anchor-whitespace.js';
+import { unwrapPInList } from '../features/unwrap-p-in-list.js';
+import { addParagraphSpacers } from '../features/add-paragraph-spacers.js';
+import { removeBrInLists } from '../features/remove-br-in-lists.js';
+import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
+import { convertListsToNumberedHeadings } from '../features/convert-lists-to-numbered-headings.js';
+
+/**
+ * Process HTML in Shopify Blogs mode
+ * @param {HTMLElement} element - Sanitized HTML element
+ * @param {Object} options - Optional features
+ * @returns {HTMLElement} - Processed element
+ */
+export function processShopifyBlogsMode(element, options = {}) {
+  // Clone to avoid mutations
+  const processed = element.cloneNode(true);
+  
+  // Fix orphaned list items FIRST (before other processing)
+  fixOrphanedListItems(processed);
+  
+  // Convert sequential single-item ordered lists to numbered headings
+  convertListsToNumberedHeadings(processed);
+  
+  // Process Key Takeaways sections (remove <em>, normalize headings)
+  processKeyTakeaways(processed);
+  
+  // Remove any h1 elements after Key Takeaways sections
+  removeH1AfterKeyTakeaways(processed);
+  
+  // Remove <br> tags and empty <p> tags completely
+  removeBrAndEmptyP(processed);
+  
+  // Remove spaces/br after FAQ h2 headers
+  removeSpaceAfterFAQHeaders(processed);
+  
+  // Combine adjacent lists (don't combine if separated by <p>&nbsp;</p>)
+  combineLists(processed, 'shopify-blogs');
+  
+  // Add target="_blank" and rel="noopener noreferrer" to ALL links (internal and external)
+  addExternalLinkAttributes(processed, options.baseDomain, true);
+  
+  // Clean whitespace from anchor tags
+  cleanAnchorWhitespace(processed);
+  
+  // Unwrap unnecessary <p> tags inside list items
+  unwrapPInList(processed);
+  
+  // Remove <br> tags inside list items (invalid HTML)
+  removeBrInLists(processed);
+  
+  // Apply basic whitespace normalization (always on for Shopify Blogs)
+  normalizeWhitespace(processed, 'basic');
+  
+  // Add paragraph spacers (if not disabled by "Remove paragraph spacers" option)
+  // Default: spacers are kept (removeParagraphSpacers = false - unchecked)
+  // When checked: spacers are removed (removeParagraphSpacers = true)
+  if (!options.removeParagraphSpacers) {
+    addParagraphSpacers(processed);
+  }
+  
+  // Apply strong in headers (default: enabled for Shopify Blogs)
+  const enableStrong = options.strongInHeaders !== false;
+  applyStrongInHeaders(processed, enableStrong);
+  
+  // Apply optional features
+  if (options.removeDomain) {
+    removeDomainFromLinks(processed);
+  }
+  
+  return processed;
+}
