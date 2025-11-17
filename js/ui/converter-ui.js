@@ -8,6 +8,7 @@ import { showError, clearError } from './error-handler.js';
 import { updateStatus } from './status-handler.js';
 import { formatHTML, applySyntaxHighlighting } from '../utils/html-formatter.js';
 import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
+import { initializeScrollSync } from '../features/scroll-sync.js';
 
 let processCallback = null;
 let currentMode = 'regular';
@@ -156,6 +157,17 @@ export function setupConverterUI({ onProcess }) {
       if (previewFrame) {
         previewFrame.srcdoc = '';
       }
+    });
+  }
+  
+  // Initialize scroll sync feature
+  const previewFrame = document.getElementById('preview-frame');
+  const scrollSyncCheckbox = document.getElementById('scroll-sync');
+  const scrollSync = initializeScrollSync(inputDiv, outputCode, previewFrame);
+  
+  if (scrollSyncCheckbox) {
+    scrollSyncCheckbox.addEventListener('change', (e) => {
+      scrollSync.setEnabled(e.target.checked);
     });
   }
   
