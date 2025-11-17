@@ -2,20 +2,40 @@
    Page Sections - Hero, Features, About, FAQ, Footer
    ========================================================================== */
 
+/* Breakpoint Reference (standardized across all CSS files):
+   - Mobile: 640px
+   - Tablet: 768px
+   - Desktop: 1024px
+   - Large: 1440px
+*/
+
 /* ==========================================================================
    Hero Section
    ========================================================================== */
 
 .hero-section {
   text-align: center;
-  min-height: 100vh;
+  min-height: 100dvh; /* Use dvh for better mobile support */
+  min-height: 100vh; /* Fallback for browsers that don't support dvh */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-3xl) 0;
+  padding: var(--space-3xl) var(--gutter-mobile);
   background: linear-gradient(135deg, 
     rgba(201, 168, 143, 0.08) 0%,
     rgba(212, 181, 168, 0.08) 100%);
+}
+
+@media (min-width: 640px) {
+  .hero-section {
+    padding: var(--space-3xl) var(--gutter-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-section {
+    padding: var(--space-3xl) var(--gutter-desktop);
+  }
 }
 
 /* Centered container for hero section */
@@ -67,10 +87,23 @@
 
 .features-section {
   background: var(--color-bg-primary);
-  min-height: 100vh;
+  min-height: 100dvh; /* Use dvh for better mobile support */
+  min-height: 100vh; /* Fallback for browsers that don't support dvh */
   display: flex;
   align-items: center;
-  padding: var(--space-3xl) 0;
+  padding: var(--space-3xl) var(--gutter-mobile);
+}
+
+@media (min-width: 640px) {
+  .features-section {
+    padding: var(--space-3xl) var(--gutter-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .features-section {
+    padding: var(--space-3xl) var(--gutter-desktop);
+  }
 }
 
 /* Centered container for features section */
@@ -156,6 +189,23 @@
   background: linear-gradient(135deg, 
     rgba(168, 188, 188, 0.08) 0%,
     rgba(159, 184, 173, 0.08) 100%);
+  min-height: 100dvh; /* Use dvh for better mobile support */
+  min-height: 100vh; /* Fallback for browsers that don't support dvh */
+  display: flex;
+  align-items: center;
+  padding: var(--space-3xl) var(--gutter-mobile);
+}
+
+@media (min-width: 640px) {
+  .about-section {
+    padding: var(--space-3xl) var(--gutter-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .about-section {
+    padding: var(--space-3xl) var(--gutter-desktop);
+  }
 }
 
 .about-content {
@@ -186,6 +236,23 @@
 
 .faq-section {
   background: var(--color-bg-primary);
+  min-height: 100dvh; /* Use dvh for better mobile support */
+  min-height: 100vh; /* Fallback for browsers that don't support dvh */
+  display: flex;
+  align-items: center;
+  padding: var(--space-3xl) var(--gutter-mobile);
+}
+
+@media (min-width: 640px) {
+  .faq-section {
+    padding: var(--space-3xl) var(--gutter-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .faq-section {
+    padding: var(--space-3xl) var(--gutter-desktop);
+  }
 }
 
 .faq-list {

@@ -211,52 +211,81 @@ function tokenizeHTML(html) {
 
 /**
  * Apply syntax highlighting to formatted HTML
+ * Optimized for performance with large HTML content
  * @param {string} html - Formatted HTML string
  * @returns {string} - HTML with syntax highlighting markup
  */
 export function applySyntaxHighlighting(html) {
   if (!html) return '';
   
+  // Performance optimization: Skip highlighting for very large content
+  // Syntax highlighting can be expensive for large HTML
+  const MAX_HIGHLIGHT_SIZE = 500 * 1024; // 500KB
+  if (html.length > MAX_HIGHLIGHT_SIZE) {
+    // For very large content, return unhighlighted HTML
+    // This prevents UI freezing
+    return html;
+  }
+  
   let highlighted = html;
   
-  // Highlight HTML comments
+  // Pre-compile regex patterns for better performance
+  const commentRegex = /(<!--[\s\S]*?-->)/g;
+  const tagRegex = /(&lt;\/?)([a-zA-Z0-9]+)((?:\s+[a-zA-Z-]+(?:=(?:"[^"]*"|'[^']*'))?)*\s*)(\/?)(&gt;)/g;
+  const attrRegex = /([a-zA-Z-]+)(=)?((?:"[^"]*"|'[^']*')?)/g;
+  
+  // Highlight HTML comments (process first to avoid conflicts)
   highlighted = highlighted.replace(
-    /(<!--[\s\S]*?-->)/g,
+    commentRegex,
     '<span class="syntax-comment">$1</span>'
   );
   
   // Highlight HTML tags with attributes
-  highlighted = highlighted.replace(
-    /(&lt;\/?)([a-zA-Z0-9]+)((?:\s+[a-zA-Z-]+(?:=(?:"[^"]*"|'[^']*'))?)*\s*)(\/?)(&gt;)/g,
-    (match, openBracket, tagName, attributes, slash, closeBracket) => {
-      let result = '<span class="syntax-bracket">' + openBracket + '</span>';
-      result += '<span class="syntax-tag">' + tagName + '</span>';
-      
-      // Highlight attributes
-      if (attributes.trim()) {
-        result += attributes.replace(
-          /([a-zA-Z-]+)(=)?((?:"[^"]*"|'[^']*')?)/g,
-          (attrMatch, attrName, equals, attrValue) => {
-            let attrResult = '<span class="syntax-attribute">' + attrName + '</span>';
-            if (equals) {
-              attrResult += '<span class="syntax-operator">=</span>';
-            }
-            if (attrValue) {
-              attrResult += '<span class="syntax-string">' + attrValue + '</span>';
-            }
-            return attrResult;
-          }
-        );
+  // Use a more efficient approach: process in chunks if content is large
+  if (html.length > 100 * 1024) { // 100KB threshold
+    // For large content, use a simpler highlighting approach
+    highlighted = highlighted.replace(
+      tagRegex,
+      (match, openBracket, tagName) => {
+        return '<span class="syntax-bracket">' + openBracket + '</span>' +
+               '<span class="syntax-tag">' + tagName + '</span>' +
+               match.substring(openBracket.length + tagName.length);
       }
-      
-      if (slash) {
-        result += '<span class="syntax-bracket">' + slash + '</span>';
+    );
+  } else {
+    // Full highlighting for smaller content
+    highlighted = highlighted.replace(
+      tagRegex,
+      (match, openBracket, tagName, attributes, slash, closeBracket) => {
+        let result = '<span class="syntax-bracket">' + openBracket + '</span>';
+        result += '<span class="syntax-tag">' + tagName + '</span>';
+        
+        // Highlight attributes
+        if (attributes && attributes.trim()) {
+          result += attributes.replace(
+            attrRegex,
+            (attrMatch, attrName, equals, attrValue) => {
+              let attrResult = '<span class="syntax-attribute">' + attrName + '</span>';
+              if (equals) {
+                attrResult += '<span class="syntax-operator">=</span>';
+              }
+              if (attrValue) {
+                attrResult += '<span class="syntax-string">' + attrValue + '</span>';
+              }
+              return attrResult;
+            }
+          );
+        }
+        
+        if (slash) {
+          result += '<span class="syntax-bracket">' + slash + '</span>';
+        }
+        result += '<span class="syntax-bracket">' + closeBracket + '</span>';
+        
+        return result;
       }
-      result += '<span class="syntax-bracket">' + closeBracket + '</span>';
-      
-      return result;
-    }
-  );
+    );
+  }
   
   return highlighted;
 }

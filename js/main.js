@@ -8,6 +8,7 @@ import { setupModeSelector } from './ui/mode-selector.js';
 import { setupFeatureToggles } from './ui/feature-toggles.js';
 import { setupPreviewToggle } from './ui/preview-toggle.js';
 import { setupCopyDownload } from './ui/copy-download.js';
+import { setupScrollSpy, setupHashNavigation } from './ui/scroll-spy.js';
 import { processHTML } from './core/processor.js';
 
 /**
@@ -22,6 +23,10 @@ function init() {
   setupFeatureToggles();
   setupPreviewToggle();
   setupCopyDownload();
+  
+  // Set up scroll spy for hash navigation
+  setupScrollSpy();
+  setupHashNavigation();
   
   // Set up FAQ accordion interactions
   setupFAQAccordion();

@@ -8,10 +8,12 @@ import { showError, clearError } from './error-handler.js';
 import { updateStatus } from './status-handler.js';
 import { formatHTML, applySyntaxHighlighting } from '../utils/html-formatter.js';
 import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
+import { isPreviewModeActive } from './preview-toggle.js';
 
 let processCallback = null;
 let currentMode = 'regular';
 let currentOptions = {};
+let lastCleanedHTML = ''; // Store last cleaned HTML for lazy preview loading
 
 /**
  * Set up the converter UI
@@ -31,6 +33,17 @@ export function setupConverterUI({ onProcess }) {
     return;
   }
   
+  // Function to update placeholder visibility
+  function updatePlaceholder() {
+    const hasContent = inputDiv.innerHTML.trim() !== '' && 
+                       inputDiv.textContent.trim() !== '';
+    if (hasContent) {
+      inputDiv.classList.remove('has-placeholder');
+    } else {
+      inputDiv.classList.add('has-placeholder');
+    }
+  }
+  
   // Set up paste handling
   inputDiv.addEventListener('paste', (e) => {
     e.preventDefault();
@@ -45,6 +58,9 @@ export function setupConverterUI({ onProcess }) {
         
         // Display the cleaned HTML rendered in the input
         inputDiv.innerHTML = cleanedForDisplay;
+        
+        // Update placeholder visibility
+        updatePlaceholder();
         
         // Clean whitespace from anchor tags in the input display
         const anchors = inputDiv.querySelectorAll('a');
@@ -127,6 +143,9 @@ export function setupConverterUI({ onProcess }) {
     const textContent = inputDiv.textContent || inputDiv.innerText || '';
     updateCharCount(textContent, charCount);
     
+    // Update placeholder visibility
+    updatePlaceholder();
+    
     // Check if instant processing is disabled
     const disableInstant = document.getElementById('disable-instant')?.checked;
     
@@ -150,17 +169,47 @@ export function setupConverterUI({ onProcess }) {
       updateCharCount('', charCount);
       clearError();
       updateStatus('', 'idle');
+      updatePlaceholder();
       
       // Clear preview frame
       const previewFrame = document.getElementById('preview-frame');
       if (previewFrame) {
         previewFrame.srcdoc = '';
       }
+      
+      // Clear stored cleaned HTML
+      lastCleanedHTML = '';
     });
   }
   
   // Initial state
   updateCharCount('', charCount);
+  updatePlaceholder();
+  
+  // Listen for preview-requested event (when user switches to preview mode)
+  document.addEventListener('preview-requested', () => {
+    if (lastCleanedHTML) {
+      renderPreview(lastCleanedHTML);
+    }
+  });
+}
+
+/**
+ * Render preview with cleaned HTML
+ * @param {string} cleanedHTML - Cleaned HTML to render
+ */
+function renderPreview(cleanedHTML) {
+  const previewFrame = document.getElementById('preview-frame');
+  if (previewFrame && isPreviewModeActive()) {
+    const styledHTML = addPreviewStyles(cleanedHTML);
+    previewFrame.srcdoc = styledHTML;
+    // Scroll to top when content loads
+    previewFrame.onload = () => {
+      if (previewFrame.contentWindow) {
+        previewFrame.contentWindow.scrollTo(0, 0);
+      }
+    };
+  }
 }
 
 /**
@@ -185,22 +234,52 @@ function processInputHTML(inputHTML) {
     // Call the processor
     const cleanedHTML = processCallback(inputHTML, currentMode, currentOptions);
     
+    // Performance monitoring for large content
+    const startTime = performance.now();
+    
     // Format HTML with proper indentation
     const formattedHTML = formatHTML(cleanedHTML, 4); // 4 spaces indentation
     
     // Escape HTML for display
     const escapedHTML = escapeHTML(formattedHTML);
     
-    // Apply syntax highlighting
+    // Apply syntax highlighting (with performance optimization)
     const highlightedHTML = applySyntaxHighlighting(escapedHTML);
+    
+    // Log performance for large content
+    const duration = performance.now() - startTime;
+    if (cleanedHTML.length > 100 * 1024 && duration > 100) {
+      console.warn(`Syntax highlighting took ${duration.toFixed(2)}ms for ${(cleanedHTML.length / 1024).toFixed(2)}KB content`);
+    }
     
     // Update output (use innerHTML for syntax highlighting)
     outputCode.innerHTML = highlightedHTML;
     
-    // Update preview (if in preview mode) with custom styling
-    if (previewFrame) {
+    // Scroll code view to top after content is rendered
+    const codeView = document.getElementById('output-code-view');
+    if (codeView) {
+      // Use double requestAnimationFrame to ensure DOM is fully updated and layout is complete
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          codeView.scrollTop = 0;
+          codeView.scrollLeft = 0;
+        });
+      });
+    }
+    
+    // Store cleaned HTML for lazy preview loading
+    lastCleanedHTML = cleanedHTML;
+    
+    // Update preview only if preview mode is currently active
+    if (previewFrame && isPreviewModeActive()) {
       const styledHTML = addPreviewStyles(cleanedHTML);
       previewFrame.srcdoc = styledHTML;
+      // Scroll to top when content loads
+      previewFrame.onload = () => {
+        if (previewFrame.contentWindow) {
+          previewFrame.contentWindow.scrollTo(0, 0);
+        }
+      };
     }
     
     clearError();
@@ -353,7 +432,17 @@ function addPreviewStyles(html) {
       th { font-weight: 600; }
     </style>
   `;
-  return styles + html;
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  ${styles}
+</head>
+<body>
+  ${html}
+</body>
+</html>`;
 }
 
 /**

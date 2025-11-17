@@ -70,9 +70,18 @@ export function updateFeatureVisibility(mode) {
   
   // Regular Mode: Hide all optional features except global ones
   if (mode === 'regular') {
-    if (strongInHeadersWrapper) strongInHeadersWrapper.style.display = 'none';
-    if (removeDomainWrapper) removeDomainWrapper.style.display = 'none';
-    if (removeParagraphSpacersWrapper) removeParagraphSpacersWrapper.style.display = 'none';
+    if (strongInHeadersWrapper) {
+      strongInHeadersWrapper.classList.add('feature-hidden');
+      strongInHeadersWrapper.classList.remove('feature-visible');
+    }
+    if (removeDomainWrapper) {
+      removeDomainWrapper.classList.add('feature-hidden');
+      removeDomainWrapper.classList.remove('feature-visible');
+    }
+    if (removeParagraphSpacersWrapper) {
+      removeParagraphSpacersWrapper.classList.add('feature-hidden');
+      removeParagraphSpacersWrapper.classList.remove('feature-visible');
+    }
     
     // Uncheck all and update options
     if (strongInHeaders) {
@@ -91,9 +100,18 @@ export function updateFeatureVisibility(mode) {
   
   // Shopify Blogs Mode: Show all Shopify Blogs features
   else if (mode === 'shopify-blogs') {
-    if (strongInHeadersWrapper) strongInHeadersWrapper.style.display = 'flex';
-    if (removeDomainWrapper) removeDomainWrapper.style.display = 'flex';
-    if (removeParagraphSpacersWrapper) removeParagraphSpacersWrapper.style.display = 'flex';
+    if (strongInHeadersWrapper) {
+      strongInHeadersWrapper.classList.remove('feature-hidden');
+      strongInHeadersWrapper.classList.add('feature-visible');
+    }
+    if (removeDomainWrapper) {
+      removeDomainWrapper.classList.remove('feature-hidden');
+      removeDomainWrapper.classList.add('feature-visible');
+    }
+    if (removeParagraphSpacersWrapper) {
+      removeParagraphSpacersWrapper.classList.remove('feature-hidden');
+      removeParagraphSpacersWrapper.classList.add('feature-visible');
+    }
     
     // Default: strong in headers ON for Shopify Blogs
     if (strongInHeaders) {
@@ -113,9 +131,18 @@ export function updateFeatureVisibility(mode) {
   
   // Shopify Shoppables Mode: Show strong in headers and remove domain only
   else if (mode === 'shopify-shoppables') {
-    if (strongInHeadersWrapper) strongInHeadersWrapper.style.display = 'flex';
-    if (removeDomainWrapper) removeDomainWrapper.style.display = 'flex';
-    if (removeParagraphSpacersWrapper) removeParagraphSpacersWrapper.style.display = 'none';
+    if (strongInHeadersWrapper) {
+      strongInHeadersWrapper.classList.remove('feature-hidden');
+      strongInHeadersWrapper.classList.add('feature-visible');
+    }
+    if (removeDomainWrapper) {
+      removeDomainWrapper.classList.remove('feature-hidden');
+      removeDomainWrapper.classList.add('feature-visible');
+    }
+    if (removeParagraphSpacersWrapper) {
+      removeParagraphSpacersWrapper.classList.add('feature-hidden');
+      removeParagraphSpacersWrapper.classList.remove('feature-visible');
+    }
     
     // Default: strong in headers ON for Shopify Shoppables
     if (strongInHeaders) {

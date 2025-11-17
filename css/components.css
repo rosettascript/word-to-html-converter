@@ -2,6 +2,13 @@
    Components - Reusable UI Components
    ========================================================================== */
 
+/* Breakpoint Reference (standardized across all CSS files):
+   - Mobile: 640px
+   - Tablet: 768px
+   - Desktop: 1024px
+   - Large: 1440px
+*/
+
 /* ==========================================================================
    Buttons
    ========================================================================== */
@@ -359,5 +366,29 @@ textarea:focus {
   }
   100% {
     background-position: 200% 0;
+  }
+}
+
+/* ==========================================================================
+   Feature Visibility Classes
+   ========================================================================== */
+
+.feature-hidden {
+  display: none !important;
+}
+
+.feature-visible {
+  display: flex;
+  animation: fadeIn var(--transition-medium);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

@@ -88,6 +88,13 @@
   --gutter-mobile: 24px;
   --gutter-tablet: 32px;
   --gutter-desktop: 48px;
+  
+  /* Responsive Breakpoints (for reference - cannot use in media queries) */
+  /* Use these values consistently across all media queries */
+  /* --breakpoint-mobile: 640px; */
+  /* --breakpoint-tablet: 768px; */
+  /* --breakpoint-desktop: 1024px; */
+  /* --breakpoint-large: 1440px; */
 }
 
 /* ==========================================================================
@@ -214,18 +221,18 @@ a:focus-visible {
 
 /* Section Spacing */
 section {
-  padding: var(--space-3xl) 0;
+  padding: var(--space-3xl) var(--gutter-mobile);
 }
 
 @media (min-width: 640px) {
   section {
-    padding: var(--space-4xl) 0;
+    padding: var(--space-4xl) var(--gutter-tablet);
   }
 }
 
 @media (min-width: 1024px) {
   section {
-    padding: var(--space-5xl) 0;
+    padding: var(--space-5xl) var(--gutter-desktop);
   }
 }
 
