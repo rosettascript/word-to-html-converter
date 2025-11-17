@@ -98,11 +98,89 @@ function looksLikeOrphanedListItem(list, orphanGroup) {
   }
   
   // For UL (bullet lists), be more conservative
-  // Only if it has a link (like other list items) or starts with bold text
+  // Check if the orphan matches the pattern of existing list items
   if (list.tagName === 'UL') {
+    const listItems = Array.from(list.querySelectorAll('li'));
+    
+    // If no list items, can't determine pattern
+    if (listItems.length === 0) {
+      return false;
+    }
+    
+    // Check if orphan starts with strong (like most list items do)
+    const firstOrphanEl = orphanGroup[0];
+    let orphanStartsWithStrong = false;
+    
+    if (firstOrphanEl) {
+      // Check if the element itself is STRONG
+      if (firstOrphanEl.tagName === 'STRONG') {
+        orphanStartsWithStrong = true;
+      } else {
+        // For P or other elements, check if first element child is STRONG
+        // or if first child is STRONG (handles text nodes before STRONG)
+        const firstChild = firstOrphanEl.firstElementChild || firstOrphanEl.firstChild;
+        if (firstChild && firstChild.tagName === 'STRONG') {
+          orphanStartsWithStrong = true;
+        } else {
+          // Check if there's a STRONG element and it's the first significant element
+          const strongEl = firstOrphanEl.querySelector('strong');
+          if (strongEl) {
+            // Check if STRONG is at the start (no significant content before it)
+            const beforeStrong = strongEl.previousSibling;
+            if (!beforeStrong || (beforeStrong.nodeType === Node.TEXT_NODE && beforeStrong.textContent.trim() === '')) {
+              orphanStartsWithStrong = true;
+            }
+          }
+        }
+      }
+    }
+    
+    // Check how many list items start with strong
+    const itemsStartWithStrong = listItems.filter(li => {
+      const firstChild = li.firstElementChild || li.firstChild;
+      if (firstChild && firstChild.tagName === 'STRONG') {
+        return true;
+      }
+      // Check if STRONG is at the start of the list item
+      const strongEl = li.querySelector('strong');
+      if (strongEl) {
+        const beforeStrong = strongEl.previousSibling;
+        return !beforeStrong || (beforeStrong.nodeType === Node.TEXT_NODE && beforeStrong.textContent.trim() === '');
+      }
+      return false;
+    }).length;
+    
+    const mostItemsStartWithStrong = itemsStartWithStrong > listItems.length / 2;
+    
+    // If most list items start with strong, orphan should too
+    if (mostItemsStartWithStrong && !orphanStartsWithStrong) {
+      return false;
+    }
+    
+    // Check if orphan is too long (multiple sentences) - list items are usually shorter
+    const sentenceCount = (text.match(/[.!?]+/g) || []).length;
+    if (sentenceCount > 2) {
+      return false; // Too long to be a list item
+    }
+    
+    // Check if orphan is a paragraph that's clearly continuation/summary text
+    // (not a list item) - paragraphs that start with full sentences and don't match
+    // the list item pattern are likely not list items
+    if (firstOrphanEl && firstOrphanEl.tagName === 'P') {
+      // If it doesn't start with strong and has multiple sentences, it's likely not a list item
+      if (!orphanStartsWithStrong && sentenceCount >= 2) {
+        return false;
+      }
+      // If it's a long paragraph (more than ~150 chars) without strong, likely not a list item
+      if (text.length > 150 && !orphanStartsWithStrong) {
+        return false;
+      }
+    }
+    
+    // Check if orphan has strong OR link (but only if it matches the pattern)
     const hasStrong = orphanGroup.some(el => el.tagName === 'STRONG' || el.querySelector('strong'));
     
-    if (hasLink || hasStrong) {
+    if (hasStrong || (hasLink && orphanStartsWithStrong)) {
       return true;
     }
   }
