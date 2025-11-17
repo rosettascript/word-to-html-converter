@@ -2,12 +2,33 @@
    Converter Section - Main Tool Interface
    ========================================================================== */
 
+/* Breakpoint Reference (standardized across all CSS files):
+   - Mobile: 640px
+   - Tablet: 768px
+   - Desktop: 1024px
+   - Large: 1440px
+*/
+
 .converter-section {
   background: var(--color-bg-primary);
-  min-height: 100vh;
+  padding: var(--space-3xl) var(--gutter-mobile);
+  width: 100%;
+  min-height: 100dvh; /* Use dvh for better mobile support */
+  min-height: 100vh; /* Fallback for browsers that don't support dvh */
   display: flex;
   align-items: center;
-  padding: var(--space-3xl) 0;
+}
+
+@media (min-width: 640px) {
+  .converter-section {
+    padding: var(--space-3xl) var(--gutter-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .converter-section {
+    padding: var(--space-3xl) var(--gutter-desktop);
+  }
 }
 
 /* Wide container for converter section with side margins */
@@ -49,6 +70,7 @@
   display: flex;
   gap: var(--space-xl);
   flex-direction: column;
+  min-height: 25vh; /* 1/4 of viewport height */
 }
 
 @media (min-width: 1024px) {
@@ -217,26 +239,34 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  height: 750px; /* 600px + 1/4 (150px) = 750px */
+  max-height: 80vh; /* But respect viewport on small screens */
 }
 
 .panel-header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-md);
   align-items: center;
   padding: var(--space-lg);
   border-bottom: 1px solid rgba(201, 168, 143, 0.2);
+  min-height: 60px; /* Prevent layout shifts */
 }
 
 .panel-header h3 {
   font-size: var(--font-size-h3);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
-  margin-bottom: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .output-controls {
   display: flex;
   gap: var(--space-sm);
+  flex-shrink: 0;
 }
 
 .panel-footer {
@@ -244,9 +274,11 @@
   border-top: 1px solid rgba(201, 168, 143, 0.2);
   font-size: var(--font-size-caption);
   color: var(--color-text-secondary);
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-md);
   align-items: center;
+  min-height: 44px; /* Prevent layout shifts */
 }
 
 /* ==========================================================================
@@ -255,9 +287,8 @@
 
 .html-input-rendered {
   flex: 1;
-  height: 600px;
-  min-height: 600px;
-  max-height: 600px;
+  min-height: 400px;
+  max-height: 80vh;
   min-width: 0;
   border: none;
   border-radius: 0;
@@ -281,10 +312,17 @@
 }
 
 /* Placeholder styling when empty */
-.html-input-rendered:empty::before {
+.html-input-rendered:empty::before,
+.html-input-rendered.has-placeholder::before {
   content: attr(data-placeholder);
   color: var(--color-text-secondary);
   font-style: italic;
+  pointer-events: none;
+  user-select: none;
+}
+
+.html-input-rendered.has-placeholder {
+  position: relative;
 }
 
 /* Semantic HTML styling inside input */
@@ -406,28 +444,37 @@
 
 .output-view {
   display: none;
+  opacity: 0;
   flex: 1;
-  height: 600px;
-  min-height: 600px;
-  max-height: 600px;
   min-width: 0;
-  overflow-y: auto;
-  overflow-x: auto;
-  overscroll-behavior: contain;
+  min-height: 0; /* Important for flex children */
+  overflow: hidden; /* Let child handle scrolling */
+  transition: opacity var(--transition-medium);
 }
 
 .output-view.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  flex: 1;
+  min-height: 0; /* Important for flex children */
 }
 
 #output-code-view {
-  padding: var(--space-lg);
-  height: 100%;
+  flex: 1;
   min-width: 0;
+  min-height: 0; /* Important for flex children */
+  overflow-y: auto;
+  overflow-x: auto;
+  position: relative;
 }
 
 #output-code-view pre {
   margin: 0;
+  padding: var(--space-lg);
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 #output-code-view code {
@@ -476,13 +523,22 @@
 #output-preview-view {
   padding: 0;
   overflow: hidden;
+  flex: 1;
+  min-height: 0; /* Important for flex children */
+  /* display is controlled by .output-view and .output-view.active */
+}
+
+#output-preview-view.active {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 #preview-frame {
   width: 100%;
-  height: 600px;
-  min-height: 600px;
-  max-height: 600px;
+  flex: 1;
+  min-height: 0; /* Important for flex children */
   border: none;
   background: white;
   overscroll-behavior: contain;
@@ -550,21 +606,21 @@
 /* Webkit browsers (Chrome, Safari, Edge) */
 .html-input-rendered::-webkit-scrollbar,
 .output-view::-webkit-scrollbar,
-#output-code-view pre::-webkit-scrollbar {
+#output-code-view::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 .html-input-rendered::-webkit-scrollbar-track,
 .output-view::-webkit-scrollbar-track,
-#output-code-view pre::-webkit-scrollbar-track {
+#output-code-view::-webkit-scrollbar-track {
   background: rgba(201, 168, 143, 0.1);
   border-radius: var(--radius-sm);
 }
 
 .html-input-rendered::-webkit-scrollbar-thumb,
 .output-view::-webkit-scrollbar-thumb,
-#output-code-view pre::-webkit-scrollbar-thumb {
+#output-code-view::-webkit-scrollbar-thumb {
   background: rgba(201, 168, 143, 0.4);
   border-radius: var(--radius-sm);
   transition: background var(--transition-fast);
@@ -572,16 +628,38 @@
 
 .html-input-rendered::-webkit-scrollbar-thumb:hover,
 .output-view::-webkit-scrollbar-thumb:hover,
-#output-code-view pre::-webkit-scrollbar-thumb:hover {
+#output-code-view::-webkit-scrollbar-thumb:hover {
   background: rgba(201, 168, 143, 0.6);
 }
 
-/* Firefox */
+.html-input-rendered::-webkit-scrollbar-thumb:active,
+.output-view::-webkit-scrollbar-thumb:active,
+#output-code-view::-webkit-scrollbar-thumb:active {
+  background: rgba(201, 168, 143, 0.8);
+}
+
+/* Firefox - Enhanced scrollbar styling */
 .html-input-rendered,
 .output-view,
-#output-code-view pre {
+#output-code-view {
   scrollbar-width: thin;
   scrollbar-color: rgba(201, 168, 143, 0.4) rgba(201, 168, 143, 0.1);
+}
+
+/* Ensure scrollbars are visible when content overflows */
+.html-input-rendered,
+.output-view,
+#output-code-view {
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Fallback for browsers that don't support custom scrollbars */
+@supports not (scrollbar-width: thin) {
+  .html-input-rendered,
+  .output-view,
+  #output-code-view {
+    /* Scrollbars handled by overflow properties on these elements */
+  }
 }
 
 /* ==========================================================================
@@ -589,14 +667,24 @@
    ========================================================================== */
 
 @media (max-width: 640px) {
+  .panel-header {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+  }
+  
+  .panel-header h3 {
+    white-space: normal;
+  }
+  
   .output-controls {
     flex-wrap: wrap;
+    justify-self: start;
   }
   
   .panel-footer {
-    flex-direction: column;
-    align-items: flex-start;
+    grid-template-columns: 1fr;
     gap: var(--space-sm);
+    align-items: flex-start;
   }
 }
 
@@ -605,12 +693,30 @@
     gap: var(--space-lg);
   }
   
-  .html-input-rendered,
-  .output-view,
-  #preview-frame {
-    height: 400px;
-    min-height: 400px;
-    max-height: 400px;
+  .input-panel,
+  .output-panel {
+    height: 500px; /* 400px + 1/4 (100px) = 500px */
+    max-height: 70vh;
+  }
+  
+  .html-input-rendered {
+    min-height: 300px;
+  }
+}
+
+@media (min-width: 768px) {
+  .input-panel,
+  .output-panel {
+    height: 625px; /* 500px + 1/4 (125px) = 625px */
+    max-height: 80vh;
+  }
+}
+
+@media (min-width: 1024px) {
+  .input-panel,
+  .output-panel {
+    height: 750px; /* 600px + 1/4 (150px) = 750px */
+    max-height: 80vh;
   }
 }
 
