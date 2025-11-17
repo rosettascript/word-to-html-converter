@@ -185,29 +185,37 @@ export function initializeScrollSync(inputPanel, outputPanel, previewFrame) {
   let inputScrollTimeout;
   let outputScrollTimeout;
   
-  function debouncedInputScroll() {
+  function debouncedInputScroll(event) {
+    // Stop scroll from propagating to parent/body
+    if (event) {
+      event.stopPropagation();
+    }
     clearTimeout(inputScrollTimeout);
     inputScrollTimeout = setTimeout(onInputScroll, 50);
   }
   
-  function debouncedOutputScroll() {
+  function debouncedOutputScroll(event) {
+    // Stop scroll from propagating to parent/body
+    if (event) {
+      event.stopPropagation();
+    }
     clearTimeout(outputScrollTimeout);
     outputScrollTimeout = setTimeout(onOutputScroll, 50);
   }
   
-  // Add scroll listeners
-  inputPanel.addEventListener('scroll', debouncedInputScroll);
+  // Add scroll listeners (use capture phase to catch early)
+  inputPanel.addEventListener('scroll', debouncedInputScroll, { passive: true });
   
   const outputCodeView = document.getElementById('output-code-view');
   if (outputCodeView) {
-    outputCodeView.parentElement.addEventListener('scroll', debouncedOutputScroll);
+    outputCodeView.parentElement.addEventListener('scroll', debouncedOutputScroll, { passive: true });
   }
   
   // Listen for preview frame changes
   if (previewFrame) {
     previewFrame.addEventListener('load', () => {
       if (previewFrame.contentDocument && previewFrame.contentDocument.body) {
-        previewFrame.contentDocument.body.addEventListener('scroll', debouncedOutputScroll);
+        previewFrame.contentDocument.body.addEventListener('scroll', debouncedOutputScroll, { passive: true });
       }
     });
   }

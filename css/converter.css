@@ -270,6 +270,7 @@
   background: transparent;
   overflow-y: auto;
   overflow-x: auto;
+  overscroll-behavior: contain;
   cursor: text;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -412,6 +413,7 @@
   min-width: 0;
   overflow-y: auto;
   overflow-x: auto;
+  overscroll-behavior: contain;
 }
 
 .output-view.active {
@@ -483,6 +485,7 @@
   max-height: 600px;
   border: none;
   background: white;
+  overscroll-behavior: contain;
 }
 
 /* ==========================================================================
