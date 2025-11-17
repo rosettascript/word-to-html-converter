@@ -14,6 +14,7 @@ import { addExternalLinkAttributes } from '../features/external-link-attributes.
 import { removeBrInLists } from '../features/remove-br-in-lists.js';
 import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
 import { convertListsToNumberedHeadings } from '../features/convert-lists-to-numbered-headings.js';
+import { removeEmptyP } from '../features/remove-empty-p.js';
 
 /**
  * Process HTML in Shopify Shoppables mode
@@ -33,6 +34,9 @@ export function processShopifyShoppablesMode(element, options = {}) {
   
   // Replace <br> tags with empty <p></p> tags
   replaceBrWithParagraph(processed);
+  
+  // Remove empty <p></p> tags
+  removeEmptyP(processed);
   
   // Apply safe minification (aggressive whitespace removal)
   normalizeWhitespace(processed, 'minify');
