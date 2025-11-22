@@ -20,6 +20,42 @@ import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
 import { convertListsToNumberedHeadings } from '../features/convert-lists-to-numbered-headings.js';
 
 /**
+ * Handle spacer before sources section based on removeParagraphSpacers option
+ * @param {HTMLElement} root - Root element to process
+ * @param {Object} options - Options object
+ */
+function handleSourcesSpacer(root, options) {
+  const headings = root.querySelectorAll('h1, h2, h3, h4, h5, h6, p');
+
+  headings.forEach(heading => {
+    const headingText = heading.textContent.trim().toLowerCase();
+
+    // Check if element contains "sources" (case-insensitive)
+    if (headingText.includes('sources')) {
+      // Check if there's already a spacer before this element
+      const previousElement = heading.previousElementSibling;
+      const hasSpacer = previousElement &&
+                       previousElement.tagName === 'P' &&
+                       previousElement.innerHTML.trim() === '&nbsp;';
+
+      if (options.removeParagraphSpacers) {
+        // Remove paragraph spacers option is enabled - remove any existing spacer
+        if (hasSpacer) {
+          previousElement.remove();
+        }
+      } else {
+        // Remove paragraph spacers option is disabled - add spacer if missing
+        if (!hasSpacer) {
+          const spacer = document.createElement('p');
+          spacer.innerHTML = '&nbsp;';
+          heading.parentNode.insertBefore(spacer, heading);
+        }
+      }
+    }
+  });
+}
+
+/**
  * Process HTML in Shopify Blogs mode
  * @param {HTMLElement} element - Sanitized HTML element
  * @param {Object} options - Optional features
@@ -75,6 +111,9 @@ export function processShopifyBlogsMode(element, options = {}) {
   // Apply strong in headers (default: enabled for Shopify Blogs)
   const enableStrong = options.strongInHeaders !== false;
   applyStrongInHeaders(processed, enableStrong);
+
+  // Handle spacer before sources section based on removeParagraphSpacers option
+  handleSourcesSpacer(processed, options);
 
   // Apply optional features
   if (options.removeDomain) {
