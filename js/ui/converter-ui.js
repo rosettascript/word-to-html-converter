@@ -471,6 +471,16 @@ function addPreviewStyles(html) {
   const blockquoteColor = isHighContrast ? '#E6E6E6' : '#666666';
   const tableBorder = isHighContrast ? 'rgba(255, 210, 138, 0.4)' : '#DDDDDD';
 
+  // Scrollbar colors
+  const scrollbarTrack = isHighContrast ? 'rgba(255, 210, 138, 0.1)' : 'rgba(201, 168, 143, 0.1)';
+  const scrollbarThumb = isHighContrast ? 'rgba(255, 210, 138, 0.4)' : 'rgba(201, 168, 143, 0.4)';
+  const scrollbarThumbHover = isHighContrast
+    ? 'rgba(255, 210, 138, 0.6)'
+    : 'rgba(201, 168, 143, 0.6)';
+  const scrollbarThumbActive = isHighContrast
+    ? 'rgba(255, 210, 138, 0.8)'
+    : 'rgba(201, 168, 143, 0.8)';
+
   const styles = `
     <style>
       body {
@@ -483,6 +493,38 @@ function addPreviewStyles(html) {
         padding: 24px;
         margin: 0;
       }
+
+      /* Custom scrollbars */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: ${scrollbarTrack};
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: ${scrollbarThumb};
+        border-radius: 4px;
+        transition: background 0.15s ease;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: ${scrollbarThumbHover};
+      }
+
+      ::-webkit-scrollbar-thumb:active {
+        background: ${scrollbarThumbActive};
+      }
+
+      /* Firefox scrollbar */
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: ${scrollbarThumb} ${scrollbarTrack};
+      }
+
       h1, h2, h3, h4, h5, h6 {
         font-weight: 600;
         line-height: 1.2;

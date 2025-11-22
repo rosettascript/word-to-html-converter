@@ -170,10 +170,26 @@ html[data-theme="high-contrast"] .secondary-button:hover {
 
 html[data-theme="high-contrast"] .icon-button:hover {
   background: var(--color-accent-taupe-01);
+  color: #FFFFFF;
+}
+
+html[data-theme="high-contrast"] .icon-button:hover .icon {
+  stroke: #FFFFFF;
 }
 
 html[data-theme="high-contrast"] .clear-button:hover {
   background: var(--color-accent-taupe-01);
+  color: #FFFFFF;
+}
+
+html[data-theme="high-contrast"] .clear-button:hover .icon {
+  stroke: #FFFFFF;
+}
+
+/* High contrast toast styles */
+html[data-theme="high-contrast"] .toast {
+  background: var(--color-accent-taupe);
+  color: #000000;
 }
 
 /* ==========================================================================

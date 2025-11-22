@@ -51,6 +51,13 @@ function handleToggle() {
     toggleButton.setAttribute('aria-label', 'Switch to code view');
     toggleButton.title = 'Code view';
 
+    // Change icon to code view (</>)
+    const svg = toggleButton.querySelector('svg');
+    if (svg) {
+      svg.innerHTML =
+        '<polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline>';
+    }
+
     // Trigger preview rendering if content exists
     triggerPreviewRender();
   } else {
@@ -59,6 +66,13 @@ function handleToggle() {
     codeView.classList.add('active');
     toggleButton.setAttribute('aria-label', 'Switch to preview');
     toggleButton.title = 'Preview';
+
+    // Change icon back to eye
+    const svg = toggleButton.querySelector('svg');
+    if (svg) {
+      svg.innerHTML =
+        '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+    }
 
     // Clear preview content to save resources
     clearPreviewContent();
