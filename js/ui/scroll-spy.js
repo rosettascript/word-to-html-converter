@@ -30,26 +30,26 @@ function initializeScrollSpy() {
       id: section.id,
       element: section,
       top: 0,
-      bottom: 0
+      bottom: 0,
     }))
     .filter(section => section.id); // Only sections with IDs
-  
+
   if (sections.length === 0) {
     return;
   }
-  
+
   // Calculate initial positions
   updateSectionPositions();
-  
+
   // Listen for scroll events
   window.addEventListener('scroll', handleScroll, { passive: true });
-  
+
   // Recalculate positions on resize
   window.addEventListener('resize', handleResize, { passive: true });
-  
+
   // Handle initial hash on page load
   handleInitialHash();
-  
+
   // Update hash on initial scroll position (with delay to ensure layout is complete)
   setTimeout(() => {
     updateHashFromScroll();
@@ -85,12 +85,12 @@ function handleScroll() {
   if (isScrolling) {
     return; // Don't update hash during programmatic scrolling
   }
-  
+
   // Debounce hash updates
   if (scrollTimeout) {
     clearTimeout(scrollTimeout);
   }
-  
+
   scrollTimeout = setTimeout(() => {
     updateHashFromScroll();
   }, 150); // Wait 150ms after scrolling stops
@@ -103,26 +103,26 @@ function updateHashFromScroll() {
   if (isScrolling) {
     return;
   }
-  
+
   const scrollY = window.scrollY;
   const viewportHeight = window.innerHeight;
   // Use a point slightly above the middle of viewport as trigger
   const triggerPoint = scrollY + viewportHeight * 0.4;
-  
+
   // Find the section that contains the trigger point
   let activeSection = null;
-  
+
   // First, try to find a section that contains the trigger point
   for (const section of sections) {
     const sectionTop = section.top;
     const sectionBottom = section.bottom;
-    
+
     if (triggerPoint >= sectionTop && triggerPoint <= sectionBottom) {
       activeSection = section;
       break;
     }
   }
-  
+
   // If no section found, find the closest one based on scroll position
   if (!activeSection) {
     let closestDistance = Infinity;
@@ -130,19 +130,19 @@ function updateHashFromScroll() {
       // Calculate distance from scroll position to section center
       const sectionCenter = (section.top + section.bottom) / 2;
       const distance = Math.abs(scrollY - sectionCenter);
-      
+
       if (distance < closestDistance) {
         closestDistance = distance;
         activeSection = section;
       }
     }
   }
-  
+
   // Update hash if section changed
   if (activeSection) {
     const newHash = `#${activeSection.id}`;
     const currentHash = window.location.hash;
-    
+
     // Only update if hash actually changed
     if (currentHash !== newHash) {
       // Use history.replaceState to update URL without triggering scroll
@@ -179,17 +179,14 @@ export function scrollToSection(sectionId, updateHash = true) {
   if (!section) {
     return;
   }
-  
+
   isScrolling = true;
-  
-  // Calculate offset (account for any fixed headers)
-  const offset = 0; // Adjust if you have a fixed header
-  
+
   section.element.scrollIntoView({
     behavior: 'smooth',
-    block: 'start'
+    block: 'start',
   });
-  
+
   // Update hash after scroll completes
   if (updateHash) {
     setTimeout(() => {
@@ -217,4 +214,3 @@ export function setupHashNavigation() {
     }
   });
 }
-

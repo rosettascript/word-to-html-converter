@@ -6,9 +6,14 @@
   "scripts": {
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
     "dev": "python3 -m http.server 5173",
-    "serve": "npx serve ."
+    "serve": "npx serve .",
+    "start": "npx serve .",
+    "security": "npm audit",
+    "lint": "eslint js/**/*.js",
+    "lint:fix": "eslint js/**/*.js --fix",
+    "format": "prettier --write js/**/*.js *.js *.json",
+    "format:check": "prettier --check js/**/*.js *.js *.json"
   },
   "keywords": [
     "word-to-html",
@@ -21,19 +26,19 @@
   "author": "Kim Galicia",
   "license": "MIT",
   "devDependencies": {
-    "vitest": "^1.0.0",
+    "@eslint/js": "^9.39.1",
+    "@vitest/ui": "^4.0.13",
+    "eslint": "^9.39.1",
     "jsdom": "^23.0.0",
-    "@vitest/ui": "^1.0.0",
-    "@vitest/coverage-v8": "^1.0.0"
+    "prettier": "^3.6.2",
+    "vitest": "^4.0.13"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/word-to-html-converter.git"
+    "url": "https://github.com/rosettascript/word-to-html-converter.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/word-to-html-converter/issues"
+    "url": "https://github.com/rosettascript/word-to-html-converter/issues"
   },
-  "homepage": "https://yourusername.github.io/word-to-html-converter/"
+  "homepage": "https://rosettascript.github.io/word-to-html-converter/"
 }
-
-

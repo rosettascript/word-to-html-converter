@@ -10,19 +10,45 @@
   <meta name="keywords" content="word to html, html converter, clean html, remove inline styles, shopify blog, shopify shoppables, word html cleaner">
   <meta name="author" content="Kim Galicia">
   
-  <!-- Content Security Policy -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
-    script-src 'self';
+    script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline';
     style-src 'self' 'unsafe-inline';
-    img-src 'self' data: blob:;
+    img-src 'self' data: https://www.google-analytics.com;
     font-src 'self';
-    connect-src 'self';
+    connect-src 'self' https://www.google-analytics.com https://analytics.google.com;
     base-uri 'self';
     form-action 'self';
     frame-ancestors 'none';
     object-src 'none';
   ">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <!--
+    If you want to enable Google Analytics (GA4) on GitHub Pages, replace the
+    Content-Security-Policy meta above with the example below and add your
+    GA4 Measurement ID to the commented GA4 snippet further down.
+
+    Example CSP that allows GA4 and Tag Manager (uncomment to use):
+
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline';
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: https://www.google-analytics.com;
+      font-src 'self';
+      connect-src 'self' https://www.google-analytics.com https://analytics.google.com;
+      base-uri 'self';
+      form-action 'self';
+      object-src 'none';
+    ">
+
+    Notes:
+    - GitHub Pages serves static files; adding the CSP meta in this file is
+      sufficient to allow GA4 if you deploy from this repo.
+    - If you use any other third-party scripts, add their hostnames to
+      the appropriate directives (script-src, connect-src, img-src).
+  -->
   
   <!-- Canonical URL -->
   <link rel="canonical" href="https://rosettascript.github.io/word-to-html-converter/">
@@ -46,14 +72,30 @@
   <meta name="twitter:description" content="Free Word to HTML converter. Remove inline styles, format for Shopify. 100% client-side, instant processing. No signup required.">
   <meta name="twitter:image" content="https://rosettascript.github.io/word-to-html-converter/assets/og-image.png">
   
-  <!-- Favicon (add your favicon files) -->
-  <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
-  
+
+  <!-- Theme initialization script (must run before CSS loads) -->
+  <script>
+    (function() {
+      const saved = localStorage.getItem('w2hc-theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isHighContrast = saved === 'high-contrast' || (!saved && prefersDark);
+      if (isHighContrast) {
+        document.documentElement.setAttribute('data-theme', 'high-contrast');
+      }
+    })();
+  </script>
+
   <!-- Stylesheets -->
+  <link rel="preload" href="css/main.css" as="style">
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/sections.css">
   <link rel="stylesheet" href="css/converter.css">
+
+  <meta name="robots" content="index,follow">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:,">
   
   <!-- Schema.org Structured Data - Software Application -->
   <script type="application/ld+json">
@@ -86,6 +128,62 @@
       "Code preview and rendered HTML preview"
     ],
     "browserRequirements": "Requires JavaScript. Modern browsers (Chrome, Firefox, Safari, Edge)"
+  }
+  </script>
+
+  <!-- Google tag (gtag.js) - active (Measurement ID provided) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1Y7173C12X"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);} 
+    gtag('js', new Date());
+
+    /*
+      Note: `anonymize_ip` is enabled for better privacy compliance.
+      If you need to implement a consent flow, do not load this script
+      until consent is granted and instead call `gtag('config', ...)` after.
+    */
+    gtag('config', 'G-1Y7173C12X', { 'anonymize_ip': true });
+  </script>
+
+  <!-- Additional Structured Data: Breadcrumb, WebSite, HowTo, Organization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Word to HTML Converter",
+    "url": "https://rosettascript.github.io/word-to-html-converter/",
+    "publisher": {
+      "@type": "Organization",
+      "name": "RosettaScript",
+      "url": "https://rosettascript.github.io/"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type":"ListItem","position":1,"name":"Home","item":"https://rosettascript.github.io/word-to-html-converter/"},
+      {"@type":"ListItem","position":2,"name":"Converter","item":"https://rosettascript.github.io/word-to-html-converter/#converter-section"}
+    ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to clean Word HTML and paste into your CMS",
+    "description": "A short walkthrough to paste Word-generated HTML into the converter and get clean HTML ready for Shopify or other CMS platforms.",
+    "step": [
+      {"@type":"HowToStep","position":1,"name":"Copy from Word","text":"Open your Word document, select the content and copy it to the clipboard."},
+      {"@type":"HowToStep","position":2,"name":"Paste into the converter","text":"Focus the input area and paste. The converter will sanitize inline styles and format structure."},
+      {"@type":"HowToStep","position":3,"name":"Choose output mode","text":"Select Regular, Shopify Blogs, or Shopify Shoppables depending on your target CMS."},
+      {"@type":"HowToStep","position":4,"name":"Preview and copy","text":"Toggle preview if you want to see rendered HTML, then copy or download the cleaned HTML."}
+    ]
   }
   </script>
   
@@ -161,6 +259,7 @@
   <a href="#converter-section" class="skip-link">Skip to main content</a>
   
   <!-- Hero Section -->
+  <header id="site-header" role="banner">
   <section id="hero" class="hero-section">
     <div class="hero-container">
       <h1 class="hero-title">Word to HTML Converter</h1>
@@ -168,21 +267,36 @@
         The best free word to HTML converter that cleans Word documents instantly. 
         Remove inline styles, preserve structure, and format for Shopify or regular use.
       </p>
+      <div class="hero-intro">
+        <p>
+          Quickly convert messy HTML generated by Microsoft Word into clean, CMS-ready markup. This tool strips out inline styles and unnecessary attributes, preserves semantic headings, lists and emphasis, and offers specialized output modes for Shopify blogs and product descriptions. Ideal for content editors and developers who need reliable paste-and-go HTML that won’t break theme styles or introduce layout regressions. No uploads or accounts — everything runs in your browser for privacy and speed.
+        </p>
+      </div>
       <p class="hero-features">
         ✨ Instant Processing &nbsp;•&nbsp; 🔒 100% Client-Side &nbsp;•&nbsp; 🎨 Three Output Modes
       </p>
       <a href="#converter-section" class="cta-button">Try It Now</a>
+      <button id="theme-toggle-btn" class="secondary-button" aria-pressed="false" title="Toggle high contrast">High contrast</button>
     </div>
   </section>
+  </header>
   
+
+  <!-- Main content landmark -->
+  <main id="main-content" role="main">
   <!-- Converter Section (Main Tool) -->
-  <section id="converter-section" class="converter-section">
+  <section id="converter-section" class="converter-section" tabindex="-1">
     <div class="converter-container">
       <h2 class="section-title">Convert Your HTML</h2>
       
       <div class="converter-layout">
         <!-- Toolbar Sidebar -->
-        <aside class="converter-toolbar">
+        <div id="toolbar-panel" class="converter-toolbar">
+          <!-- Mobile toolbar toggle -->
+          <div class="toolbar-top">
+            <button id="toolbar-toggle" class="secondary-button" aria-expanded="true" aria-controls="toolbar-panel-content">Options</button>
+          </div>
+          <div id="toolbar-panel-content">
           <div class="toolbar-section">
             <label for="mode-select" class="toolbar-title">Output Mode</label>
             <!-- Mode Selector -->
@@ -213,6 +327,7 @@
           </div>
           
           <!-- Domain Input (for internal link detection) - Hidden: automatic detection -->
+          </div>
           <div class="domain-input-wrapper" style="display: none;">
             <label for="base-domain">Your website domain (optional):</label>
             <input 
@@ -222,7 +337,7 @@
               aria-label="Base domain for internal link detection"
             >
           </div>
-        </aside>
+        </div>
         
         <!-- Input/Output Grid -->
         <div class="converter-main">
@@ -234,11 +349,13 @@
               </div>
               <div 
                 id="input-html" 
-                class="html-input-rendered"
+                class="html-input-rendered has-placeholder"
                 data-placeholder="Paste your Word-to-HTML content here..."
                 aria-label="HTML input area"
                 role="textbox"
-                aria-readonly="true"
+                aria-multiline="true"
+                contenteditable="true"
+                tabindex="0"
               ></div>
               <div class="panel-footer">
                 <span class="char-count" id="input-char-count">0 characters</span>
@@ -251,19 +368,19 @@
                 <h3>Cleaned HTML</h3>
                 <div class="output-controls">
                   <button class="icon-button" id="toggle-preview" aria-label="Toggle preview mode" title="Toggle preview">
-                    <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="icon" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                       <circle cx="12" cy="12" r="3"></circle>
                     </svg>
                   </button>
                   <button class="icon-button" id="copy-output" aria-label="Copy to clipboard" title="Copy">
-                    <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="icon" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
                   </button>
                   <button class="icon-button" id="download-output" aria-label="Download HTML file" title="Download">
-                    <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="icon" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                       <polyline points="7 10 12 15 17 10"></polyline>
                       <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -288,6 +405,7 @@
               
               <div class="panel-footer">
                 <span class="status-message" id="status-message" aria-live="polite"></span>
+                <div id="processing-spinner" class="processing-spinner" aria-hidden="true" title="Processing"></div>
               </div>
             </div>
           </div>
@@ -297,7 +415,7 @@
         </div>
       </div>
     </div>
-  </section>
+    </section>
   
   <!-- Features Section -->
   <section id="features" class="features-section">
@@ -351,8 +469,8 @@
       <h2 class="section-title">About This Word to HTML Converter</h2>
       <div class="about-content">
         <p>
-          This word to HTML converter is a free, client-side tool designed to clean HTML output from Microsoft Word documents. 
-          When you paste content from Word into a CMS like Shopify, WordPress, or any other platform, it often includes excessive inline 
+          This word to HTML converter is a free, client-side tool designed to clean HTML output from Microsoft Word documents.
+          When you paste content from Word into a CMS like Shopify or any other platform, it often includes excessive inline
           styles, classes, and formatting bloat that can break your site's design and slow page load times.
         </p>
         <p>
@@ -429,6 +547,8 @@
     </div>
   </section>
   
+  </main>
+
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
@@ -449,6 +569,17 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   
   <!-- JavaScript Modules -->
+  <!-- GA4 placeholder: uncomment and replace with your measurement ID after updating CSP to allow Google Analytics domains. -->
+  <!--
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+  -->
+
   <script type="module" src="js/main.js"></script>
   
 </body>

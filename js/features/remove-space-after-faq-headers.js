@@ -9,10 +9,10 @@
  */
 export function removeSpaceAfterFAQHeaders(root) {
   const h2Tags = root.querySelectorAll('h2');
-  
+
   h2Tags.forEach(h2 => {
     let nextSibling = h2.nextSibling;
-    
+
     // Remove all immediate following <br>, empty <p>, or whitespace text nodes
     while (nextSibling) {
       // If it's a text node with only whitespace, remove it
@@ -22,7 +22,7 @@ export function removeSpaceAfterFAQHeaders(root) {
         toRemove.remove();
         continue;
       }
-      
+
       // If it's a <br> tag, remove it
       if (nextSibling.nodeType === Node.ELEMENT_NODE && nextSibling.tagName === 'BR') {
         const toRemove = nextSibling;
@@ -30,21 +30,21 @@ export function removeSpaceAfterFAQHeaders(root) {
         toRemove.remove();
         continue;
       }
-      
+
       // If it's an empty <p> tag (completely empty or just whitespace), remove it
-      if (nextSibling.nodeType === Node.ELEMENT_NODE && 
-          nextSibling.tagName === 'P' && 
-          nextSibling.textContent.trim() === '') {
+      if (
+        nextSibling.nodeType === Node.ELEMENT_NODE &&
+        nextSibling.tagName === 'P' &&
+        nextSibling.textContent.trim() === ''
+      ) {
         const toRemove = nextSibling;
         nextSibling = nextSibling.nextSibling;
         toRemove.remove();
         continue;
       }
-      
+
       // Stop at the first non-whitespace, non-br, non-empty-p element
       break;
     }
   });
 }
-
-

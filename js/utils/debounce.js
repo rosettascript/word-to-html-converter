@@ -11,18 +11,16 @@
  */
 export function debounce(func, delay = 500) {
   let timeoutId;
-  
+
   return function debounced(...args) {
     // Clear previous timeout
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
-    
+
     // Set new timeout
     timeoutId = setTimeout(() => {
       func.apply(this, args);
     }, delay);
   };
 }
-
-

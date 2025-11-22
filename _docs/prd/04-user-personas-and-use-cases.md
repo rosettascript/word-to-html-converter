@@ -20,7 +20,7 @@
 - **Demographics:** 32, works in agency, high tech savviness
 - **Goals:** Receive clean HTML from content team, minimize time spent fixing markup, ensure semantic structure
 - **Pain Points:** Receives HTML with inline styles that override CSS, has to manually clean 10-15 documents per week, wastes time on repetitive tasks
-- **Context:** Integrates content into client websites (Shopify, WordPress, custom CMS), works with multiple content writers
+- **Context:** Integrates content into client websites (Shopify, custom CMS), works with multiple content writers
 - **Frequency:** Weekly (receives multiple documents)
 - **Quote:** "Every time I get a Word-to-HTML conversion, I spend 15 minutes stripping out inline styles. This should be automated."
 

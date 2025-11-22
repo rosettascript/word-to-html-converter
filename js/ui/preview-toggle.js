@@ -15,12 +15,12 @@ export function setupPreviewToggle() {
   toggleButton = document.getElementById('toggle-preview');
   codeView = document.getElementById('output-code-view');
   previewView = document.getElementById('output-preview-view');
-  
+
   if (!toggleButton || !codeView || !previewView) {
     console.warn('Preview toggle elements not found');
     return;
   }
-  
+
   // Ensure initial state: code view is active
   if (!codeView.classList.contains('active')) {
     codeView.classList.add('active');
@@ -28,9 +28,9 @@ export function setupPreviewToggle() {
   if (previewView.classList.contains('active')) {
     previewView.classList.remove('active');
   }
-  
+
   isPreviewMode = false;
-  
+
   toggleButton.addEventListener('click', handleToggle);
 }
 
@@ -41,16 +41,16 @@ function handleToggle() {
   if (!toggleButton || !codeView || !previewView) {
     return;
   }
-  
+
   isPreviewMode = !isPreviewMode;
-  
+
   if (isPreviewMode) {
     // Switch to preview mode
     codeView.classList.remove('active');
     previewView.classList.add('active');
     toggleButton.setAttribute('aria-label', 'Switch to code view');
     toggleButton.title = 'Code view';
-    
+
     // Trigger preview rendering if content exists
     triggerPreviewRender();
   } else {
@@ -59,7 +59,7 @@ function handleToggle() {
     codeView.classList.add('active');
     toggleButton.setAttribute('aria-label', 'Switch to preview');
     toggleButton.title = 'Preview';
-    
+
     // Clear preview content to save resources
     clearPreviewContent();
   }
@@ -71,11 +71,11 @@ function handleToggle() {
 function triggerPreviewRender() {
   const previewFrame = document.getElementById('preview-frame');
   if (!previewFrame) return;
-  
+
   // Get the current output HTML
   const outputCode = document.getElementById('output-html');
   if (!outputCode) return;
-  
+
   // If there's content, trigger a reprocess to update preview
   const inputDiv = document.getElementById('input-html');
   if (inputDiv && inputDiv.innerHTML.trim() !== '') {
@@ -102,5 +102,3 @@ function clearPreviewContent() {
 export function isPreviewModeActive() {
   return isPreviewMode;
 }
-
-

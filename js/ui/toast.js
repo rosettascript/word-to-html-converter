@@ -11,31 +11,29 @@
  */
 export function showToast(message, type = 'success', duration = 2000) {
   const toast = document.getElementById('toast');
-  
+
   if (!toast) {
     console.warn('Toast element not found');
     return;
   }
-  
+
   // Set message
   toast.textContent = message;
-  
+
   // Set background color based on type
   if (type === 'error') {
-    toast.style.background = '#D4A574';  // error color
+    toast.style.background = '#D4A574'; // error color
   } else if (type === 'warning') {
-    toast.style.background = '#D4B5A8';  // warning color
+    toast.style.background = '#D4B5A8'; // warning color
   } else {
-    toast.style.background = '#9FB8AD';  // success color
+    toast.style.background = '#9FB8AD'; // success color
   }
-  
+
   // Show toast
   toast.classList.add('show');
-  
+
   // Hide after duration
   setTimeout(() => {
     toast.classList.remove('show');
   }, duration);
 }
-
-

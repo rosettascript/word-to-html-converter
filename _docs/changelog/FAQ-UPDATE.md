@@ -43,7 +43,7 @@ Updated all website sections to reflect current functionality and include SEO ke
 **Updated:**
 - Section title: "About This Word to HTML Converter"
 - Three paragraphs rewritten with keyword integration
-- Added mention of WordPress alongside Shopify
+- Added mention of other platforms alongside Shopify
 - Emphasized full-width workspace
 - Highlighted privacy and security
 - Added "100% free word to HTML converter" to closing

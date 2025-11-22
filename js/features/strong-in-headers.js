@@ -10,7 +10,7 @@
  */
 export function applyStrongInHeaders(root, enable = true) {
   const headers = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  
+
   headers.forEach(header => {
     if (enable) {
       // Add <strong> if not already present
@@ -18,7 +18,7 @@ export function applyStrongInHeaders(root, enable = true) {
       if (header.querySelector(':scope > strong')) {
         return;
       }
-      
+
       // Wrap all content in <strong>
       const strong = document.createElement('strong');
       while (header.firstChild) {

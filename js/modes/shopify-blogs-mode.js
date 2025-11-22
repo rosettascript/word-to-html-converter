@@ -28,58 +28,58 @@ import { convertListsToNumberedHeadings } from '../features/convert-lists-to-num
 export function processShopifyBlogsMode(element, options = {}) {
   // Clone to avoid mutations
   const processed = element.cloneNode(true);
-  
+
   // Fix orphaned list items FIRST (before other processing)
   fixOrphanedListItems(processed);
-  
+
   // Convert sequential single-item ordered lists to numbered headings
   convertListsToNumberedHeadings(processed);
-  
+
   // Process Key Takeaways sections (remove <em>, normalize headings)
   processKeyTakeaways(processed);
-  
+
   // Remove any h1 elements after Key Takeaways sections
   removeH1AfterKeyTakeaways(processed);
-  
+
   // Remove <br> tags and empty <p> tags completely
   removeBrAndEmptyP(processed);
-  
+
   // Remove spaces/br after FAQ h2 headers
   removeSpaceAfterFAQHeaders(processed);
-  
+
   // Combine adjacent lists (don't combine if separated by <p>&nbsp;</p>)
   combineLists(processed, 'shopify-blogs');
-  
+
   // Add target="_blank" and rel="noopener noreferrer" to ALL links (internal and external)
   addExternalLinkAttributes(processed, options.baseDomain, true);
-  
+
   // Clean whitespace from anchor tags
   cleanAnchorWhitespace(processed);
-  
+
   // Unwrap unnecessary <p> tags inside list items
   unwrapPInList(processed);
-  
+
   // Remove <br> tags inside list items (invalid HTML)
   removeBrInLists(processed);
-  
+
   // Apply basic whitespace normalization (always on for Shopify Blogs)
   normalizeWhitespace(processed, 'basic');
-  
+
   // Add paragraph spacers (if not disabled by "Remove paragraph spacers" option)
   // Default: spacers are kept (removeParagraphSpacers = false - unchecked)
   // When checked: spacers are removed (removeParagraphSpacers = true)
   if (!options.removeParagraphSpacers) {
     addParagraphSpacers(processed);
   }
-  
+
   // Apply strong in headers (default: enabled for Shopify Blogs)
   const enableStrong = options.strongInHeaders !== false;
   applyStrongInHeaders(processed, enableStrong);
-  
+
   // Apply optional features
   if (options.removeDomain) {
     removeDomainFromLinks(processed);
   }
-  
+
   return processed;
 }

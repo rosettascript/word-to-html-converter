@@ -9,11 +9,11 @@
  */
 export function unwrapPInList(root) {
   const listItems = root.querySelectorAll('li');
-  
+
   listItems.forEach(li => {
     // Find all direct child <p> tags
     const pTags = Array.from(li.children).filter(child => child.tagName === 'P');
-    
+
     pTags.forEach(p => {
       // Move all children of <p> before the <p> element
       while (p.firstChild) {
@@ -24,4 +24,3 @@ export function unwrapPInList(root) {
     });
   });
 }
-

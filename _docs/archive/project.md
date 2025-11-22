@@ -17,7 +17,7 @@ This matters because:
 - **User Impact**: Inline styles override platform CSS, causing visual inconsistencies and breaking responsive layouts
 - **Business Impact**: Manual HTML cleaning is time-consuming (15-30 minutes per document), leading to delayed content publication and increased developer workload
 - **Technical Impact**: Inline styles make content harder to maintain, update, and style consistently across different platforms
-- **Platform-Specific Needs**: Different platforms (Shopify Blogs, Shopify Shoppables, WordPress, etc.) require different HTML structures and formatting rules, making manual cleaning even more complex
+- **Platform-Specific Needs**: Different platforms (Shopify Blogs, Shopify Shoppables, etc.) require different HTML structures and formatting rules, making manual cleaning even more complex
 
 **Example of the Problem:**
 
@@ -210,7 +210,7 @@ Enable content writers and developers to convert Word documents to clean, semant
 - **Demographics:** 32, works in agency, high tech savviness
 - **Goals:** Receive clean HTML from content team, minimize time spent fixing markup, ensure semantic structure
 - **Pain Points:** Receives HTML with inline styles that override CSS, has to manually clean 10-15 documents per week, wastes time on repetitive tasks
-- **Context:** Integrates content into client websites (Shopify, WordPress, custom CMS), works with multiple content writers
+- **Context:** Integrates content into client websites (Shopify, custom CMS), works with multiple content writers
 - **Frequency:** Weekly (receives multiple documents)
 - **Quote:** "Every time I get a Word-to-HTML conversion, I spend 15 minutes stripping out inline styles. This should be automated."
 
@@ -1556,7 +1556,7 @@ const result = cleanWordHTML(htmlString, {
 - **Blog Post:** "Introducing Word to HTML Converter: Clean HTML for Shopify Blogs and Shoppables"
 - **SEO Optimization:** Target keywords like "word to html", "word to html converter", "shopify blog html cleaner", "shopify shoppables html"
 - **Social Media:** Share on Twitter, LinkedIn, relevant subreddits, Shopify community forums
-- **Community Engagement:** Active participation in Shopify, WordPress, and developer communities
+- **Community Engagement:** Active participation in Shopify and developer communities
 - **Email Outreach:** Reach out to content teams and agencies (if contact list available)
 - **Content Marketing:** Highlight output modes (Regular, Shopify Blogs, Shopify Shoppables) in all marketing materials
 

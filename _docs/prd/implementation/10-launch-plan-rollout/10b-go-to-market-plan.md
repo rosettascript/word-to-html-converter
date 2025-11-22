@@ -10,7 +10,7 @@
 - **Blog Post:** "Introducing Word to HTML Converter: Clean HTML for Shopify Blogs and Shoppables"
 - **SEO Optimization:** Target keywords like "word to html", "word to html converter", "shopify blog html cleaner", "shopify shoppables html"
 - **Social Media:** Share on Twitter, LinkedIn, relevant subreddits, Shopify community forums
-- **Community Engagement:** Active participation in Shopify, WordPress, and developer communities
+- **Community Engagement:** Active participation in Shopify and developer communities
 - **Email Outreach:** Reach out to content teams and agencies (if contact list available)
 - **Content Marketing:** Highlight output modes (Regular, Shopify Blogs, Shopify Shoppables) in all marketing materials
 

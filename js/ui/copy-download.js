@@ -12,17 +12,17 @@ export function setupCopyDownload() {
   const copyButton = document.getElementById('copy-output');
   const downloadButton = document.getElementById('download-output');
   const outputCode = document.getElementById('output-html');
-  
+
   // Copy to Clipboard
   if (copyButton && outputCode) {
     copyButton.addEventListener('click', async () => {
       const html = outputCode.textContent;
-      
+
       if (!html || html.trim() === '') {
         showToast('Nothing to copy', 'warning');
         return;
       }
-      
+
       try {
         await navigator.clipboard.writeText(html);
         showToast('✓ Copied to clipboard');
@@ -32,17 +32,17 @@ export function setupCopyDownload() {
       }
     });
   }
-  
+
   // Download as File
   if (downloadButton && outputCode) {
     downloadButton.addEventListener('click', () => {
       const html = outputCode.textContent;
-      
+
       if (!html || html.trim() === '') {
         showToast('Nothing to download', 'warning');
         return;
       }
-      
+
       try {
         const blob = new Blob([html], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
@@ -53,7 +53,7 @@ export function setupCopyDownload() {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
+
         showToast('✓ Downloaded cleaned-html.html');
       } catch (error) {
         console.error('Download failed:', error);
@@ -62,5 +62,3 @@ export function setupCopyDownload() {
     });
   }
 }
-
-

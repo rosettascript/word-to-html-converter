@@ -11,16 +11,16 @@
  */
 export function addExternalLinkAttributes(root, baseDomain = null, allLinks = false) {
   const links = root.querySelectorAll('a[href]');
-  
+
   links.forEach(link => {
     const href = link.getAttribute('href');
     const linkType = classifyLink(href, baseDomain);
-    
+
     // Skip special links (mailto, tel) - these should never open in new tab
     if (linkType === 'special') {
       return;
     }
-    
+
     // Apply to all links or just external ones
     if (allLinks || linkType === 'external') {
       link.setAttribute('target', '_blank');
@@ -37,49 +37,43 @@ export function addExternalLinkAttributes(root, baseDomain = null, allLinks = fa
  */
 function classifyLink(href, baseDomain = null) {
   const normalized = href.trim();
-  
+
   // Relative paths → Internal
-  if (normalized.startsWith('/') || 
-      normalized.startsWith('./') || 
-      normalized.startsWith('../')) {
+  if (normalized.startsWith('/') || normalized.startsWith('./') || normalized.startsWith('../')) {
     return 'internal';
   }
-  
+
   // Anchor links → Internal
   if (normalized.startsWith('#')) {
     return 'internal';
   }
-  
+
   // Mailto/tel links → Special (no target="_blank")
-  if (normalized.startsWith('mailto:') || 
-      normalized.startsWith('tel:')) {
+  if (normalized.startsWith('mailto:') || normalized.startsWith('tel:')) {
     return 'special';
   }
-  
+
   // Check against configured domain (if provided)
   if (baseDomain) {
     try {
       const linkUrl = new URL(normalized, window.location.href);
       const configUrl = new URL(baseDomain);
-      
+
       // Compare hostname (ignore protocol, port, path)
       if (linkUrl.hostname === configUrl.hostname) {
         return 'internal';
       }
-    } catch (error) {
+    } catch {
       // Invalid URL, treat as internal (preserve as-is)
       return 'internal';
     }
   }
-  
+
   // Absolute URLs without configured domain → External
-  if (normalized.startsWith('http://') || 
-      normalized.startsWith('https://')) {
+  if (normalized.startsWith('http://') || normalized.startsWith('https://')) {
     return 'external';
   }
-  
+
   // Unknown/malformed → Internal (preserve as-is)
   return 'internal';
 }
-
-

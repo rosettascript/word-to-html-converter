@@ -22,61 +22,60 @@ let lastCleanedHTML = ''; // Store last cleaned HTML for lazy preview loading
  */
 export function setupConverterUI({ onProcess }) {
   processCallback = onProcess;
-  
+
   const inputDiv = document.getElementById('input-html');
   const outputCode = document.getElementById('output-html');
   const clearButton = document.getElementById('clear-input');
   const charCount = document.getElementById('input-char-count');
-  
+
   if (!inputDiv || !outputCode) {
     console.error('Required elements not found');
     return;
   }
-  
+
   // Function to update placeholder visibility
   function updatePlaceholder() {
-    const hasContent = inputDiv.innerHTML.trim() !== '' && 
-                       inputDiv.textContent.trim() !== '';
+    const hasContent = inputDiv.innerHTML.trim() !== '' && inputDiv.textContent.trim() !== '';
     if (hasContent) {
       inputDiv.classList.remove('has-placeholder');
     } else {
       inputDiv.classList.add('has-placeholder');
     }
   }
-  
+
   // Set up paste handling
-  inputDiv.addEventListener('paste', (e) => {
+  inputDiv.addEventListener('paste', e => {
     e.preventDefault();
-    
+
     try {
       // Get HTML from clipboard
       const html = e.clipboardData.getData('text/html') || e.clipboardData.getData('text/plain');
-      
+
       if (html) {
         // Strip all inline styles from the HTML for display
         const cleanedForDisplay = stripInlineStyles(html);
-        
+
         // Display the cleaned HTML rendered in the input
         inputDiv.innerHTML = cleanedForDisplay;
-        
+
         // Update placeholder visibility
         updatePlaceholder();
-        
+
         // Clean whitespace from anchor tags in the input display
         const anchors = inputDiv.querySelectorAll('a');
         anchors.forEach(anchor => {
           const originalText = anchor.textContent;
           const trimmedText = originalText.trim();
-          
+
           if (!trimmedText) return;
-          
+
           // Check if original had leading/trailing spaces
           const hadLeadingSpace = /^\s/.test(originalText);
           const hadTrailingSpace = /\s$/.test(originalText);
-          
+
           // Set the cleaned text (no spaces inside anchor)
           anchor.textContent = trimmedText;
-          
+
           // Move leading space OUTSIDE to previous sibling or create new text node
           if (hadLeadingSpace) {
             const prevSibling = anchor.previousSibling;
@@ -90,7 +89,7 @@ export function setupConverterUI({ onProcess }) {
               anchor.parentNode.insertBefore(document.createTextNode(' '), anchor);
             }
           }
-          
+
           // Move trailing space OUTSIDE to next sibling or create new text node
           if (hadTrailingSpace) {
             const nextSibling = anchor.nextSibling;
@@ -105,21 +104,21 @@ export function setupConverterUI({ onProcess }) {
             }
           }
         });
-        
+
         // Remove <br> tags inside list items (invalid HTML)
         const listItems = inputDiv.querySelectorAll('li');
         listItems.forEach(li => {
           const brTags = li.querySelectorAll('br');
           brTags.forEach(br => br.remove());
         });
-        
+
         // Fix orphaned list items in input display
         fixOrphanedListItems(inputDiv);
-        
+
         // Update character count (text only)
         const textContent = inputDiv.textContent || inputDiv.innerText || '';
         updateCharCount(textContent, charCount);
-        
+
         // Process the ORIGINAL HTML (with styles) for output
         processInputHTML(html);
       }
@@ -129,7 +128,7 @@ export function setupConverterUI({ onProcess }) {
       updateStatus('Paste failed', 'error');
     }
   });
-  
+
   // Set up manual input detection (in case user types or content changes)
   const debouncedProcess = debounce(() => {
     const html = inputDiv.innerHTML;
@@ -137,30 +136,30 @@ export function setupConverterUI({ onProcess }) {
       processInputHTML(html);
     }
   }, 500);
-  
+
   // Listen for any content changes
   const observer = new MutationObserver(() => {
     const textContent = inputDiv.textContent || inputDiv.innerText || '';
     updateCharCount(textContent, charCount);
-    
+
     // Update placeholder visibility
     updatePlaceholder();
-    
+
     // Check if instant processing is disabled
     const disableInstant = document.getElementById('disable-instant')?.checked;
-    
+
     if (!disableInstant && inputDiv.innerHTML.trim() !== '') {
       updateStatus('Processing...', 'processing');
       debouncedProcess();
     }
   });
-  
+
   observer.observe(inputDiv, {
     childList: true,
     subtree: true,
-    characterData: true
+    characterData: true,
   });
-  
+
   // Clear button
   if (clearButton) {
     clearButton.addEventListener('click', () => {
@@ -170,25 +169,60 @@ export function setupConverterUI({ onProcess }) {
       clearError();
       updateStatus('', 'idle');
       updatePlaceholder();
-      
+
       // Clear preview frame
       const previewFrame = document.getElementById('preview-frame');
       if (previewFrame) {
         previewFrame.srcdoc = '';
       }
-      
+
       // Clear stored cleaned HTML
       lastCleanedHTML = '';
     });
   }
-  
+
   // Initial state
   updateCharCount('', charCount);
   updatePlaceholder();
-  
+
+  // Toolbar collapse toggle (mobile)
+  const toolbar = document.querySelector('.converter-toolbar');
+  const toolbarToggle = document.getElementById('toolbar-toggle');
+  if (toolbar && toolbarToggle) {
+    // Start collapsed on small screens
+    function setInitialToolbarState() {
+      if (window.matchMedia('(max-width: 1023px)').matches) {
+        toolbar.classList.add('collapsed');
+        toolbarToggle.setAttribute('aria-expanded', 'false');
+      } else {
+        toolbar.classList.remove('collapsed');
+        toolbarToggle.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    setInitialToolbarState();
+    window.addEventListener('resize', setInitialToolbarState);
+
+    toolbarToggle.addEventListener('click', () => {
+      const isCollapsed = toolbar.classList.toggle('collapsed');
+      // Toggle explicit expanded state for accessibility
+      toolbarToggle.setAttribute('aria-expanded', (!isCollapsed).toString());
+      // Mark toolbar expanded class when open
+      if (!isCollapsed) toolbar.classList.add('expanded');
+      else toolbar.classList.remove('expanded');
+    });
+  }
+
   // Listen for preview-requested event (when user switches to preview mode)
   document.addEventListener('preview-requested', () => {
     if (lastCleanedHTML) {
+      renderPreview(lastCleanedHTML);
+    }
+  });
+
+  // Listen for theme changes to update preview if active
+  document.addEventListener('theme-changed', () => {
+    if (isPreviewModeActive() && lastCleanedHTML) {
       renderPreview(lastCleanedHTML);
     }
   });
@@ -219,8 +253,10 @@ function renderPreview(cleanedHTML) {
 function processInputHTML(inputHTML) {
   const outputCode = document.getElementById('output-html');
   const previewFrame = document.getElementById('preview-frame');
-  
+  const outputView = document.getElementById('output-code-view');
+
   if (!inputHTML || inputHTML.trim() === '') {
+    if (outputView) outputView.removeAttribute('aria-busy');
     outputCode.textContent = '';
     if (previewFrame) {
       previewFrame.srcdoc = '';
@@ -229,32 +265,42 @@ function processInputHTML(inputHTML) {
     updateStatus('', 'idle');
     return;
   }
-  
+
+  // Show DOM spinner (if present)
+  const spinner = document.getElementById('processing-spinner');
+  if (spinner) spinner.classList.add('show');
+
   try {
+    // Mark output as busy for screen readers and show processing status
+    if (outputView) outputView.setAttribute('aria-busy', 'true');
+    updateStatus('Processing...', 'processing');
+
     // Call the processor
     const cleanedHTML = processCallback(inputHTML, currentMode, currentOptions);
-    
+
     // Performance monitoring for large content
     const startTime = performance.now();
-    
+
     // Format HTML with proper indentation
     const formattedHTML = formatHTML(cleanedHTML, 4); // 4 spaces indentation
-    
+
     // Escape HTML for display
     const escapedHTML = escapeHTML(formattedHTML);
-    
+
     // Apply syntax highlighting (with performance optimization)
     const highlightedHTML = applySyntaxHighlighting(escapedHTML);
-    
+
     // Log performance for large content
     const duration = performance.now() - startTime;
     if (cleanedHTML.length > 100 * 1024 && duration > 100) {
-      console.warn(`Syntax highlighting took ${duration.toFixed(2)}ms for ${(cleanedHTML.length / 1024).toFixed(2)}KB content`);
+      console.warn(
+        `Syntax highlighting took ${duration.toFixed(2)}ms for ${(cleanedHTML.length / 1024).toFixed(2)}KB content`
+      );
     }
-    
+
     // Update output (use innerHTML for syntax highlighting)
     outputCode.innerHTML = highlightedHTML;
-    
+
     // Scroll code view to top after content is rendered
     const codeView = document.getElementById('output-code-view');
     if (codeView) {
@@ -266,10 +312,10 @@ function processInputHTML(inputHTML) {
         });
       });
     }
-    
+
     // Store cleaned HTML for lazy preview loading
     lastCleanedHTML = cleanedHTML;
-    
+
     // Update preview only if preview mode is currently active
     if (previewFrame && isPreviewModeActive()) {
       const styledHTML = addPreviewStyles(cleanedHTML);
@@ -281,14 +327,17 @@ function processInputHTML(inputHTML) {
         }
       };
     }
-    
+
     clearError();
     updateStatus('HTML cleaned successfully', 'success');
-    
+    if (outputView) outputView.removeAttribute('aria-busy');
+    if (spinner) spinner.classList.remove('show');
   } catch (error) {
     console.error('Processing error:', error);
     showError(error.message || 'Unable to parse HTML. Please check your input for errors.');
     updateStatus('Processing failed', 'error');
+    if (outputView) outputView.removeAttribute('aria-busy');
+    if (spinner) spinner.classList.remove('show');
   }
 }
 
@@ -315,44 +364,63 @@ function escapeHTML(html) {
 function stripInlineStyles(html) {
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = html;
-  
+
   // First, convert inline styled bold/italic to semantic tags
   // Process in reverse order to handle nested elements correctly
   const allElements = Array.from(tempDiv.querySelectorAll('*')).reverse();
-  
+
   allElements.forEach(el => {
     const style = el.getAttribute('style');
     if (!style) return;
-    
+
     const isBold = /font-weight:\s*(bold|700|600)/i.test(style);
     const isItalic = /font-style:\s*italic/i.test(style);
     const isSuperscript = /vertical-align:\s*super/i.test(style);
     const isSubscript = /vertical-align:\s*sub/i.test(style);
-    
+
     // Skip if already proper semantic tags (these should keep their tags)
-    if (el.tagName === 'STRONG' || el.tagName === 'B' || el.tagName === 'EM' || el.tagName === 'I' || 
-        el.tagName === 'SUP' || el.tagName === 'SUB') {
+    if (
+      el.tagName === 'STRONG' ||
+      el.tagName === 'B' ||
+      el.tagName === 'EM' ||
+      el.tagName === 'I' ||
+      el.tagName === 'SUP' ||
+      el.tagName === 'SUB'
+    ) {
       return;
     }
-    
+
     // Skip structural elements like headings, p, li, etc.
     // Only wrap inline elements or spans
-    const structuralTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'LI', 'TD', 'TH', 'DIV', 'BLOCKQUOTE'];
+    const structuralTags = [
+      'H1',
+      'H2',
+      'H3',
+      'H4',
+      'H5',
+      'H6',
+      'P',
+      'LI',
+      'TD',
+      'TH',
+      'DIV',
+      'BLOCKQUOTE',
+    ];
     if (structuralTags.includes(el.tagName)) {
       return;
     }
-    
+
     // Handle bold, italic, superscript, and subscript for inline elements (like SPAN)
     if (isBold || isItalic || isSuperscript || isSubscript) {
       let content = el.innerHTML;
-      
+
       // Wrap in appropriate tags (order matters: innermost first)
       if (isSuperscript) {
         content = `<sup>${content}</sup>`;
       } else if (isSubscript) {
         content = `<sub>${content}</sub>`;
       }
-      
+
       if (isBold && isItalic) {
         content = `<strong><em>${content}</em></strong>`;
       } else if (isBold) {
@@ -360,17 +428,17 @@ function stripInlineStyles(html) {
       } else if (isItalic) {
         content = `<em>${content}</em>`;
       }
-      
+
       // Replace element's innerHTML with wrapped content
       el.innerHTML = content;
     }
   });
-  
+
   // Now remove all style attributes and unwrap unnecessary spans
   const allElementsAgain = Array.from(tempDiv.querySelectorAll('*'));
   allElementsAgain.forEach(el => {
     el.removeAttribute('style');
-    
+
     // Unwrap spans that have no purpose (they were just style carriers)
     if (el.tagName === 'SPAN' && !el.hasAttributes()) {
       const parent = el.parentNode;
@@ -382,7 +450,7 @@ function stripInlineStyles(html) {
       }
     }
   });
-  
+
   return tempDiv.innerHTML;
 }
 
@@ -392,6 +460,17 @@ function stripInlineStyles(html) {
  * @returns {string} - HTML with embedded styles
  */
 function addPreviewStyles(html) {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+
+  // Theme-aware colors
+  const isHighContrast = currentTheme === 'high-contrast';
+  const bodyColor = isHighContrast ? '#FFFFFF' : '#2C2C2C';
+  const bodyBg = isHighContrast ? '#000000' : '#FFFFFF';
+  const linkColor = isHighContrast ? '#FFD28A' : '#C9A88F';
+  const blockquoteBorder = isHighContrast ? '#FFD28A' : '#C9A88F';
+  const blockquoteColor = isHighContrast ? '#E6E6E6' : '#666666';
+  const tableBorder = isHighContrast ? 'rgba(255, 210, 138, 0.4)' : '#DDDDDD';
+
   const styles = `
     <style>
       body {
@@ -399,7 +478,8 @@ function addPreviewStyles(html) {
         font-size: 17px;
         font-weight: 400;
         line-height: 1.65;
-        color: #2C2C2C;
+        color: ${bodyColor};
+        background: ${bodyBg};
         padding: 24px;
         margin: 0;
       }
@@ -419,16 +499,16 @@ function addPreviewStyles(html) {
       em, i { font-style: italic; }
       sup { vertical-align: super; font-size: 0.75em; }
       sub { vertical-align: sub; font-size: 0.75em; }
-      a { color: #C9A88F; text-decoration: underline; }
+      a { color: ${linkColor}; text-decoration: underline; }
       blockquote {
         margin: 16px 0;
         padding-left: 24px;
-        border-left: 3px solid #C9A88F;
-        color: #666;
+        border-left: 3px solid ${blockquoteBorder};
+        color: ${blockquoteColor};
         font-weight: 400;
       }
       table { border-collapse: collapse; margin-bottom: 16px; }
-      th, td { padding: 8px; border: 1px solid #ddd; font-weight: 400; }
+      th, td { padding: 8px; border: 1px solid ${tableBorder}; font-weight: 400; }
       th { font-weight: 600; }
     </style>
   `;
@@ -454,9 +534,10 @@ function updateCharCount(text, element) {
   if (element) {
     const count = text.length;
     element.textContent = `${count.toLocaleString()} characters`;
-    
+
     // Show warning for large content
-    if (count > 5 * 1024 * 1024) {  // > 5MB
+    if (count > 5 * 1024 * 1024) {
+      // > 5MB
       element.textContent += ' ⚠️ Large document may take longer to process';
     }
   }
@@ -489,4 +570,3 @@ function reprocess() {
     processInputHTML(inputDiv.innerHTML);
   }
 }
-

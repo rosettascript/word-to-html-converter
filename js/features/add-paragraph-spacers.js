@@ -10,13 +10,13 @@
 export function addParagraphSpacers(root) {
   // 1. Add spacers before every header (except in Key Takeaways section)
   addSpacersBeforeHeaders(root);
-  
+
   // 2. Add spacer after the list in Key Takeaways section
   addSpacerAfterKeyTakeawaysList(root);
-  
+
   // 3. Add spacer before Read Also/Read More sections
   addSpacerBeforeReadSections(root);
-  
+
   // 4. Remove spacer between FAQ h2 and first h3 question
   removeSpacerAfterFAQHeader(root);
 }
@@ -27,25 +27,25 @@ export function addParagraphSpacers(root) {
  */
 function addSpacersBeforeHeaders(root) {
   const headers = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  
+
   headers.forEach(header => {
     // Check if header IS the Key Takeaways heading
     const headerText = header.textContent.trim().toLowerCase();
     if (headerText.includes('key takeaway')) {
       return; // Skip the Key Takeaways heading itself
     }
-    
+
     // Check if header is in Key Takeaways section
     if (isInKeyTakeawaysSection(header)) {
       return; // Skip headers in Key Takeaways section
     }
-    
+
     // Check if there's already a spacer before this header
     const prevSibling = header.previousElementSibling;
     if (prevSibling && prevSibling.tagName === 'P' && prevSibling.innerHTML.trim() === '&nbsp;') {
       return; // Already has spacer
     }
-    
+
     // Create and insert spacer
     const spacer = document.createElement('p');
     spacer.innerHTML = '&nbsp;';
@@ -59,7 +59,7 @@ function addSpacersBeforeHeaders(root) {
  */
 function addSpacerAfterKeyTakeawaysList(root) {
   const headings = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  
+
   headings.forEach(heading => {
     const headingText = heading.textContent.trim().toLowerCase();
     if (headingText.includes('key takeaway')) {
@@ -69,22 +69,26 @@ function addSpacerAfterKeyTakeawaysList(root) {
         if (nextElement.tagName === 'UL' || nextElement.tagName === 'OL') {
           // Check if there's already a spacer after the list
           const nextSibling = nextElement.nextElementSibling;
-          if (nextSibling && nextSibling.tagName === 'P' && nextSibling.innerHTML.trim() === '&nbsp;') {
+          if (
+            nextSibling &&
+            nextSibling.tagName === 'P' &&
+            nextSibling.innerHTML.trim() === '&nbsp;'
+          ) {
             return; // Already has spacer
           }
-          
+
           // Create and insert spacer after the list
           const spacer = document.createElement('p');
           spacer.innerHTML = '&nbsp;';
           nextElement.parentNode.insertBefore(spacer, nextElement.nextSibling);
           break;
         }
-        
+
         // Stop if we hit another heading
         if (/^H[1-6]$/.test(nextElement.tagName)) {
           break;
         }
-        
+
         nextElement = nextElement.nextElementSibling;
       }
     }
@@ -99,26 +103,32 @@ function addSpacerBeforeReadSections(root) {
   // Check both headings (h1-h6) and paragraphs with strong tags
   const headings = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
   const paragraphs = root.querySelectorAll('p');
-  
+
   // Process headings
   headings.forEach(heading => {
     const headingText = heading.textContent.trim().toLowerCase();
-    
+
     // Match variations: "read also:", "read more:", "related articles:", etc.
-    const isReadSection = /^(read\s+(also|more)|related\s+(articles|posts|content)|see\s+also|further\s+reading):/i.test(headingText);
-    
+    const isReadSection =
+      /^(read\s+(also|more)|related\s+(articles|posts|content)|see\s+also|further\s+reading):/i.test(
+        headingText
+      );
+
     if (isReadSection) {
       addSpacerBeforeElement(heading);
     }
   });
-  
+
   // Process paragraphs (e.g., <p><strong>Read also:</strong></p>)
   paragraphs.forEach(paragraph => {
     const paragraphText = paragraph.textContent.trim().toLowerCase();
-    
+
     // Match variations: "read also:", "read more:", "related articles:", etc.
-    const isReadSection = /^(read\s+(also|more)|related\s+(articles|posts|content)|see\s+also|further\s+reading):/i.test(paragraphText);
-    
+    const isReadSection =
+      /^(read\s+(also|more)|related\s+(articles|posts|content)|see\s+also|further\s+reading):/i.test(
+        paragraphText
+      );
+
     if (isReadSection) {
       addSpacerBeforeElement(paragraph);
     }
@@ -135,7 +145,7 @@ function addSpacerBeforeElement(element) {
   if (prevSibling && prevSibling.tagName === 'P' && prevSibling.innerHTML.trim() === '&nbsp;') {
     return; // Already has spacer
   }
-  
+
   // Create and insert spacer
   const spacer = document.createElement('p');
   spacer.innerHTML = '&nbsp;';
@@ -148,13 +158,13 @@ function addSpacerBeforeElement(element) {
  */
 function removeSpacerAfterFAQHeader(root) {
   const h2Headers = root.querySelectorAll('h2');
-  
+
   h2Headers.forEach(h2 => {
     const text = h2.textContent.toLowerCase();
     if (text.includes('faq') || text.includes('frequently asked questions')) {
       // Find next sibling that's a spacer followed by h3
       let nextElement = h2.nextElementSibling;
-      
+
       while (nextElement) {
         // If we find a spacer
         if (nextElement.tagName === 'P' && nextElement.innerHTML.trim() === '&nbsp;') {
@@ -166,12 +176,16 @@ function removeSpacerAfterFAQHeader(root) {
             break;
           }
         }
-        
+
         // Stop if we hit h3 or another major heading
-        if (nextElement.tagName === 'H3' || nextElement.tagName === 'H2' || nextElement.tagName === 'H1') {
+        if (
+          nextElement.tagName === 'H3' ||
+          nextElement.tagName === 'H2' ||
+          nextElement.tagName === 'H1'
+        ) {
           break;
         }
-        
+
         nextElement = nextElement.nextElementSibling;
       }
     }
@@ -187,10 +201,10 @@ function isInKeyTakeawaysSection(element) {
   // Find the Key Takeaways heading
   const root = element.ownerDocument.body || element.ownerDocument.documentElement;
   const headings = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  
+
   let keyTakeawaysHeading = null;
   let keyTakeawaysLevel = null;
-  
+
   // Find Key Takeaways heading
   headings.forEach(heading => {
     const text = heading.textContent.trim().toLowerCase();
@@ -199,11 +213,11 @@ function isInKeyTakeawaysSection(element) {
       keyTakeawaysLevel = parseInt(heading.tagName.substring(1));
     }
   });
-  
+
   if (!keyTakeawaysHeading) {
     return false;
   }
-  
+
   // Check if element is between Key Takeaways heading and next heading of same or higher level
   let current = keyTakeawaysHeading.nextElementSibling;
   while (current) {
@@ -211,7 +225,7 @@ function isInKeyTakeawaysSection(element) {
     if (current === element) {
       return true;
     }
-    
+
     // If we hit a heading of same or higher level, stop
     if (/^H[1-6]$/.test(current.tagName)) {
       const currentLevel = parseInt(current.tagName.substring(1));
@@ -219,10 +233,9 @@ function isInKeyTakeawaysSection(element) {
         return false; // We've left the Key Takeaways section
       }
     }
-    
+
     current = current.nextElementSibling;
   }
-  
+
   return false;
 }
-

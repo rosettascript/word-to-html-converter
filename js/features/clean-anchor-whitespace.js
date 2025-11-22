@@ -10,20 +10,20 @@
  */
 export function cleanAnchorWhitespace(root) {
   const anchors = root.querySelectorAll('a');
-  
+
   anchors.forEach(anchor => {
     const originalText = anchor.textContent;
     const trimmedText = originalText.trim();
-    
+
     if (!trimmedText) return;
-    
+
     // Check if original had leading/trailing spaces
     const hadLeadingSpace = /^\s/.test(originalText);
     const hadTrailingSpace = /\s$/.test(originalText);
-    
+
     // Set the cleaned text (no spaces inside anchor)
     anchor.textContent = trimmedText;
-    
+
     // Move leading space OUTSIDE to previous sibling or create new text node
     if (hadLeadingSpace) {
       const prevSibling = anchor.previousSibling;
@@ -37,7 +37,7 @@ export function cleanAnchorWhitespace(root) {
         anchor.parentNode.insertBefore(document.createTextNode(' '), anchor);
       }
     }
-    
+
     // Move trailing space OUTSIDE to next sibling or create new text node
     if (hadTrailingSpace) {
       const nextSibling = anchor.nextSibling;
@@ -53,4 +53,3 @@ export function cleanAnchorWhitespace(root) {
     }
   });
 }
-

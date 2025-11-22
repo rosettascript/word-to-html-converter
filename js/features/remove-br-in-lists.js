@@ -10,15 +10,14 @@
 export function removeBrInLists(root) {
   // Find all list items (li elements)
   const listItems = root.querySelectorAll('li');
-  
+
   listItems.forEach(li => {
     // Find all <br> tags inside this list item
     const brTags = li.querySelectorAll('br');
-    
+
     // Remove each <br> tag
     brTags.forEach(br => {
       br.remove();
     });
   });
 }
-

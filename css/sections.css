@@ -21,9 +21,9 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-3xl) var(--gutter-mobile);
-  background: linear-gradient(135deg, 
-    rgba(201, 168, 143, 0.08) 0%,
-    rgba(212, 181, 168, 0.08) 100%);
+  background: linear-gradient(135deg,
+    var(--color-accent-terracotta-08) 0%,
+    var(--color-accent-terracotta-08) 100%);
 }
 
 @media (min-width: 640px) {
@@ -145,9 +145,9 @@
 }
 
 .feature-card {
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--color-panel-bg);
   backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(201, 168, 143, 0.4);
+  border: 1.5px solid var(--color-accent-taupe-04);
   border-radius: var(--radius-md);
   padding: var(--space-xl);
   box-shadow: var(--shadow-sm);
@@ -158,7 +158,7 @@
 .feature-card:hover {
   transform: translateY(-6px);
   box-shadow: var(--shadow-md);
-  border-color: rgba(201, 168, 143, 0.6);
+  border-color: var(--color-accent-taupe-06);
 }
 
 .feature-icon {
@@ -224,7 +224,7 @@
   font-weight: var(--font-weight-medium);
   color: var(--color-text-primary);
   padding: var(--space-lg);
-  background: rgba(201, 168, 143, 0.1);
+  background: var(--color-accent-taupe-01);
   border-left: 4px solid var(--color-accent-taupe);
   border-radius: var(--radius-sm);
   margin-top: var(--space-xl);
@@ -261,16 +261,16 @@
 }
 
 .faq-item {
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--color-panel-bg);
   backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(201, 168, 143, 0.4);
+  border: 1.5px solid var(--color-accent-taupe-04);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-lg);
   transition: all var(--transition-fast);
 }
 
 .faq-item:hover {
-  border-color: rgba(201, 168, 143, 0.6);
+  border-color: var(--color-accent-taupe-06);
   box-shadow: var(--shadow-sm);
 }
 
@@ -336,6 +336,82 @@
 }
 
 /* ==========================================================================
+   Content Section (for tutorial pages)
+   ========================================================================== */
+
+.content-section {
+  background: var(--color-bg-primary);
+  padding: var(--space-3xl) var(--gutter-mobile);
+}
+
+@media (min-width: 640px) {
+  .content-section {
+    padding: var(--space-3xl) var(--gutter-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .content-section {
+    padding: var(--space-3xl) var(--gutter-desktop);
+  }
+}
+
+/* ==========================================================================
+   Site Navigation
+   ========================================================================== */
+
+.site-navigation {
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-accent-taupe-02);
+  padding: var(--space-lg) 0;
+}
+
+.nav-container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--gutter-mobile);
+}
+
+@media (min-width: 640px) {
+  .nav-container {
+    padding: 0 var(--gutter-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .nav-container {
+    padding: 0 var(--gutter-desktop);
+  }
+}
+
+.nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+}
+
+.nav-list li {
+  margin: 0;
+}
+
+.nav-list a {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  transition: color var(--transition-fast);
+}
+
+.nav-list a:hover {
+  color: var(--color-accent-taupe);
+}
+
+/* ==========================================================================
    Footer
    ========================================================================== */
 
@@ -343,7 +419,7 @@
   padding: var(--space-3xl) 0;
   background: var(--color-bg-secondary);
   text-align: center;
-  border-top: 1px solid rgba(201, 168, 143, 0.2);
+  border-top: 1px solid var(--color-accent-taupe-02);
 }
 
 .footer-text {

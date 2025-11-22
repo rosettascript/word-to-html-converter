@@ -11,7 +11,7 @@ export function removeBrAndEmptyP(root) {
   // Remove all <br> tags
   const brTags = Array.from(root.querySelectorAll('br'));
   brTags.forEach(br => br.remove());
-  
+
   // Remove all empty <p> tags (no content or only whitespace)
   const pTags = Array.from(root.querySelectorAll('p'));
   pTags.forEach(p => {
@@ -20,5 +20,3 @@ export function removeBrAndEmptyP(root) {
     }
   });
 }
-
-

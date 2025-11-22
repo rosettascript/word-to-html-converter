@@ -10,28 +10,26 @@ import { setupPreviewToggle } from './ui/preview-toggle.js';
 import { setupCopyDownload } from './ui/copy-download.js';
 import { setupScrollSpy, setupHashNavigation } from './ui/scroll-spy.js';
 import { processHTML } from './core/processor.js';
+import { setupThemeToggle } from './ui/theme-toggle.js';
 
 /**
  * Initialize the application
  */
 function init() {
-  console.log('🚀 Word to HTML Converter initialized');
-  
   // Set up UI components
   setupConverterUI({ onProcess: handleProcess });
   setupModeSelector();
   setupFeatureToggles();
   setupPreviewToggle();
   setupCopyDownload();
-  
+  setupThemeToggle();
+
   // Set up scroll spy for hash navigation
   setupScrollSpy();
   setupHashNavigation();
-  
+
   // Set up FAQ accordion interactions
   setupFAQAccordion();
-  
-  console.log('✅ All components ready');
 }
 
 /**

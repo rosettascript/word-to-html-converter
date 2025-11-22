@@ -25,21 +25,21 @@ export function processHTML(inputHTML, mode = 'regular', options = {}) {
   if (!inputHTML || inputHTML.trim() === '') {
     return '';
   }
-  
+
   try {
     // Step 1: Parse HTML
     const parser = new DOMParser();
     const doc = parser.parseFromString(inputHTML, 'text/html');
-    
+
     // Check for parse errors
     const parseError = doc.querySelector('parsererror');
     if (parseError) {
       throw new Error('Unable to parse HTML. Please check your input for errors.');
     }
-    
+
     // Step 2: Base sanitization (remove dangerous elements, strip styles, etc.)
     const sanitized = sanitizeHTML(doc.body);
-    
+
     // Step 3: Mode-specific processing
     let processed;
     switch (mode) {
@@ -54,14 +54,11 @@ export function processHTML(inputHTML, mode = 'regular', options = {}) {
         processed = processRegularMode(sanitized, options);
         break;
     }
-    
+
     // Step 4: Return cleaned HTML
     return processed.innerHTML;
-    
   } catch (error) {
     console.error('Processing error:', error);
     throw error;
   }
 }
-
-

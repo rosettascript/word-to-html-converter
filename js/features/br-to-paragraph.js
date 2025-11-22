@@ -9,11 +9,9 @@
  */
 export function replaceBrWithParagraph(root) {
   const brTags = Array.from(root.querySelectorAll('br'));
-  
+
   brTags.forEach(br => {
     const emptyP = document.createElement('p');
     br.parentNode.replaceChild(emptyP, br);
   });
 }
-
-

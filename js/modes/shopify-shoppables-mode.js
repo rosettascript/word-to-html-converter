@@ -25,45 +25,45 @@ import { removeEmptyP } from '../features/remove-empty-p.js';
 export function processShopifyShoppablesMode(element, options = {}) {
   // Clone to avoid mutations
   const processed = element.cloneNode(true);
-  
+
   // Fix orphaned list items FIRST (before other processing)
   fixOrphanedListItems(processed);
-  
+
   // Convert sequential single-item ordered lists to numbered headings
   convertListsToNumberedHeadings(processed);
-  
+
   // Replace <br> tags with empty <p></p> tags
   replaceBrWithParagraph(processed);
-  
+
   // Remove empty <p></p> tags
   removeEmptyP(processed);
-  
+
   // Apply safe minification (aggressive whitespace removal)
   normalizeWhitespace(processed, 'minify');
-  
+
   // Combine adjacent lists (remove <p>&nbsp;</p> spacers in Shoppables mode)
   combineLists(processed, 'shopify-shoppables');
-  
+
   // Add target="_blank" and rel="noopener noreferrer" to ALL links (internal and external)
   addExternalLinkAttributes(processed, options.baseDomain, true);
-  
+
   // Clean whitespace from anchor tags
   cleanAnchorWhitespace(processed);
-  
+
   // Unwrap unnecessary <p> tags inside list items
   unwrapPInList(processed);
-  
+
   // Remove <br> tags inside list items (invalid HTML)
   removeBrInLists(processed);
-  
+
   // Apply strong in headers (default: enabled for Shopify Shoppables)
   const enableStrong = options.strongInHeaders !== false;
   applyStrongInHeaders(processed, enableStrong);
-  
+
   // Apply optional features
   if (options.removeDomain) {
     removeDomainFromLinks(processed);
   }
-  
+
   return processed;
 }

@@ -9,10 +9,10 @@
  */
 export function processKeyTakeaways(root) {
   const headings = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  
+
   headings.forEach(heading => {
     const headingText = heading.textContent.trim().toLowerCase();
-    
+
     // Check if heading is "Key Takeaways" (case-insensitive)
     if (headingText === 'key takeaways' || headingText === 'key takeaways:') {
       // Remove <em> tags from the heading (preserve <strong> and other tags)
@@ -21,7 +21,7 @@ export function processKeyTakeaways(root) {
         const textNode = document.createTextNode(em.textContent);
         em.parentNode.replaceChild(textNode, em);
       });
-      
+
       // Ensure heading ends with colon (preserve existing structure)
       if (!heading.textContent.trim().endsWith(':')) {
         // Find the last text node and append colon to it
@@ -33,10 +33,10 @@ export function processKeyTakeaways(root) {
           heading.appendChild(document.createTextNode(':'));
         }
       }
-      
+
       // Find the section following this heading (until next heading of same or higher level)
       const section = findSectionContent(heading);
-      
+
       // Remove <em> tags within the section
       section.forEach(element => {
         const emTags = element.querySelectorAll('em');
@@ -52,25 +52,20 @@ export function processKeyTakeaways(root) {
 
 /**
  * Find the last text node in an element
- * @param {HTMLElement} element 
+ * @param {HTMLElement} element
  * @returns {Text|null}
  */
 function findLastTextNode(element) {
   let lastText = null;
-  const walker = document.createTreeWalker(
-    element,
-    NodeFilter.SHOW_TEXT,
-    null,
-    false
-  );
-  
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+
   let node;
-  while (node = walker.nextNode()) {
+  while ((node = walker.nextNode())) {
     if (node.textContent.trim()) {
       lastText = node;
     }
   }
-  
+
   return lastText;
 }
 
@@ -82,9 +77,9 @@ function findLastTextNode(element) {
 function findSectionContent(heading) {
   const headingLevel = parseInt(heading.tagName.substring(1));
   const sectionElements = [];
-  
+
   let sibling = heading.nextElementSibling;
-  
+
   while (sibling) {
     // Stop if we encounter a heading of same or higher level
     if (/^H[1-6]$/.test(sibling.tagName)) {
@@ -93,12 +88,10 @@ function findSectionContent(heading) {
         break;
       }
     }
-    
+
     sectionElements.push(sibling);
     sibling = sibling.nextElementSibling;
   }
-  
+
   return sectionElements;
 }
-
-

@@ -12,7 +12,7 @@ This matters because:
 - **User Impact**: Inline styles override platform CSS, causing visual inconsistencies and breaking responsive layouts
 - **Business Impact**: Manual HTML cleaning is time-consuming (15-30 minutes per document), leading to delayed content publication and increased developer workload
 - **Technical Impact**: Inline styles make content harder to maintain, update, and style consistently across different platforms
-- **Platform-Specific Needs**: Different platforms (Shopify Blogs, Shopify Shoppables, WordPress, etc.) require different HTML structures and formatting rules, making manual cleaning even more complex
+- **Platform-Specific Needs**: Different platforms (Shopify Blogs, Shopify Shoppables, etc.) require different HTML structures and formatting rules, making manual cleaning even more complex
 
 **Example of the Problem:**
 

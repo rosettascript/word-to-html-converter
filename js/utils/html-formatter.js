@@ -13,28 +13,68 @@ export function formatHTML(html, indentSize = 4) {
   if (!html || html.trim() === '') {
     return '';
   }
-  
+
   const indent = ' '.repeat(indentSize);
   let formatted = '';
   let indentLevel = 0;
-  
+
   // Define inline elements that should stay on one line
-  const inlineElements = ['a', 'strong', 'em', 'span', 'b', 'i', 'u', 'code', 'small', 'sup', 'sub'];
-  
+  const inlineElements = [
+    'a',
+    'strong',
+    'em',
+    'span',
+    'b',
+    'i',
+    'u',
+    'code',
+    'small',
+    'sup',
+    'sub',
+  ];
+
   // Block elements that should have their content on new lines
-  const blockElements = ['div', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'section', 'article', 'header', 'footer', 'nav', 'main', 'aside', 'blockquote', 'pre', 'table', 'tr', 'td', 'th', 'thead', 'tbody', 'tfoot'];
-  
+  const blockElements = [
+    'div',
+    'p',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'ul',
+    'ol',
+    'li',
+    'section',
+    'article',
+    'header',
+    'footer',
+    'nav',
+    'main',
+    'aside',
+    'blockquote',
+    'pre',
+    'table',
+    'tr',
+    'td',
+    'th',
+    'thead',
+    'tbody',
+    'tfoot',
+  ];
+
   // Parse HTML into tokens (tags and text)
   const tokens = tokenizeHTML(html);
-  
+
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
-    
+
     if (token.type === 'openingTag' || token.type === 'selfClosingTag') {
       const tagName = extractTagName(token.content);
       const isBlock = blockElements.includes(tagName);
       const isInline = inlineElements.includes(tagName);
-      
+
       // Check if this is a block element that might contain inline content
       if (isBlock) {
         // Find the closing tag for this block element
@@ -43,7 +83,10 @@ export function formatHTML(html, indentSize = 4) {
         for (let j = i + 1; j < tokens.length; j++) {
           if (tokens[j].type === 'openingTag' && extractTagName(tokens[j].content) === tagName) {
             depth++;
-          } else if (tokens[j].type === 'closingTag' && extractTagName(tokens[j].content) === tagName) {
+          } else if (
+            tokens[j].type === 'closingTag' &&
+            extractTagName(tokens[j].content) === tagName
+          ) {
             depth--;
             if (depth === 0) {
               closingTagIndex = j;
@@ -51,7 +94,7 @@ export function formatHTML(html, indentSize = 4) {
             }
           }
         }
-        
+
         if (closingTagIndex !== -1) {
           // Check if content between opening and closing is all inline/text
           let hasOnlyInlineContent = true;
@@ -64,35 +107,35 @@ export function formatHTML(html, indentSize = 4) {
               }
             }
           }
-          
+
           // If block element contains only inline content, format it on one line
           if (hasOnlyInlineContent) {
             formatted += indent.repeat(indentLevel) + token.content;
-            
+
             // Collect all inline content (text and inline tags)
             let lastTokenWasClosingInlineTag = false;
             for (let j = i + 1; j < closingTagIndex; j++) {
               if (tokens[j].type === 'text') {
                 let text = tokens[j].content;
-                
+
                 // Normalize whitespace: collapse multiple spaces to one
                 text = text.replace(/\s+/g, ' ');
-                
+
                 // Trim leading space if first text node
                 if (j === i + 1) {
                   text = text.replace(/^\s+/, '');
                 }
-                
+
                 // Trim trailing space if last text node
                 if (j === closingTagIndex - 1) {
                   text = text.replace(/\s+$/, '');
                 }
-                
+
                 // Remove leading space if text starts with punctuation and previous was closing inline tag
                 if (lastTokenWasClosingInlineTag && /^\s*[,:;.!?]/.test(text)) {
                   text = text.replace(/^\s+/, '');
                 }
-                
+
                 if (text) {
                   formatted += text;
                   lastTokenWasClosingInlineTag = false;
@@ -106,13 +149,13 @@ export function formatHTML(html, indentSize = 4) {
                 lastTokenWasClosingInlineTag = false;
               }
             }
-            
+
             formatted += tokens[closingTagIndex].content + '\n';
             i = closingTagIndex; // Skip ahead
             continue;
           }
         }
-        
+
         // Block element with nested block content - format normally
         formatted += indent.repeat(indentLevel) + token.content + '\n';
         indentLevel++;
@@ -124,11 +167,10 @@ export function formatHTML(html, indentSize = 4) {
         // Other tags (self-closing, etc.)
         formatted += indent.repeat(indentLevel) + token.content + '\n';
       }
-      
     } else if (token.type === 'closingTag') {
       const tagName = extractTagName(token.content);
       const isBlock = blockElements.includes(tagName);
-      
+
       if (isBlock) {
         // Decrease indent level before closing block tag
         indentLevel = Math.max(0, indentLevel - 1);
@@ -148,7 +190,7 @@ export function formatHTML(html, indentSize = 4) {
       formatted += indent.repeat(indentLevel) + token.content + '\n';
     }
   }
-  
+
   return formatted.trim();
 }
 
@@ -172,7 +214,7 @@ function tokenizeHTML(html) {
   const regex = /<!--[\s\S]*?-->|<\/?[^>]+\/?>/g;
   let lastIndex = 0;
   let match;
-  
+
   while ((match = regex.exec(html)) !== null) {
     // Add text before tag (if any)
     if (match.index > lastIndex) {
@@ -181,9 +223,9 @@ function tokenizeHTML(html) {
         tokens.push({ type: 'text', content: text });
       }
     }
-    
+
     const tag = match[0];
-    
+
     // Determine token type
     if (tag.startsWith('<!--')) {
       tokens.push({ type: 'comment', content: tag });
@@ -194,10 +236,10 @@ function tokenizeHTML(html) {
     } else {
       tokens.push({ type: 'openingTag', content: tag });
     }
-    
+
     lastIndex = regex.lastIndex;
   }
-  
+
   // Add remaining text
   if (lastIndex < html.length) {
     const text = html.substring(lastIndex);
@@ -205,7 +247,7 @@ function tokenizeHTML(html) {
       tokens.push({ type: 'text', content: text });
     }
   }
-  
+
   return tokens;
 }
 
@@ -217,7 +259,7 @@ function tokenizeHTML(html) {
  */
 export function applySyntaxHighlighting(html) {
   if (!html) return '';
-  
+
   // Performance optimization: Skip highlighting for very large content
   // Syntax highlighting can be expensive for large HTML
   const MAX_HIGHLIGHT_SIZE = 500 * 1024; // 500KB
@@ -226,32 +268,34 @@ export function applySyntaxHighlighting(html) {
     // This prevents UI freezing
     return html;
   }
-  
+
   let highlighted = html;
-  
+
   // Pre-compile regex patterns for better performance
   const commentRegex = /(<!--[\s\S]*?-->)/g;
-  const tagRegex = /(&lt;\/?)([a-zA-Z0-9]+)((?:\s+[a-zA-Z-]+(?:=(?:"[^"]*"|'[^']*'))?)*\s*)(\/?)(&gt;)/g;
+  const tagRegex =
+    /(&lt;\/?)([a-zA-Z0-9]+)((?:\s+[a-zA-Z-]+(?:=(?:"[^"]*"|'[^']*'))?)*\s*)(\/?)(&gt;)/g;
   const attrRegex = /([a-zA-Z-]+)(=)?((?:"[^"]*"|'[^']*')?)/g;
-  
+
   // Highlight HTML comments (process first to avoid conflicts)
-  highlighted = highlighted.replace(
-    commentRegex,
-    '<span class="syntax-comment">$1</span>'
-  );
-  
+  highlighted = highlighted.replace(commentRegex, '<span class="syntax-comment">$1</span>');
+
   // Highlight HTML tags with attributes
   // Use a more efficient approach: process in chunks if content is large
-  if (html.length > 100 * 1024) { // 100KB threshold
+  if (html.length > 100 * 1024) {
+    // 100KB threshold
     // For large content, use a simpler highlighting approach
-    highlighted = highlighted.replace(
-      tagRegex,
-      (match, openBracket, tagName) => {
-        return '<span class="syntax-bracket">' + openBracket + '</span>' +
-               '<span class="syntax-tag">' + tagName + '</span>' +
-               match.substring(openBracket.length + tagName.length);
-      }
-    );
+    highlighted = highlighted.replace(tagRegex, (match, openBracket, tagName) => {
+      return (
+        '<span class="syntax-bracket">' +
+        openBracket +
+        '</span>' +
+        '<span class="syntax-tag">' +
+        tagName +
+        '</span>' +
+        match.substring(openBracket.length + tagName.length)
+      );
+    });
   } else {
     // Full highlighting for smaller content
     highlighted = highlighted.replace(
@@ -259,35 +303,30 @@ export function applySyntaxHighlighting(html) {
       (match, openBracket, tagName, attributes, slash, closeBracket) => {
         let result = '<span class="syntax-bracket">' + openBracket + '</span>';
         result += '<span class="syntax-tag">' + tagName + '</span>';
-        
+
         // Highlight attributes
         if (attributes && attributes.trim()) {
-          result += attributes.replace(
-            attrRegex,
-            (attrMatch, attrName, equals, attrValue) => {
-              let attrResult = '<span class="syntax-attribute">' + attrName + '</span>';
-              if (equals) {
-                attrResult += '<span class="syntax-operator">=</span>';
-              }
-              if (attrValue) {
-                attrResult += '<span class="syntax-string">' + attrValue + '</span>';
-              }
-              return attrResult;
+          result += attributes.replace(attrRegex, (attrMatch, attrName, equals, attrValue) => {
+            let attrResult = '<span class="syntax-attribute">' + attrName + '</span>';
+            if (equals) {
+              attrResult += '<span class="syntax-operator">=</span>';
             }
-          );
+            if (attrValue) {
+              attrResult += '<span class="syntax-string">' + attrValue + '</span>';
+            }
+            return attrResult;
+          });
         }
-        
+
         if (slash) {
           result += '<span class="syntax-bracket">' + slash + '</span>';
         }
         result += '<span class="syntax-bracket">' + closeBracket + '</span>';
-        
+
         return result;
       }
     );
   }
-  
+
   return highlighted;
 }
-
-
