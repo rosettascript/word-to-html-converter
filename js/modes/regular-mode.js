@@ -12,6 +12,7 @@ import { unwrapPInList } from '../features/unwrap-p-in-list.js';
 import { removeBrInLists } from '../features/remove-br-in-lists.js';
 import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
 import { combineSequentialOrderedLists } from '../features/combine-sequential-ordered-lists.js';
+import { cleanLinkUrls } from '../features/clean-link-urls.js';
 
 /**
  * Process HTML in Regular mode
@@ -44,6 +45,9 @@ export function processRegularMode(element, options = {}) {
   // Apply strong in headers (default: disabled for Regular mode)
   const enableStrong = options.strongInHeaders === true;
   applyStrongInHeaders(processed, enableStrong);
+
+  // Clean link URLs (normalize special hyphen characters)
+  cleanLinkUrls(processed);
 
   // Apply optional features
   if (options.removeDomain) {

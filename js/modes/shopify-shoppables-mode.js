@@ -15,6 +15,7 @@ import { removeBrInLists } from '../features/remove-br-in-lists.js';
 import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
 import { convertListsToNumberedHeadings } from '../features/convert-lists-to-numbered-headings.js';
 import { removeEmptyP } from '../features/remove-empty-p.js';
+import { cleanLinkUrls } from '../features/clean-link-urls.js';
 
 /**
  * Process HTML in Shopify Shoppables mode
@@ -43,6 +44,9 @@ export function processShopifyShoppablesMode(element, options = {}) {
 
   // Combine adjacent lists (remove <p>&nbsp;</p> spacers in Shoppables mode)
   combineLists(processed, 'shopify-shoppables');
+
+  // Clean link URLs (normalize special hyphen characters)
+  cleanLinkUrls(processed);
 
   // Add target="_blank" and rel="noopener noreferrer" to ALL links (internal and external)
   addExternalLinkAttributes(processed, options.baseDomain, true);

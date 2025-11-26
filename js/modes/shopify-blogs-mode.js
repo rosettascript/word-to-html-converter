@@ -18,6 +18,7 @@ import { addParagraphSpacers } from '../features/add-paragraph-spacers.js';
 import { removeBrInLists } from '../features/remove-br-in-lists.js';
 import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
 import { convertListsToNumberedHeadings } from '../features/convert-lists-to-numbered-headings.js';
+import { cleanLinkUrls } from '../features/clean-link-urls.js';
 
 /**
  * Handle spacer before sources section based on removeParagraphSpacers option
@@ -85,6 +86,9 @@ export function processShopifyBlogsMode(element, options = {}) {
 
   // Combine adjacent lists (don't combine if separated by <p>&nbsp;</p>)
   combineLists(processed, 'shopify-blogs');
+
+  // Clean link URLs (normalize special hyphen characters)
+  cleanLinkUrls(processed);
 
   // Add target="_blank" and rel="noopener noreferrer" to ALL links (internal and external)
   addExternalLinkAttributes(processed, options.baseDomain, true);
