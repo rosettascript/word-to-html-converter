@@ -55,10 +55,10 @@ export function cleanLinkUrls(root) {
 
       // Only update if pathname was changed
       if (cleanedPathname !== url.pathname) {
-        // Reconstruct URL with cleaned pathname
-        const cleanedUrl = new URL(url.href);
-        cleanedUrl.pathname = cleanedPathname;
-        link.setAttribute('href', cleanedUrl.href);
+        // Dynamically reconstruct URL: modify only pathname, preserve all other components
+        // The URL object automatically preserves: protocol, hostname, port, search params, hash, username, password, etc.
+        url.pathname = cleanedPathname;
+        link.setAttribute('href', url.href);
       }
     } catch {
       // Invalid URL, skip it (preserve as-is)
