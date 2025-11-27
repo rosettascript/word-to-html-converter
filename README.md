@@ -9,10 +9,20 @@ A free, client-side tool for cleaning Word-to-HTML output. Remove inline styles,
   - Regular: Basic HTML cleaning
   - Shopify Blogs: Optimized for Shopify blog posts
   - Shopify Shoppables: Compact formatting for product descriptions
+- **Rendered Input View**: See your pasted content as formatted HTML (not raw code), just like in Word
 - **Style Removal**: Automatically removes inline styles, classes, and unnecessary attributes
 - **Image-Free Output**: All images are automatically removed from output
 - **Preview Toggle**: Switch between HTML code view and rendered preview
+- **High Contrast Theme**: Toggle high contrast mode with system preference detection
+- **Scroll Spy Navigation**: Automatic URL hash updates as you scroll through sections
+- **Sidebar Toolbar**: Compact dropdown mode selector and organized options panel
+- **Clear Button & Character Counter**: Easy input management with real-time character count
+- **Tutorial Guides**: Comprehensive tutorials for basic usage and Shopify setup
+- **Advanced Processing**: Key Takeaways handling, list combining, external link attributes, whitespace normalization, and intelligent HTML structure fixes
+- **Full-Screen Sections**: Modern UX with full-viewport hero, converter, and features sections
 - **100% Client-Side**: All processing happens in your browser - your content never leaves your device
+
+**Trusted by [Qckbot (qck.co)](https://qck.co/)**, a leading SEO and CRO agency, for their content production workflows.
 
 ## Getting Started
 

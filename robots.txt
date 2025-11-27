@@ -4,11 +4,23 @@
 User-agent: *
 Allow: /
 
-# Sitemap location
+# Allow Googlebot to crawl everything
+User-agent: Googlebot
+Allow: /
+
+# Allow Googlebot-Image for images
+User-agent: Googlebot-Image
+Allow: /
+
+# Sitemap location (helps Google discover and index pages faster)
 Sitemap: https://rosettascript.github.io/word-to-html-converter/sitemap.xml
 
-# Disallow crawling of specific file types (if needed)
+# Disallow crawling of specific file types and directories
 Disallow: /*.json$
 Disallow: /node_modules/
 Disallow: /.git/
+Disallow: /.cursor/
+Disallow: /_docs/
+Disallow: /package-lock.json
+Disallow: /vitest.config.js
 

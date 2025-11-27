@@ -6,7 +6,7 @@
   
   <!-- SEO Meta Tags -->
   <title>Word to HTML Converter - Free Tool | Clean HTML</title>
-  <meta name="description" content="Free Word to HTML converter. Remove inline styles, format for Shopify. 100% client-side, instant processing. No signup required.">
+  <meta name="description" content="Free Word to HTML converter. Remove inline styles, format for Shopify. Used by Qckbot (qck.co). 100% client-side, instant processing. No signup required.">
   <meta name="keywords" content="word to html, html converter, clean html, remove inline styles, shopify blog, shopify shoppables, word html cleaner">
   <meta name="author" content="Kim Galicia">
   
@@ -53,23 +53,35 @@
   <!-- Canonical URL -->
   <link rel="canonical" href="https://rosettascript.github.io/word-to-html-converter/">
   
-  <!-- Sitemap -->
+  <!-- Sitemap (helps Google discover and index pages faster) -->
   <link rel="sitemap" type="application/xml" title="Sitemap" href="/word-to-html-converter/sitemap.xml">
+  
+  <!-- Preconnect to Google Analytics for faster loading -->
+  <link rel="preconnect" href="https://www.googletagmanager.com">
+  <link rel="preconnect" href="https://www.google-analytics.com">
+  
+  <!-- DNS Prefetch for external resources -->
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+  <link rel="dns-prefetch" href="https://www.google-analytics.com">
+  
+  <!-- Additional SEO: Help Google index faster -->
+  <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   
   <!-- Open Graph / Social Media -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Word to HTML Converter - Free Tool | Clean HTML">
-  <meta property="og:description" content="Free Word to HTML converter. Remove inline styles, format for Shopify. 100% client-side, instant processing. No signup required.">
+  <meta property="og:description" content="Free Word to HTML converter. Remove inline styles, format for Shopify. Used by Qckbot (qck.co). 100% client-side, instant processing. No signup required.">
   <meta property="og:url" content="https://rosettascript.github.io/word-to-html-converter/">
   <meta property="og:image" content="https://rosettascript.github.io/word-to-html-converter/assets/og-image.png">
   <meta property="og:site_name" content="Word to HTML Converter">
   <meta property="article:published_time" content="2025-11-16T00:00:00Z">
-  <meta property="article:modified_time" content="2025-11-16T00:00:00Z">
+  <meta property="article:modified_time" content="2025-01-27T00:00:00Z">
   
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Word to HTML Converter - Free Tool | Clean HTML">
-  <meta name="twitter:description" content="Free Word to HTML converter. Remove inline styles, format for Shopify. 100% client-side, instant processing. No signup required.">
+  <meta name="twitter:description" content="Free Word to HTML converter. Remove inline styles, format for Shopify. Used by Qckbot (qck.co). 100% client-side, instant processing. No signup required.">
   <meta name="twitter:image" content="https://rosettascript.github.io/word-to-html-converter/assets/og-image.png">
   
 
@@ -105,7 +117,7 @@
     "name": "Word to HTML Converter",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Any",
-    "description": "Free online word to HTML converter that removes inline styles from Word documents and formats clean HTML for Shopify blogs, Shopify Shoppables, or regular use. 100% client-side processing with instant results.",
+    "description": "Free online word to HTML converter with comprehensive HTML sanitization, three output modes (Regular, Shopify Blogs, Shopify Shoppables), rendered input preview, intelligent structure fixes, theme toggle, scroll spy navigation, and 20+ advanced processing features. Handles Key Takeaways, list combining, orphaned items, invalid HTML structures, and more. 100% client-side, instant processing, complete privacy. Used by Qckbot (qck.co) for content production.",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -114,18 +126,35 @@
     "url": "https://rosettascript.github.io/word-to-html-converter/",
     "softwareVersion": "1.0",
     "datePublished": "2025-11-16",
-    "dateModified": "2025-11-16",
+    "dateModified": "2025-01-27",
     "author": {
       "@type": "Person",
       "name": "Kim Galicia"
     },
     "featureList": [
-      "Instant HTML processing as you paste",
-      "Three output modes: Regular, Shopify Blogs, Shopify Shoppables",
-      "Removes inline styles and classes automatically",
-      "100% client-side processing for privacy",
-      "Full-width workspace for large documents",
-      "Code preview and rendered HTML preview"
+      "Instant HTML processing with 500ms smart debouncing for real-time conversion",
+      "Three specialized output modes: Regular (basic cleaning), Shopify Blogs (articles with Key Takeaways), Shopify Shoppables (compact product descriptions)",
+      "Rendered input preview showing formatted HTML content (not raw code) with semantic styling",
+      "Comprehensive HTML sanitization: removes inline styles, classes, IDs, data attributes, dangerous elements (script, iframe, form)",
+      "Intelligent HTML structure fixes: nested paragraphs, invalid list structures, orphaned list items, misplaced list items, table validation",
+      "High contrast theme toggle with localStorage persistence and system preference detection",
+      "Scroll spy navigation with automatic URL hash updates and smooth scrolling",
+      "Sidebar toolbar with dropdown mode selector and organized feature toggles",
+      "Clear input button, real-time character counter (text-only, excludes HTML tags)",
+      "Dual preview modes: formatted HTML code view with syntax highlighting and rendered iframe preview",
+      "Copy to clipboard and download as HTML file functionality",
+      "Advanced optional features: strong tags in headers (default ON for Shopify modes), automatic domain detection for relative path conversion, paragraph spacer controls",
+      "Shopify Blogs mode features: Key Takeaways section processing, list combining, external link attributes (target='_blank'), FAQ header spacing, H1 removal after Key Takeaways",
+      "Shopify Shoppables mode features: aggressive whitespace minification, BR-to-paragraph conversion, compact formatting, spacer controls for Read sections and Sources",
+      "Regular mode features: basic cleaning, optional whitespace normalization, sequential ordered list combining, list-to-numbered-heading conversion",
+      "Processing features: anchor whitespace cleaning, link URL normalization (special hyphens), orphaned list item fixing, misplaced list item extraction",
+      "Error handling with user-friendly messages, status indicators, processing spinner, toast notifications",
+      "Full-screen sections (100vh) for hero, converter, and features sections",
+      "Responsive design with mobile, tablet, and desktop breakpoints",
+      "Accessibility: ARIA labels, keyboard navigation, skip links, focus management",
+      "Tutorial guides: basic Word-to-HTML conversion and advanced Shopify setup",
+      "100% client-side processing: no server requests, complete privacy, works offline after load",
+      "Performance optimized: element caching, debounced processing, lazy preview loading"
     ],
     "browserRequirements": "Requires JavaScript. Modern browsers (Chrome, Firefox, Safari, Edge)"
   }
@@ -153,11 +182,22 @@
     "@type": "WebSite",
     "name": "Word to HTML Converter",
     "url": "https://rosettascript.github.io/word-to-html-converter/",
+    "description": "Free online word to HTML converter with comprehensive HTML sanitization, three output modes, rendered input preview, intelligent structure fixes, and 20+ advanced processing features.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://rosettascript.github.io/word-to-html-converter/#converter-section"
+      },
+      "query-input": "required name=search_term_string"
+    },
     "publisher": {
       "@type": "Organization",
       "name": "RosettaScript",
       "url": "https://rosettascript.github.io/"
-    }
+    },
+    "inLanguage": "en-US",
+    "isAccessibleForFree": true
   }
   </script>
 
@@ -504,6 +544,54 @@
           <p>This word to HTML converter processes everything in your browser. Your content never leaves your device.</p>
         </div>
         
+        <div class="feature-card">
+          <div class="feature-icon">📝</div>
+          <h3>Rendered Input View</h3>
+          <p>See your pasted content as formatted HTML (not raw code) in the input area, just like in Word. The word to HTML converter displays content visually before cleaning.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <h3>High Contrast Theme</h3>
+          <p>Toggle high contrast mode for better readability. This word to HTML converter respects your system preferences and saves your theme choice.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🧭</div>
+          <h3>Scroll Spy Navigation</h3>
+          <p>Automatic URL hash updates as you scroll through sections. This word to HTML converter provides smooth navigation with browser history support.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">📚</div>
+          <h3>Tutorial Guides</h3>
+          <p>Comprehensive tutorials for basic usage and Shopify setup. This word to HTML converter includes step-by-step guides to help you get started.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">⚙️</div>
+          <h3>Advanced Processing</h3>
+          <p>This word to HTML converter includes 20+ advanced features: Key Takeaways handling, list combining, orphaned list item fixing, invalid HTML structure fixes, external link attributes, and intelligent content processing.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h3>HTML Sanitization</h3>
+          <p>Comprehensive security: removes dangerous elements (scripts, iframes, forms), sanitizes attributes, validates HTML structure, and ensures safe, clean output. This word to HTML converter protects against malicious content.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🔧</div>
+          <h3>Structure Fixes</h3>
+          <p>Intelligent HTML repair: fixes nested paragraphs, orphaned list items, misplaced list items, invalid table structures, and more. This word to HTML converter ensures valid, semantic HTML output.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Syntax Highlighting</h3>
+          <p>Beautiful code formatting with syntax highlighting in the output view. This word to HTML converter makes it easy to read and understand the cleaned HTML code.</p>
+        </div>
+        
       </div>
     </div>
   </section>
@@ -521,8 +609,14 @@
         <p>
           Our word to HTML converter strips away those unwanted styles while preserving the semantic structure of your content—headings, 
           paragraphs, lists, links, and emphasis remain intact. Choose from three specialized output modes (Regular, Shopify Blogs, Shopify Shoppables) 
-          tailored for different use cases, and enjoy instant processing with a full-width workspace. Your data never leaves your browser, 
-          ensuring complete privacy and security with this word to HTML converter.
+          tailored for different use cases, and enjoy instant processing with a full-width workspace. Features include rendered input preview, 
+          high contrast theme toggle, scroll spy navigation, sidebar toolbar layout, clear button, character counter, and comprehensive tutorial guides. 
+          Your data never leaves your browser, ensuring complete privacy and security with this word to HTML converter.
+        </p>
+        <p>
+          This word to HTML converter is trusted and actively used by <a href="https://qck.co/" target="_blank" rel="noopener noreferrer">Qckbot (qck.co)</a>, 
+          a leading SEO and CRO agency, for their content production workflows. The tool handles advanced processing tasks including Key Takeaways sections, 
+          list combining, external link attributes, whitespace normalization, and intelligent HTML structure fixes.
         </p>
         <p class="about-highlight">
           Built with vanilla JavaScript. No frameworks, no dependencies, no tracking. 100% free word to HTML converter.
