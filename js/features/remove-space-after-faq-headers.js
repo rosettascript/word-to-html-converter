@@ -4,14 +4,34 @@
  */
 
 /**
- * Remove <br> or empty paragraphs after h2 headers
+ * Remove <br> or empty paragraphs after FAQ headers (any heading level)
  * @param {HTMLElement} root - Root element to process
  */
 export function removeSpaceAfterFAQHeaders(root) {
-  const h2Tags = root.querySelectorAll('h2');
+  // Process all heading levels, not just h2
+  // FAQ sections can use any heading level
+  const allHeadings = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
 
-  h2Tags.forEach(h2 => {
-    let nextSibling = h2.nextSibling;
+  allHeadings.forEach(heading => {
+    // Check if this is an FAQ section (any heading level)
+    const headingText = heading.textContent.trim().toLowerCase();
+    const normalizedText = headingText.replace(/:\s*$/, '');
+    const isFAQSection = 
+      normalizedText.includes('faq') ||
+      normalizedText.includes('frequently asked questions') ||
+      normalizedText === 'questions' ||
+      normalizedText === 'q&a' ||
+      normalizedText === 'q and a' ||
+      normalizedText.includes('common questions') ||
+      normalizedText.includes('help') ||
+      /^(questions?\s+and\s+answers?|q\s*&\s*a|faq|frequently\s+asked)/i.test(normalizedText);
+    
+    // Only process FAQ sections
+    if (!isFAQSection) {
+      return;
+    }
+    
+    let nextSibling = heading.nextSibling;
 
     // Remove all immediate following <br>, empty <p>, or whitespace text nodes
     while (nextSibling) {

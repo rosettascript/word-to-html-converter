@@ -15,6 +15,7 @@ import { removeSpaceAfterFAQHeaders } from '../features/remove-space-after-faq-h
 import { cleanAnchorWhitespace } from '../features/clean-anchor-whitespace.js';
 import { addParagraphSpacers } from '../features/add-paragraph-spacers.js';
 import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
+import { extractMisplacedListItems } from '../features/extract-misplaced-list-items.js';
 import { convertListsToNumberedHeadings } from '../features/convert-lists-to-numbered-headings.js';
 import { cleanLinkUrls } from '../features/clean-link-urls.js';
 import { isValidOptions, isSpacerParagraph } from '../utils/validation.js';
@@ -30,9 +31,20 @@ function handleSourcesSpacer(root, options) {
 
   headings.forEach(heading => {
     const headingText = heading.textContent.trim().toLowerCase();
+    const normalizedHeadingText = headingText.replace(/:\s*$/, '');
 
-    // Check if element contains "sources" (case-insensitive)
-    if (headingText.includes('sources')) {
+    // Match reference/bibliography sections more generally
+    const isReferenceSection = 
+      normalizedHeadingText.includes('sources') ||
+      normalizedHeadingText.includes('references') ||
+      normalizedHeadingText.includes('bibliography') ||
+      normalizedHeadingText === 'works cited' ||
+      normalizedHeadingText === 'citations' ||
+      normalizedHeadingText === 'further reading' ||
+      /^(sources?|references?|bibliography|works?\s+cited|citations?)$/i.test(normalizedHeadingText);
+
+    // Check if element is a reference section
+    if (isReferenceSection) {
       // Check if there's already a spacer before this element
       const previousElement = heading.previousElementSibling;
       const hasSpacer = isSpacerParagraph(previousElement);
@@ -69,6 +81,9 @@ export function processShopifyBlogsMode(element, options = {}) {
 
   // Fix orphaned list items FIRST (before other processing)
   fixOrphanedListItems(processed);
+
+  // Extract misplaced list items (items that should be paragraphs, not list items)
+  extractMisplacedListItems(processed);
 
   // Convert sequential single-item ordered lists to numbered headings
   convertListsToNumberedHeadings(processed);

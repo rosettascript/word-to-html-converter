@@ -139,19 +139,19 @@ export function convertListsToNumberedHeadings(root) {
 
     let listItems = currentList.querySelectorAll(':scope > li');
     
-    // Handle special case: list with 2 items where first has h3 and second has content
+    // Handle special case: list with 2 items where first has a heading and second has content
     // This happens when Word splits a list item into two (e.g., heading in first li, content in second)
     if (listItems.length === 2) {
       const firstLi = listItems[0];
       const secondLi = listItems[1];
-      const heading = firstLi.querySelector('h3');
+      const heading = firstLi.querySelector('h1, h2, h3, h4, h5, h6');
       
       // Check if first li contains only h3 (and possibly whitespace/spacers)
       // After fixParagraphsInLists, <p>&nbsp;</p> becomes just &nbsp; text node
       if (heading) {
         // Get all non-heading content from first li
         const firstLiClone = firstLi.cloneNode(true);
-        const headingClone = firstLiClone.querySelector('h3');
+        const headingClone = firstLiClone.querySelector('h1, h2, h3, h4, h5, h6');
         if (headingClone) {
           headingClone.remove();
         }
@@ -195,8 +195,9 @@ export function convertListsToNumberedHeadings(root) {
     );
     spacerPs.forEach(p => p.remove());
 
-    // Check if this list item has an h3 heading
-    const listHasHeading = li.querySelector('h3');
+    // Check if this list item has any heading (h1-h6)
+    // Don't hardcode h3 - work with any heading level
+    const listHasHeading = li.querySelector('h1, h2, h3, h4, h5, h6');
     if (!listHasHeading) {
       i++;
       continue;
@@ -213,9 +214,10 @@ export function convertListsToNumberedHeadings(root) {
       const items = checkList.querySelectorAll(':scope > li');
       if (items.length !== 1) break;
 
-      // Check if this list has an h3 heading
-      const h3 = items[0].querySelector('h3');
-      if (!h3) break; // Stop sequence if list doesn't have h3
+      // Check if this list has any heading (h1-h6)
+      // Don't hardcode h3 - work with any heading level
+      const heading = items[0].querySelector('h1, h2, h3, h4, h5, h6');
+      if (!heading) break; // Stop sequence if list doesn't have a heading
 
       sequence.push(checkList);
 
@@ -228,10 +230,17 @@ export function convertListsToNumberedHeadings(root) {
           // Found next list, stop collecting
           checkList = nextElement;
           break;
-        } else if (nextElement.tagName && ['H1', 'H2'].includes(nextElement.tagName)) {
-          // Found a major heading - stop the sequence
-          checkList = null;
-          break;
+        } else if (nextElement.tagName && /^H[1-6]$/.test(nextElement.tagName)) {
+          // Found a heading - check if it's at same or higher level than the heading in our list
+          // This is more general than hardcoding H1/H2
+          const headingLevel = parseInt(heading.tagName.substring(1));
+          const nextHeadingLevel = parseInt(nextElement.tagName.substring(1));
+          if (nextHeadingLevel <= headingLevel) {
+            // Found a heading at same or higher level - stop the sequence
+            checkList = null;
+            break;
+          }
+          // Lower level heading - continue collecting content
         } else {
           // Collect this content element
           contentAfter.push(nextElement);
@@ -248,7 +257,8 @@ export function convertListsToNumberedHeadings(root) {
     }
 
     // Process if we found a sequence of at least 2 single-item lists
-    // OR if it's a single list with an h3 heading (standalone numbered item)
+    // OR if it's a single list with a heading (standalone numbered item)
+    // Don't hardcode h3 - work with any heading level
     if (sequence.length >= 2 || (sequence.length === 1 && listHasHeading)) {
       // Mark all lists in sequence as processed
       sequence.forEach(list => processed.add(list));
@@ -256,7 +266,7 @@ export function convertListsToNumberedHeadings(root) {
       // Process each list in the sequence
       sequence.forEach((list, index) => {
         const li = list.querySelector('li');
-        const heading = li.querySelector('h3');
+        const heading = li.querySelector('h1, h2, h3, h4, h5, h6');
 
         if (heading) {
           // Add number to the heading text
@@ -279,9 +289,9 @@ export function convertListsToNumberedHeadings(root) {
           // Get all nodes from the list item
           const allNodes = Array.from(li.childNodes);
           
-          // Find the heading node
+          // Find the heading node (any heading level)
           const headingNode = allNodes.find(node => 
-            node.nodeType === Node.ELEMENT_NODE && node.tagName === 'H3'
+            node.nodeType === Node.ELEMENT_NODE && /^H[1-6]$/.test(node.tagName)
           );
           
           // Get all content after the heading (text nodes, inline elements, etc.)

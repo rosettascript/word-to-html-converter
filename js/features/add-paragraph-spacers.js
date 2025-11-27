@@ -27,10 +27,22 @@ function getKeyTakeawaysInfo(root) {
   let keyTakeawaysLevel = null;
   let endElement = null;
 
-  // Find Key Takeaways heading
+  // Find Key Takeaways heading (or similar summary sections)
   headings.forEach(heading => {
     const text = heading.textContent.trim().toLowerCase();
-    if (text.includes('key takeaway')) {
+    const normalizedText = text.replace(/:\s*$/, '');
+    
+    // Match summary/takeaways sections more generally
+    const isSummarySection = 
+      normalizedText.includes('key takeaway') ||
+      normalizedText.includes('key point') ||
+      normalizedText.includes('main point') ||
+      normalizedText === 'summary' ||
+      normalizedText === 'highlights' ||
+      normalizedText === 'takeaways' ||
+      /^(key|main|important)\s+(takeaways?|points?|highlights?)$/i.test(normalizedText);
+    
+    if (isSummarySection) {
       keyTakeawaysHeading = heading;
       keyTakeawaysLevel = parseInt(heading.tagName.substring(1));
     }
@@ -103,10 +115,20 @@ function addSpacersBeforeHeaders(root) {
   const headers = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
 
   headers.forEach(header => {
-    // Check if header IS the Key Takeaways heading
+    // Check if header IS a summary/takeaways heading
     const headerText = header.textContent.trim().toLowerCase();
-    if (headerText.includes('key takeaway')) {
-      return; // Skip the Key Takeaways heading itself
+    const normalizedHeaderText = headerText.replace(/:\s*$/, '');
+    const isSummaryHeading = 
+      normalizedHeaderText.includes('key takeaway') ||
+      normalizedHeaderText.includes('key point') ||
+      normalizedHeaderText.includes('main point') ||
+      normalizedHeaderText === 'summary' ||
+      normalizedHeaderText === 'highlights' ||
+      normalizedHeaderText === 'takeaways' ||
+      /^(key|main|important)\s+(takeaways?|points?|highlights?)$/i.test(normalizedHeaderText);
+    
+    if (isSummaryHeading) {
+      return; // Skip summary/takeaways headings
     }
 
     // Check if header is in Key Takeaways section
@@ -136,7 +158,17 @@ function addSpacerAfterKeyTakeawaysList(root) {
 
   headings.forEach(heading => {
     const headingText = heading.textContent.trim().toLowerCase();
-    if (headingText.includes('key takeaway')) {
+    const normalizedHeadingText = headingText.replace(/:\s*$/, '');
+    const isSummarySection = 
+      normalizedHeadingText.includes('key takeaway') ||
+      normalizedHeadingText.includes('key point') ||
+      normalizedHeadingText.includes('main point') ||
+      normalizedHeadingText === 'summary' ||
+      normalizedHeadingText === 'highlights' ||
+      normalizedHeadingText === 'takeaways' ||
+      /^(key|main|important)\s+(takeaways?|points?|highlights?)$/i.test(normalizedHeadingText);
+    
+    if (isSummarySection) {
       // Find the next list (ul or ol) after this heading
       let nextElement = heading.nextElementSibling;
       while (nextElement) {
@@ -178,11 +210,12 @@ function addSpacerBeforeReadSections(root) {
   headings.forEach(heading => {
     const headingText = heading.textContent.trim().toLowerCase();
 
-    // Match variations: "read also:", "read more:", "related articles:", etc.
+    // Match related content sections more generally
+    // Pattern: phrases indicating related/additional content, typically ending with colon
+    const normalizedHeadingText = headingText.replace(/:\s*$/, '');
     const isReadSection =
-      /^(read\s+(also|more)|related\s+(articles|posts|content)|see\s+also|further\s+reading):/i.test(
-        headingText
-      );
+      /^(read\s+(also|more)|related\s+(articles?|posts?|content|topics?|resources?|links?|information)|see\s+also|further\s+reading|additional\s+(resources?|information|reading|links?)|more\s+(information|resources?|reading)|explore\s+(more|further)|continue\s+reading|you\s+may\s+(also\s+)?(like|enjoy|find\s+interesting))$/i.test(normalizedHeadingText) ||
+      /^(related|additional|more|further|explore)\s+(content|resources?|information|reading|links?|topics?)/i.test(normalizedHeadingText);
 
     if (isReadSection) {
       addSpacerBeforeElement(heading);
@@ -193,11 +226,11 @@ function addSpacerBeforeReadSections(root) {
   paragraphs.forEach(paragraph => {
     const paragraphText = paragraph.textContent.trim().toLowerCase();
 
-    // Match variations: "read also:", "read more:", "related articles:", etc.
+    // Match related content sections more generally (same pattern as headings)
+    const normalizedParagraphText = paragraphText.replace(/:\s*$/, '');
     const isReadSection =
-      /^(read\s+(also|more)|related\s+(articles|posts|content)|see\s+also|further\s+reading):/i.test(
-        paragraphText
-      );
+      /^(read\s+(also|more)|related\s+(articles?|posts?|content|topics?|resources?|links?|information)|see\s+also|further\s+reading|additional\s+(resources?|information|reading|links?)|more\s+(information|resources?|reading)|explore\s+(more|further)|continue\s+reading|you\s+may\s+(also\s+)?(like|enjoy|find\s+interesting))$/i.test(normalizedParagraphText) ||
+      /^(related|additional|more|further|explore)\s+(content|resources?|information|reading|links?|topics?)/i.test(normalizedParagraphText);
 
     if (isReadSection) {
       addSpacerBeforeElement(paragraph);
@@ -231,28 +264,37 @@ function removeSpacerAfterFAQHeader(root) {
 
   h2Headers.forEach(h2 => {
     const text = h2.textContent.toLowerCase();
-    if (text.includes('faq') || text.includes('frequently asked questions')) {
+    const normalizedText = text.replace(/:\s*$/, '');
+    
+    // Match FAQ sections more generally
+    const isFAQSection = 
+      normalizedText.includes('faq') ||
+      normalizedText.includes('frequently asked questions') ||
+      normalizedText === 'questions' ||
+      normalizedText === 'q&a' ||
+      normalizedText === 'q and a' ||
+      normalizedText.includes('common questions') ||
+      normalizedText.includes('help') ||
+      /^(questions?\s+and\s+answers?|q\s*&\s*a|faq|frequently\s+asked)/i.test(normalizedText);
+    
+    if (isFAQSection) {
       // Find next sibling that's a spacer followed by h3
       let nextElement = h2.nextElementSibling;
 
       while (nextElement) {
         // If we find a spacer
         if (isSpacerParagraph(nextElement)) {
-          // Check if the next element after spacer is h3
+          // Check if the next element after spacer is a heading (any level)
           const afterSpacer = nextElement.nextElementSibling;
-          if (afterSpacer && afterSpacer.tagName === 'H3') {
-            // Remove the spacer
+          if (afterSpacer && /^H[1-6]$/.test(afterSpacer.tagName)) {
+            // Remove the spacer - FAQ questions can be any heading level
             nextElement.remove();
             break;
           }
         }
 
-        // Stop if we hit h3 or another major heading
-        if (
-          nextElement.tagName === 'H3' ||
-          nextElement.tagName === 'H2' ||
-          nextElement.tagName === 'H1'
-        ) {
+        // Stop if we hit any heading (not just h1-h3)
+        if (nextElement.tagName && /^H[1-6]$/.test(nextElement.tagName)) {
           break;
         }
 

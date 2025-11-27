@@ -11,6 +11,7 @@ import { replaceBrWithParagraph } from '../features/br-to-paragraph.js';
 import { cleanAnchorWhitespace } from '../features/clean-anchor-whitespace.js';
 import { addExternalLinkAttributes } from '../features/external-link-attributes.js';
 import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
+import { extractMisplacedListItems } from '../features/extract-misplaced-list-items.js';
 import { convertListsToNumberedHeadings } from '../features/convert-lists-to-numbered-headings.js';
 import { removeEmptyP } from '../features/remove-empty-p.js';
 import { cleanLinkUrls } from '../features/clean-link-urls.js';
@@ -31,6 +32,9 @@ export function processShopifyShoppablesMode(element, options = {}) {
 
   // Fix orphaned list items FIRST (before other processing)
   fixOrphanedListItems(processed);
+
+  // Extract misplaced list items (items that should be paragraphs, not list items)
+  extractMisplacedListItems(processed);
 
   // Convert sequential single-item ordered lists to numbered headings
   convertListsToNumberedHeadings(processed);

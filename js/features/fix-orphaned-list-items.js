@@ -91,11 +91,21 @@ function looksLikeOrphanedListItem(list, orphanGroup) {
   }
 
   // For OL (numbered lists), check if it looks like a citation/reference
-  // Common patterns: starts with author name, year, publication
+  // Use more general patterns to detect various citation formats
   if (list.tagName === 'OL') {
-    // Check if it looks like a citation (has italics + link, or just italics with structured text)
-    const looksLikeCitation = /^[A-Z][a-zA-Z\s,.]+\(\d{4}/.test(text); // Name (Year
+    // General citation patterns:
+    // 1. Author name followed by year in parentheses: "Name (Year" or "Name, Year"
+    // 2. Author name followed by publication info
+    // 3. Structured text with italics (often book/journal titles)
+    const citationPatterns = [
+      /^[A-Z][a-zA-Z\s,.]+[,\s]?\s*\(?\d{4}/,  // Name (Year or Name, Year
+      /^[A-Z][a-zA-Z\s,.]+[,\s]+\d{4}/,        // Name, Year
+      /^[A-Z][a-zA-Z\s,.]+\.\s*[A-Z]/,          // Name. Title (author. title format)
+    ];
+    
+    const looksLikeCitation = citationPatterns.some(pattern => pattern.test(text));
 
+    // Citation indicators: has italics (for titles) AND (has link OR matches citation pattern)
     if (hasItalics && (hasLink || looksLikeCitation)) {
       return true; // Likely an orphaned citation
     }

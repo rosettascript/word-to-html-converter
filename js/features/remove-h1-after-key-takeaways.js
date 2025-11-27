@@ -17,7 +17,19 @@ export function removeH1AfterKeyTakeaways(root) {
 
   allHeadings.forEach(heading => {
     const text = heading.textContent.trim().toLowerCase();
-    if (text.includes('key takeaway')) {
+    const normalizedText = text.replace(/:\s*$/, '');
+    
+    // Match summary/takeaways sections more generally
+    const isSummarySection = 
+      normalizedText.includes('key takeaway') ||
+      normalizedText.includes('key point') ||
+      normalizedText.includes('main point') ||
+      normalizedText === 'summary' ||
+      normalizedText === 'highlights' ||
+      normalizedText === 'takeaways' ||
+      /^(key|main|important)\s+(takeaways?|points?|highlights?)$/i.test(normalizedText);
+    
+    if (isSummarySection) {
       keyTakeawaysHeading = heading;
     }
   });

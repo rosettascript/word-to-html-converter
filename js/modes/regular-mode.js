@@ -9,6 +9,7 @@ import { normalizeWhitespace } from '../features/whitespace-normalize.js';
 import { replaceBrWithParagraph } from '../features/br-to-paragraph.js';
 import { cleanAnchorWhitespace } from '../features/clean-anchor-whitespace.js';
 import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
+import { extractMisplacedListItems } from '../features/extract-misplaced-list-items.js';
 import { combineSequentialOrderedLists } from '../features/combine-sequential-ordered-lists.js';
 import { cleanLinkUrls } from '../features/clean-link-urls.js';
 import { isValidOptions } from '../utils/validation.js';
@@ -28,6 +29,9 @@ export function processRegularMode(element, options = {}) {
 
   // Fix orphaned list items FIRST (before other processing)
   fixOrphanedListItems(processed);
+
+  // Extract misplaced list items (items that should be paragraphs, not list items)
+  extractMisplacedListItems(processed);
 
   // Combine sequential single-item ordered lists (after orphaned items fixed)
   combineSequentialOrderedLists(processed);

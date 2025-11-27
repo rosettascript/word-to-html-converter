@@ -12,9 +12,35 @@ export function processKeyTakeaways(root) {
 
   headings.forEach(heading => {
     const headingText = heading.textContent.trim().toLowerCase();
+    // Remove trailing colon for comparison
+    const normalizedHeading = headingText.replace(/:\s*$/, '');
 
-    // Check if heading is "Key Takeaways" (case-insensitive)
-    if (headingText === 'key takeaways' || headingText === 'key takeaways:') {
+    // Check if heading is a summary/takeaways section using general patterns
+    // Match variations: "key takeaways", "key points", "main points", "summary", "highlights", etc.
+    // Use structural detection: heading followed by a list indicates a takeaways section
+    const isSummarySection = 
+      normalizedHeading === 'key takeaways' ||
+      normalizedHeading === 'key points' ||
+      normalizedHeading === 'main points' ||
+      normalizedHeading === 'summary' ||
+      normalizedHeading === 'highlights' ||
+      normalizedHeading === 'takeaways' ||
+      normalizedHeading === 'points to remember' ||
+      normalizedHeading === 'important points' ||
+      /^(key|main|important)\s+(takeaways?|points?|highlights?)$/i.test(normalizedHeading) ||
+      /^summary\s*(of|points?)?$/i.test(normalizedHeading);
+
+    // Also check if it's followed by a list (structural indicator)
+    // If a heading is followed by a list, it's likely a summary/takeaways section
+    // This is a structural pattern that works regardless of the exact wording
+    let nextElement = heading.nextElementSibling;
+    const hasListAfter = nextElement && (nextElement.tagName === 'UL' || nextElement.tagName === 'OL');
+    
+    // More general: if heading contains summary-related keywords AND has a list after, treat as summary section
+    // Keywords: point, takeaway, summary, highlight, idea, item, fact, tip, note, important, key, main
+    const hasSummaryKeywords = /(point|takeaway|summary|highlight|idea|item|fact|tip|note|important|key|main|overview|recap)/i.test(normalizedHeading);
+
+    if (isSummarySection || (hasListAfter && hasSummaryKeywords)) {
       // Remove <em> tags from the heading (preserve <strong> and other tags)
       const emTagsInHeading = heading.querySelectorAll('em');
       emTagsInHeading.forEach(em => {
