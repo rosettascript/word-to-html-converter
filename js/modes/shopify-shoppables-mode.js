@@ -52,6 +52,10 @@ export function processShopifyShoppablesMode(element, options = {}) {
   // Combine adjacent lists (remove <p>&nbsp;</p> spacers in Shoppables mode)
   combineLists(processed, 'shopify-shoppables');
 
+  // Fix orphaned list items AGAIN after lists are combined
+  // This catches orphans that appear after combined lists
+  fixOrphanedListItems(processed);
+
   // Clean link URLs (normalize special hyphen characters)
   cleanLinkUrls(processed);
 

@@ -49,8 +49,22 @@ export function extractMisplacedListItems(root) {
       return;
     }
 
+    // #region agent log
+    const listType = list.tagName;
+    const itemCount = listItems.length;
+    const lastItemText = lastItem.textContent.trim().substring(0, 100);
+    fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'extract-misplaced-list-items.js:36',message:'Checking list for extraction',data:{listType,itemCount,lastItemText},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+
     // Determine if this item should be extracted
-    if (shouldExtractListItem(list, lastItem, listItems)) {
+    // Pass allItems to isReadOrSourcesList check
+    const shouldExtract = shouldExtractListItem(list, lastItem, listItems);
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'extract-misplaced-list-items.js:53',message:'Extraction decision',data:{shouldExtract,listType,itemCount},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
+    if (shouldExtract) {
       // Get all children from the last item (clone them)
       const children = Array.from(lastItem.childNodes).map(child => child.cloneNode(true));
       
@@ -154,6 +168,56 @@ export function extractMisplacedListItems(root) {
 }
 
 /**
+ * Check if list items are homogeneous (similar structure/content)
+ * Homogeneous lists are legitimate and should not have items extracted
+ * @param {HTMLElement[]} allItems - All list items
+ * @returns {boolean} - True if items are homogeneous
+ */
+function isHomogeneousList(allItems) {
+  if (allItems.length < 2) {
+    return true; // Single item or empty - consider homogeneous
+  }
+
+  // Check if all items have similar structure (all links, all paragraphs, etc.)
+  const itemStructures = allItems.map(item => {
+    const hasLink = item.querySelector('a') !== null;
+    const hasParagraph = item.querySelector('p') !== null;
+    const hasHeading = item.querySelector('h1, h2, h3, h4, h5, h6') !== null;
+    const textLength = item.textContent.trim().length;
+    const linkCount = item.querySelectorAll('a').length;
+    
+    return {
+      hasLink,
+      hasParagraph,
+      hasHeading,
+      textLength,
+      linkCount,
+      structure: hasLink ? 'link' : hasParagraph ? 'paragraph' : hasHeading ? 'heading' : 'text'
+    };
+  });
+
+  // Check if all items have the same structure type
+  const firstStructure = itemStructures[0].structure;
+  const allSameStructure = itemStructures.every(s => s.structure === firstStructure);
+  
+  // Check if all items are links (very common for legitimate lists)
+  const allAreLinks = itemStructures.every(s => s.hasLink && s.linkCount === 1);
+  
+  // Check length similarity (if items are similar in length, likely homogeneous)
+  const lengths = itemStructures.map(s => s.textLength);
+  const avgLength = lengths.reduce((a, b) => a + b, 0) / lengths.length;
+  const lengthVariance = lengths.reduce((sum, len) => sum + Math.pow(len - avgLength, 2), 0) / lengths.length;
+  const lengthStdDev = Math.sqrt(lengthVariance);
+  const isLengthSimilar = lengthStdDev < avgLength * 0.5; // Items within 50% of average
+
+  // List is homogeneous if:
+  // 1. All items have same structure type, OR
+  // 2. All items are single links, OR
+  // 3. Items have similar lengths (low variance)
+  return allSameStructure || allAreLinks || isLengthSimilar;
+}
+
+/**
  * Determine if a list item should be extracted as a paragraph
  * @param {HTMLElement} list - The list element
  * @param {HTMLElement} lastItem - The last list item to check
@@ -165,6 +229,20 @@ function shouldExtractListItem(list, lastItem, allItems) {
   
   // Must have content
   if (!lastItemText) {
+    return false;
+  }
+
+  // #region agent log
+  const isHomogeneous = isHomogeneousList(allItems);
+  fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'extract-misplaced-list-items.js:176',message:'Checking list homogeneity',data:{isHomogeneous,itemCount:allItems.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
+  // #endregion
+
+  // NEVER extract from homogeneous lists - these are legitimate lists
+  // Homogeneous lists have similar structure/content across all items
+  if (isHomogeneousList(allItems)) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'extract-misplaced-list-items.js:188',message:'Skipping extraction - homogeneous list',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
     return false;
   }
 
@@ -307,12 +385,35 @@ function shouldExtractByHeuristics(list, lastItem, allItems) {
     outlierScore += 1;
   }
 
-  // Extract if it's an outlier in multiple dimensions (score >= 3)
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'extract-misplaced-list-items.js:251',message:'Heuristic analysis',data:{outlierScore,lastItemLength,avgLength,lastItemSentences,avgSentences,medianLength,willExtract:outlierScore >= 3 && lastItemLength >= 30},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
+
+  // Extract if it's an outlier in multiple dimensions AND other items are similar to each other
   // This is more general - doesn't require specific thresholds, just "is it different?"
   // Also require minimum length to avoid extracting very short items
-  if (outlierScore >= 3 && lastItemLength >= 30) {
+  
+  // Check if other items are similar to each other (homogeneous group)
+  // If other items vary a lot, the last item might not be an outlier
+  const otherItemLengthsSorted = otherItemLengths.sort((a, b) => a - b);
+  const otherLengthRange = otherItemLengthsSorted[otherItemLengthsSorted.length - 1] - otherItemLengthsSorted[0];
+  const otherLengthVariance = otherItemLengths.reduce((sum, len) => sum + Math.pow(len - avgLength, 2), 0) / otherItemLengths.length;
+  const otherItemsAreSimilar = otherLengthVariance < avgLength * 0.3; // Other items within 30% variance
+  
+  // Only extract if:
+  // 1. Item is a clear outlier (score >= 4, more strict than before)
+  // 2. Other items are similar to each other (homogeneous group)
+  // 3. Item is long enough to be meaningful (>= 50 chars, more strict)
+  if (outlierScore >= 4 && otherItemsAreSimilar && lastItemLength >= 50) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'extract-misplaced-list-items.js:329',message:'Extracting item - clear outlier',data:{outlierScore,otherItemsAreSimilar,lastItemLength},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
     return true;
   }
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'extract-misplaced-list-items.js:336',message:'Not extracting - not clear outlier',data:{outlierScore,otherItemsAreSimilar,lastItemLength,threshold:4},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
+  // #endregion
 
   return false;
 }
