@@ -15,6 +15,7 @@ import { extractMisplacedListItems } from '../features/extract-misplaced-list-it
 import { convertListsToNumberedHeadings } from '../features/convert-lists-to-numbered-headings.js';
 import { removeEmptyP } from '../features/remove-empty-p.js';
 import { cleanLinkUrls } from '../features/clean-link-urls.js';
+import { addShoppablesSpacers } from '../features/add-shoppables-spacers.js';
 import { isValidOptions } from '../utils/validation.js';
 
 /**
@@ -68,6 +69,9 @@ export function processShopifyShoppablesMode(element, options = {}) {
   if (options.removeDomain) {
     removeDomainFromLinks(processed);
   }
+
+  // Add shoppables spacers (if enabled)
+  addShoppablesSpacers(processed, options);
 
   return processed;
 }

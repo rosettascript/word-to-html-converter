@@ -21,6 +21,7 @@ let processCallback = null;
 let currentMode = 'regular';
 let currentOptions = {};
 let lastCleanedHTML = ''; // Store last cleaned HTML for lazy preview loading
+let isOptionChange = false; // Track if reprocess is due to option change
 
 // Cache for frequently accessed DOM elements
 let cachedElements = null;
@@ -157,6 +158,7 @@ export function setupConverterUI({ onProcess }) {
         updateCharCount(textContent, charCount);
 
         // Process the ORIGINAL HTML (with styles) for output
+        isOptionChange = false; // New content, not option change
         processInputHTML(html);
       }
     } catch (error) {
@@ -170,6 +172,7 @@ export function setupConverterUI({ onProcess }) {
   const debouncedProcess = debounce(() => {
     const html = inputDiv.innerHTML;
     if (html && html.trim() !== '') {
+      isOptionChange = false; // New content, not option change
       processInputHTML(html);
     }
   }, 500);
@@ -273,12 +276,35 @@ function renderPreview(cleanedHTML) {
   const elements = getCachedElements();
   const previewFrame = elements.previewFrame;
   if (previewFrame && isPreviewModeActive()) {
+    // Capture isOptionChange in closure (before it might be reset)
+    const shouldPreserveScroll = isOptionChange;
+    
+    // Capture preview scroll position before updating (for option changes)
+    let savedPreviewScrollTop = 0;
+    let savedPreviewScrollLeft = 0;
+    if (shouldPreserveScroll && previewFrame.contentWindow) {
+      try {
+        savedPreviewScrollTop = previewFrame.contentWindow.scrollY || previewFrame.contentWindow.pageYOffset || 0;
+        savedPreviewScrollLeft = previewFrame.contentWindow.scrollX || previewFrame.contentWindow.pageXOffset || 0;
+      } catch (e) {
+        // Cross-origin or not accessible
+      }
+    }
+    
     const styledHTML = addPreviewStyles(cleanedHTML);
     previewFrame.srcdoc = styledHTML;
-    // Scroll to top when content loads
+    // Scroll to top when content loads (only if NOT an option change)
     previewFrame.onload = () => {
       if (previewFrame.contentWindow) {
-        previewFrame.contentWindow.scrollTo(0, 0);
+        if (shouldPreserveScroll) {
+          // Restore scroll position for option changes - use setTimeout to ensure DOM is ready
+          setTimeout(() => {
+            previewFrame.contentWindow.scrollTo(savedPreviewScrollLeft, savedPreviewScrollTop);
+          }, 0);
+        } else {
+          // Scroll to top for new content
+          previewFrame.contentWindow.scrollTo(0, 0);
+        }
       }
     };
   }
@@ -334,21 +360,37 @@ function processInputHTML(inputHTML) {
       );
     }
 
+    // Capture scroll position BEFORE DOM update (for option changes)
+    const codeView = elements.codeView;
+    const savedScrollTop = codeView && isOptionChange ? codeView.scrollTop : 0;
+    const savedScrollLeft = codeView && isOptionChange ? codeView.scrollLeft : 0;
+
     // Update output (use safe innerHTML for syntax highlighting)
     if (outputCode) {
       setSafeHTML(outputCode, highlightedHTML);
     }
 
-    // Scroll code view to top after content is rendered
-    const codeView = elements.codeView;
+    // Scroll code view to top after content is rendered (only if NOT an option change)
     if (codeView) {
-      // Use double requestAnimationFrame to ensure DOM is fully updated and layout is complete
-      requestAnimationFrame(() => {
+      if (isOptionChange) {
+        // Preserve scroll position for option changes
+        // Use double requestAnimationFrame to ensure DOM is fully updated and layout is complete
         requestAnimationFrame(() => {
-          codeView.scrollTop = 0;
-          codeView.scrollLeft = 0;
+          requestAnimationFrame(() => {
+            codeView.scrollTop = savedScrollTop;
+            codeView.scrollLeft = savedScrollLeft;
+          });
         });
-      });
+      } else {
+        // Scroll to top for new content
+        // Use double requestAnimationFrame to ensure DOM is fully updated and layout is complete
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            codeView.scrollTop = 0;
+            codeView.scrollLeft = 0;
+          });
+        });
+      }
     }
 
     // Store cleaned HTML for lazy preview loading
@@ -356,12 +398,35 @@ function processInputHTML(inputHTML) {
 
     // Update preview only if preview mode is currently active
     if (previewFrame && isPreviewModeActive()) {
+      // Capture isOptionChange in closure (before it might be reset)
+      const shouldPreserveScroll = isOptionChange;
+      
+      // Capture preview scroll position before updating (for option changes)
+      let savedPreviewScrollTop = 0;
+      let savedPreviewScrollLeft = 0;
+      if (shouldPreserveScroll && previewFrame.contentWindow) {
+        try {
+          savedPreviewScrollTop = previewFrame.contentWindow.scrollY || previewFrame.contentWindow.pageYOffset || 0;
+          savedPreviewScrollLeft = previewFrame.contentWindow.scrollX || previewFrame.contentWindow.pageXOffset || 0;
+        } catch (e) {
+          // Cross-origin or not accessible
+        }
+      }
+      
       const styledHTML = addPreviewStyles(cleanedHTML);
       previewFrame.srcdoc = styledHTML;
-      // Scroll to top when content loads
+      // Scroll to top when content loads (only if NOT an option change)
       previewFrame.onload = () => {
         if (previewFrame.contentWindow) {
-          previewFrame.contentWindow.scrollTo(0, 0);
+          if (shouldPreserveScroll) {
+            // Restore scroll position for option changes - use setTimeout to ensure DOM is ready
+            setTimeout(() => {
+              previewFrame.contentWindow.scrollTo(savedPreviewScrollLeft, savedPreviewScrollTop);
+            }, 0);
+          } else {
+            // Scroll to top for new content
+            previewFrame.contentWindow.scrollTo(0, 0);
+          }
         }
       };
     }
@@ -370,6 +435,9 @@ function processInputHTML(inputHTML) {
     updateStatus('HTML cleaned successfully', 'success');
     if (outputView) outputView.removeAttribute('aria-busy');
     if (spinner) spinner.classList.remove('show');
+    
+    // Reset flag after processing
+    isOptionChange = false;
   } catch (error) {
     handleProcessingError(error, 'HTML processing');
     showError(error.message || 'Unable to parse HTML. Please check your input for errors.');
@@ -638,6 +706,7 @@ export function updateMode(mode) {
  */
 export function updateOptions(options) {
   currentOptions = { ...currentOptions, ...options };
+  isOptionChange = true; // Mark as option change
   reprocess();
 }
 

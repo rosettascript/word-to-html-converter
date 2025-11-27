@@ -50,6 +50,8 @@ export function isValidOptions(options) {
     normalizeWhitespace: options.normalizeWhitespace === true,
     displayImages: options.displayImages === true,
     removeParagraphSpacers: options.removeParagraphSpacers === true,
+    addSpacerBeforeReadSections: options.addSpacerBeforeReadSections === true,
+    addSpacerBeforeSources: options.addSpacerBeforeSources === true,
     baseDomain: typeof options.baseDomain === 'string' ? options.baseDomain : null,
   };
 }

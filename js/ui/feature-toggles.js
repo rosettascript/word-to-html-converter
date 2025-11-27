@@ -12,6 +12,8 @@ export function setupFeatureToggles() {
   const strongInHeaders = document.getElementById('strong-in-headers');
   const removeDomain = document.getElementById('remove-domain');
   const removeParagraphSpacers = document.getElementById('remove-paragraph-spacers');
+  const addSpacerBeforeReadSections = document.getElementById('add-spacer-before-read-sections');
+  const addSpacerBeforeSources = document.getElementById('add-spacer-before-sources');
   const baseDomainInput = document.getElementById('base-domain');
 
   // Strong in Headers
@@ -36,6 +38,20 @@ export function setupFeatureToggles() {
     });
   }
 
+  // Add Spacer Before Read Sections (Shopify Shoppables only)
+  if (addSpacerBeforeReadSections) {
+    addSpacerBeforeReadSections.addEventListener('change', e => {
+      updateOptions({ addSpacerBeforeReadSections: e.target.checked });
+    });
+  }
+
+  // Add Spacer Before Sources (Shopify Shoppables only)
+  if (addSpacerBeforeSources) {
+    addSpacerBeforeSources.addEventListener('change', e => {
+      updateOptions({ addSpacerBeforeSources: e.target.checked });
+    });
+  }
+
   // Base Domain Input (debounced)
   if (baseDomainInput) {
     let domainTimeout;
@@ -56,10 +72,14 @@ export function updateFeatureVisibility(mode) {
   const strongInHeaders = document.getElementById('strong-in-headers');
   const removeDomain = document.getElementById('remove-domain');
   const removeParagraphSpacers = document.getElementById('remove-paragraph-spacers');
+  const addSpacerBeforeReadSections = document.getElementById('add-spacer-before-read-sections');
+  const addSpacerBeforeSources = document.getElementById('add-spacer-before-sources');
 
   const strongInHeadersWrapper = strongInHeaders?.parentElement;
   const removeDomainWrapper = removeDomain?.parentElement;
   const removeParagraphSpacersWrapper = removeParagraphSpacers?.parentElement;
+  const addSpacerBeforeReadSectionsWrapper = addSpacerBeforeReadSections?.parentElement;
+  const addSpacerBeforeSourcesWrapper = addSpacerBeforeSources?.parentElement;
 
   // Regular Mode: Hide all optional features except global ones
   if (mode === 'regular') {
@@ -75,6 +95,14 @@ export function updateFeatureVisibility(mode) {
       removeParagraphSpacersWrapper.classList.add('feature-hidden');
       removeParagraphSpacersWrapper.classList.remove('feature-visible');
     }
+    if (addSpacerBeforeReadSectionsWrapper) {
+      addSpacerBeforeReadSectionsWrapper.classList.add('feature-hidden');
+      addSpacerBeforeReadSectionsWrapper.classList.remove('feature-visible');
+    }
+    if (addSpacerBeforeSourcesWrapper) {
+      addSpacerBeforeSourcesWrapper.classList.add('feature-hidden');
+      addSpacerBeforeSourcesWrapper.classList.remove('feature-visible');
+    }
 
     // Uncheck all and update options
     if (strongInHeaders) {
@@ -88,6 +116,14 @@ export function updateFeatureVisibility(mode) {
     if (removeParagraphSpacers) {
       removeParagraphSpacers.checked = true; // Default to true (remove spacers)
       updateOptions({ removeParagraphSpacers: true });
+    }
+    if (addSpacerBeforeReadSections) {
+      addSpacerBeforeReadSections.checked = false;
+      updateOptions({ addSpacerBeforeReadSections: false });
+    }
+    if (addSpacerBeforeSources) {
+      addSpacerBeforeSources.checked = false;
+      updateOptions({ addSpacerBeforeSources: false });
     }
   }
 
@@ -105,6 +141,14 @@ export function updateFeatureVisibility(mode) {
       removeParagraphSpacersWrapper.classList.remove('feature-hidden');
       removeParagraphSpacersWrapper.classList.add('feature-visible');
     }
+    if (addSpacerBeforeReadSectionsWrapper) {
+      addSpacerBeforeReadSectionsWrapper.classList.add('feature-hidden');
+      addSpacerBeforeReadSectionsWrapper.classList.remove('feature-visible');
+    }
+    if (addSpacerBeforeSourcesWrapper) {
+      addSpacerBeforeSourcesWrapper.classList.add('feature-hidden');
+      addSpacerBeforeSourcesWrapper.classList.remove('feature-visible');
+    }
 
     // Default: strong in headers ON for Shopify Blogs
     if (strongInHeaders) {
@@ -120,9 +164,18 @@ export function updateFeatureVisibility(mode) {
       removeParagraphSpacers.checked = false;
       updateOptions({ removeParagraphSpacers: false });
     }
+    // Hide and reset shoppables spacer options
+    if (addSpacerBeforeReadSections) {
+      addSpacerBeforeReadSections.checked = false;
+      updateOptions({ addSpacerBeforeReadSections: false });
+    }
+    if (addSpacerBeforeSources) {
+      addSpacerBeforeSources.checked = false;
+      updateOptions({ addSpacerBeforeSources: false });
+    }
   }
 
-  // Shopify Shoppables Mode: Show strong in headers and remove domain only
+  // Shopify Shoppables Mode: Show strong in headers, remove domain, and shoppables spacer options
   else if (mode === 'shopify-shoppables') {
     if (strongInHeadersWrapper) {
       strongInHeadersWrapper.classList.remove('feature-hidden');
@@ -135,6 +188,14 @@ export function updateFeatureVisibility(mode) {
     if (removeParagraphSpacersWrapper) {
       removeParagraphSpacersWrapper.classList.add('feature-hidden');
       removeParagraphSpacersWrapper.classList.remove('feature-visible');
+    }
+    if (addSpacerBeforeReadSectionsWrapper) {
+      addSpacerBeforeReadSectionsWrapper.classList.remove('feature-hidden');
+      addSpacerBeforeReadSectionsWrapper.classList.add('feature-visible');
+    }
+    if (addSpacerBeforeSourcesWrapper) {
+      addSpacerBeforeSourcesWrapper.classList.remove('feature-hidden');
+      addSpacerBeforeSourcesWrapper.classList.add('feature-visible');
     }
 
     // Default: strong in headers ON for Shopify Shoppables
@@ -150,6 +211,15 @@ export function updateFeatureVisibility(mode) {
     if (removeParagraphSpacers) {
       removeParagraphSpacers.checked = true; // Default to true (remove spacers)
       updateOptions({ removeParagraphSpacers: true });
+    }
+    // Default: shoppables spacer options OFF (unchecked) - user can enable if needed
+    if (addSpacerBeforeReadSections) {
+      addSpacerBeforeReadSections.checked = false;
+      updateOptions({ addSpacerBeforeReadSections: false });
+    }
+    if (addSpacerBeforeSources) {
+      addSpacerBeforeSources.checked = false;
+      updateOptions({ addSpacerBeforeSources: false });
     }
   }
 }
