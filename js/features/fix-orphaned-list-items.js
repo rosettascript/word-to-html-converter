@@ -47,6 +47,15 @@ export function fixOrphanedListItems(root) {
       return;
     }
 
+    // CRITICAL: Be more conservative - only convert if paragraph structure closely matches list items
+    // Check if the paragraph is inside a container that suggests it's not an orphan
+    // (e.g., table cells, divs with specific structure, etc.)
+    const orphanContainer = nextSibling.closest('td, th, div, section, article, aside, header, footer, main, nav');
+    const listContainer = list.closest('td, th, div, section, article, aside, header, footer, main, nav');
+    // If both are in the same container, they're likely part of the same content block
+    // This doesn't necessarily mean it's an orphan - it could just be a normal paragraph
+    const sameContainer = orphanContainer && listContainer && orphanContainer === listContainer;
+
     // Collect elements that should be grouped together (em + link, etc.)
     const orphanGroup = [nextSibling];
 
@@ -437,7 +446,17 @@ function looksLikeOrphanedListItem(list, orphanGroup) {
     // Check if orphan has strong OR link (but only if it matches the pattern)
     const hasStrong = orphanGroup.some(el => el.tagName === 'STRONG' || el.querySelector('strong'));
 
-    if (hasStrong || (hasLink && orphanStartsWithStrong)) {
+    // CRITICAL FIX: Be more conservative - only convert if BOTH conditions are met:
+    // 1. The orphan starts with strong (matches the pattern of list items)
+    // 2. Most list items start with strong (consistent structure)
+    // This prevents converting paragraphs that just happen to have a strong tag somewhere
+
+    // Only convert if:
+    // - Orphan starts with strong AND most list items start with strong (consistent pattern), OR
+    // - Has link AND orphan starts with strong (citation-like pattern)
+    // This is more conservative than before - we require the orphan to START with strong,
+    // not just have a strong tag anywhere in it
+    if ((orphanStartsWithStrong && mostItemsStartWithStrong) || (hasLink && orphanStartsWithStrong)) {
       return true;
     }
   }
