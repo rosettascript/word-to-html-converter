@@ -3,11 +3,85 @@
  * Adds <p>&nbsp;</p> spacers before headers and in specific sections
  */
 
+import { isSpacerParagraph } from '../utils/validation.js';
+import { setSafeHTML } from '../utils/safe-html.js';
+
+// Cache for Key Takeaways section info to avoid repeated DOM queries
+let keyTakeawaysCache = null;
+
+/**
+ * Get Key Takeaways section information (cached)
+ * @param {HTMLElement} root - Root element to search in
+ * @returns {Object|null} - Object with heading, level, and endElement, or null if not found
+ */
+function getKeyTakeawaysInfo(root) {
+  // Return cached result if available and root matches
+  if (keyTakeawaysCache && keyTakeawaysCache.root === root) {
+    return keyTakeawaysCache.info;
+  }
+
+  // Find the Key Takeaways heading
+  const headings = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  let keyTakeawaysHeading = null;
+  let keyTakeawaysLevel = null;
+  let endElement = null;
+
+  // Find Key Takeaways heading
+  headings.forEach(heading => {
+    const text = heading.textContent.trim().toLowerCase();
+    if (text.includes('key takeaway')) {
+      keyTakeawaysHeading = heading;
+      keyTakeawaysLevel = parseInt(heading.tagName.substring(1));
+    }
+  });
+
+  if (!keyTakeawaysHeading) {
+    keyTakeawaysCache = { root, info: null };
+    return null;
+  }
+
+  // Find the end of the Key Takeaways section (next heading of same or higher level)
+  let current = keyTakeawaysHeading.nextElementSibling;
+  while (current) {
+    if (/^H[1-6]$/.test(current.tagName)) {
+      const currentLevel = parseInt(current.tagName.substring(1));
+      if (currentLevel <= keyTakeawaysLevel) {
+        endElement = current;
+        break;
+      }
+    }
+    current = current.nextElementSibling;
+  }
+
+  const info = {
+    heading: keyTakeawaysHeading,
+    level: keyTakeawaysLevel,
+    endElement,
+  };
+
+  // Cache the result
+  keyTakeawaysCache = { root, info };
+
+  return info;
+}
+
+/**
+ * Clear the Key Takeaways cache
+ * Useful when DOM structure changes
+ */
+export function clearKeyTakeawaysCache() {
+  keyTakeawaysCache = null;
+}
+
 /**
  * Add paragraph spacers to improve readability
  * @param {HTMLElement} root - Root element to process
  */
 export function addParagraphSpacers(root) {
+  // Clear cache at start of processing to ensure fresh data
+  clearKeyTakeawaysCache();
+
   // 1. Add spacers before every header (except in Key Takeaways section)
   addSpacersBeforeHeaders(root);
 
@@ -42,13 +116,13 @@ function addSpacersBeforeHeaders(root) {
 
     // Check if there's already a spacer before this header
     const prevSibling = header.previousElementSibling;
-    if (prevSibling && prevSibling.tagName === 'P' && prevSibling.innerHTML.trim() === '&nbsp;') {
+    if (isSpacerParagraph(prevSibling)) {
       return; // Already has spacer
     }
 
     // Create and insert spacer
     const spacer = document.createElement('p');
-    spacer.innerHTML = '&nbsp;';
+    setSafeHTML(spacer, '&nbsp;');
     header.parentNode.insertBefore(spacer, header);
   });
 }
@@ -69,17 +143,13 @@ function addSpacerAfterKeyTakeawaysList(root) {
         if (nextElement.tagName === 'UL' || nextElement.tagName === 'OL') {
           // Check if there's already a spacer after the list
           const nextSibling = nextElement.nextElementSibling;
-          if (
-            nextSibling &&
-            nextSibling.tagName === 'P' &&
-            nextSibling.innerHTML.trim() === '&nbsp;'
-          ) {
+          if (isSpacerParagraph(nextSibling)) {
             return; // Already has spacer
           }
 
           // Create and insert spacer after the list
           const spacer = document.createElement('p');
-          spacer.innerHTML = '&nbsp;';
+          setSafeHTML(spacer, '&nbsp;');
           nextElement.parentNode.insertBefore(spacer, nextElement.nextSibling);
           break;
         }
@@ -142,13 +212,13 @@ function addSpacerBeforeReadSections(root) {
 function addSpacerBeforeElement(element) {
   // Check if there's already a spacer before this element
   const prevSibling = element.previousElementSibling;
-  if (prevSibling && prevSibling.tagName === 'P' && prevSibling.innerHTML.trim() === '&nbsp;') {
+  if (isSpacerParagraph(prevSibling)) {
     return; // Already has spacer
   }
 
   // Create and insert spacer
   const spacer = document.createElement('p');
-  spacer.innerHTML = '&nbsp;';
+  setSafeHTML(spacer, '&nbsp;');
   element.parentNode.insertBefore(spacer, element);
 }
 
@@ -167,7 +237,7 @@ function removeSpacerAfterFAQHeader(root) {
 
       while (nextElement) {
         // If we find a spacer
-        if (nextElement.tagName === 'P' && nextElement.innerHTML.trim() === '&nbsp;') {
+        if (isSpacerParagraph(nextElement)) {
           // Check if the next element after spacer is h3
           const afterSpacer = nextElement.nextElementSibling;
           if (afterSpacer && afterSpacer.tagName === 'H3') {
@@ -193,43 +263,34 @@ function removeSpacerAfterFAQHeader(root) {
 }
 
 /**
- * Check if element is within Key Takeaways section
+ * Check if element is within Key Takeaways section (using cached info)
  * @param {HTMLElement} element - Element to check
  * @returns {boolean}
  */
 function isInKeyTakeawaysSection(element) {
-  // Find the Key Takeaways heading
   const root = element.ownerDocument.body || element.ownerDocument.documentElement;
-  const headings = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  const info = getKeyTakeawaysInfo(root);
 
-  let keyTakeawaysHeading = null;
-  let keyTakeawaysLevel = null;
-
-  // Find Key Takeaways heading
-  headings.forEach(heading => {
-    const text = heading.textContent.trim().toLowerCase();
-    if (text.includes('key takeaway')) {
-      keyTakeawaysHeading = heading;
-      keyTakeawaysLevel = parseInt(heading.tagName.substring(1));
-    }
-  });
-
-  if (!keyTakeawaysHeading) {
+  if (!info) {
     return false;
   }
 
-  // Check if element is between Key Takeaways heading and next heading of same or higher level
-  let current = keyTakeawaysHeading.nextElementSibling;
+  // Simple range check: element must be after heading and before endElement
+  let current = info.heading.nextElementSibling;
   while (current) {
     // If we reached the element, it's in Key Takeaways section
     if (current === element) {
       return true;
     }
 
-    // If we hit a heading of same or higher level, stop
+    // If we hit the end element or a heading of same or higher level, stop
+    if (current === info.endElement) {
+      return false;
+    }
+
     if (/^H[1-6]$/.test(current.tagName)) {
       const currentLevel = parseInt(current.tagName.substring(1));
-      if (currentLevel <= keyTakeawaysLevel) {
+      if (currentLevel <= info.level) {
         return false; // We've left the Key Takeaways section
       }
     }

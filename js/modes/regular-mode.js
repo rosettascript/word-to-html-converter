@@ -8,11 +8,10 @@ import { removeDomainFromLinks } from '../features/remove-domain-links.js';
 import { normalizeWhitespace } from '../features/whitespace-normalize.js';
 import { replaceBrWithParagraph } from '../features/br-to-paragraph.js';
 import { cleanAnchorWhitespace } from '../features/clean-anchor-whitespace.js';
-import { unwrapPInList } from '../features/unwrap-p-in-list.js';
-import { removeBrInLists } from '../features/remove-br-in-lists.js';
 import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
 import { combineSequentialOrderedLists } from '../features/combine-sequential-ordered-lists.js';
 import { cleanLinkUrls } from '../features/clean-link-urls.js';
+import { isValidOptions } from '../utils/validation.js';
 
 /**
  * Process HTML in Regular mode
@@ -21,6 +20,9 @@ import { cleanLinkUrls } from '../features/clean-link-urls.js';
  * @returns {HTMLElement} - Processed element
  */
 export function processRegularMode(element, options = {}) {
+  // Validate and normalize options
+  options = isValidOptions(options);
+
   // Clone to avoid mutations
   const processed = element.cloneNode(true);
 
@@ -35,12 +37,6 @@ export function processRegularMode(element, options = {}) {
 
   // Clean whitespace from anchor tags
   cleanAnchorWhitespace(processed);
-
-  // Unwrap unnecessary <p> tags inside list items
-  unwrapPInList(processed);
-
-  // Remove <br> tags inside list items (invalid HTML)
-  removeBrInLists(processed);
 
   // Apply strong in headers (default: disabled for Regular mode)
   const enableStrong = options.strongInHeaders === true;

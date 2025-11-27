@@ -3,6 +3,8 @@
  * Adds target="_blank" and rel="noopener noreferrer" to links
  */
 
+import { logWarning } from '../utils/error-handler.js';
+
 /**
  * Add target="_blank" and rel="noopener noreferrer" to links
  * @param {HTMLElement} root - Root element to process
@@ -63,8 +65,9 @@ function classifyLink(href, baseDomain = null) {
       if (linkUrl.hostname === configUrl.hostname) {
         return 'internal';
       }
-    } catch {
-      // Invalid URL, treat as internal (preserve as-is)
+    } catch (error) {
+      // Invalid URL, log warning in development but treat as internal (preserve as-is)
+      logWarning(`URL parsing failed for href: ${normalized}`, error);
       return 'internal';
     }
   }

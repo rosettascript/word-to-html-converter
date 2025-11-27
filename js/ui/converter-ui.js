@@ -9,11 +9,45 @@ import { updateStatus } from './status-handler.js';
 import { formatHTML, applySyntaxHighlighting } from '../utils/html-formatter.js';
 import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
 import { isPreviewModeActive } from './preview-toggle.js';
+import {
+  LARGE_DOCUMENT_THRESHOLD,
+  PERFORMANCE_WARNING_THRESHOLD_MS,
+  DEFAULT_INDENT_SIZE,
+} from '../utils/constants.js';
+import { handleProcessingError, logWarning } from '../utils/error-handler.js';
+import { setSafeHTML } from '../utils/safe-html.js';
 
 let processCallback = null;
 let currentMode = 'regular';
 let currentOptions = {};
 let lastCleanedHTML = ''; // Store last cleaned HTML for lazy preview loading
+
+// Cache for frequently accessed DOM elements
+let cachedElements = null;
+
+/**
+ * Get cached DOM elements
+ * @returns {Object} - Object with cached element references
+ */
+function getCachedElements() {
+  if (!cachedElements) {
+    cachedElements = {
+      outputCode: document.getElementById('output-html'),
+      previewFrame: document.getElementById('preview-frame'),
+      outputView: document.getElementById('output-code-view'),
+      codeView: document.getElementById('output-code-view'),
+      spinner: document.getElementById('processing-spinner'),
+    };
+  }
+  return cachedElements;
+}
+
+/**
+ * Clear cached DOM elements (useful if DOM structure changes)
+ */
+function clearCachedElements() {
+  cachedElements = null;
+}
 
 /**
  * Set up the converter UI
@@ -29,9 +63,12 @@ export function setupConverterUI({ onProcess }) {
   const charCount = document.getElementById('input-char-count');
 
   if (!inputDiv || !outputCode) {
-    console.error('Required elements not found');
+    handleProcessingError(new Error('Required elements not found'), 'UI setup');
     return;
   }
+
+  // Initialize cached elements
+  getCachedElements();
 
   // Function to update placeholder visibility
   function updatePlaceholder() {
@@ -56,7 +93,7 @@ export function setupConverterUI({ onProcess }) {
         const cleanedForDisplay = stripInlineStyles(html);
 
         // Display the cleaned HTML rendered in the input
-        inputDiv.innerHTML = cleanedForDisplay;
+        setSafeHTML(inputDiv, cleanedForDisplay);
 
         // Update placeholder visibility
         updatePlaceholder();
@@ -163,17 +200,17 @@ export function setupConverterUI({ onProcess }) {
   // Clear button
   if (clearButton) {
     clearButton.addEventListener('click', () => {
-      inputDiv.innerHTML = '';
-      outputCode.textContent = '';
+      setSafeHTML(inputDiv, '');
+      if (outputCode) outputCode.textContent = '';
       updateCharCount('', charCount);
       clearError();
       updateStatus('', 'idle');
       updatePlaceholder();
 
       // Clear preview frame
-      const previewFrame = document.getElementById('preview-frame');
-      if (previewFrame) {
-        previewFrame.srcdoc = '';
+      const elements = getCachedElements();
+      if (elements.previewFrame) {
+        elements.previewFrame.srcdoc = '';
       }
 
       // Clear stored cleaned HTML
@@ -233,7 +270,8 @@ export function setupConverterUI({ onProcess }) {
  * @param {string} cleanedHTML - Cleaned HTML to render
  */
 function renderPreview(cleanedHTML) {
-  const previewFrame = document.getElementById('preview-frame');
+  const elements = getCachedElements();
+  const previewFrame = elements.previewFrame;
   if (previewFrame && isPreviewModeActive()) {
     const styledHTML = addPreviewStyles(cleanedHTML);
     previewFrame.srcdoc = styledHTML;
@@ -251,13 +289,12 @@ function renderPreview(cleanedHTML) {
  * @param {string} inputHTML - Input HTML to process
  */
 function processInputHTML(inputHTML) {
-  const outputCode = document.getElementById('output-html');
-  const previewFrame = document.getElementById('preview-frame');
-  const outputView = document.getElementById('output-code-view');
+  const elements = getCachedElements();
+  const { outputCode, previewFrame, outputView, spinner } = elements;
 
   if (!inputHTML || inputHTML.trim() === '') {
     if (outputView) outputView.removeAttribute('aria-busy');
-    outputCode.textContent = '';
+    if (outputCode) outputCode.textContent = '';
     if (previewFrame) {
       previewFrame.srcdoc = '';
     }
@@ -267,7 +304,6 @@ function processInputHTML(inputHTML) {
   }
 
   // Show DOM spinner (if present)
-  const spinner = document.getElementById('processing-spinner');
   if (spinner) spinner.classList.add('show');
 
   try {
@@ -282,7 +318,7 @@ function processInputHTML(inputHTML) {
     const startTime = performance.now();
 
     // Format HTML with proper indentation
-    const formattedHTML = formatHTML(cleanedHTML, 4); // 4 spaces indentation
+    const formattedHTML = formatHTML(cleanedHTML, DEFAULT_INDENT_SIZE);
 
     // Escape HTML for display
     const escapedHTML = escapeHTML(formattedHTML);
@@ -292,17 +328,19 @@ function processInputHTML(inputHTML) {
 
     // Log performance for large content
     const duration = performance.now() - startTime;
-    if (cleanedHTML.length > 100 * 1024 && duration > 100) {
-      console.warn(
+    if (cleanedHTML.length > LARGE_DOCUMENT_THRESHOLD && duration > PERFORMANCE_WARNING_THRESHOLD_MS) {
+      logWarning(
         `Syntax highlighting took ${duration.toFixed(2)}ms for ${(cleanedHTML.length / 1024).toFixed(2)}KB content`
       );
     }
 
-    // Update output (use innerHTML for syntax highlighting)
-    outputCode.innerHTML = highlightedHTML;
+    // Update output (use safe innerHTML for syntax highlighting)
+    if (outputCode) {
+      setSafeHTML(outputCode, highlightedHTML);
+    }
 
     // Scroll code view to top after content is rendered
-    const codeView = document.getElementById('output-code-view');
+    const codeView = elements.codeView;
     if (codeView) {
       // Use double requestAnimationFrame to ensure DOM is fully updated and layout is complete
       requestAnimationFrame(() => {
@@ -333,7 +371,7 @@ function processInputHTML(inputHTML) {
     if (outputView) outputView.removeAttribute('aria-busy');
     if (spinner) spinner.classList.remove('show');
   } catch (error) {
-    console.error('Processing error:', error);
+    handleProcessingError(error, 'HTML processing');
     showError(error.message || 'Unable to parse HTML. Please check your input for errors.');
     updateStatus('Processing failed', 'error');
     if (outputView) outputView.removeAttribute('aria-busy');
@@ -612,3 +650,6 @@ function reprocess() {
     processInputHTML(inputDiv.innerHTML);
   }
 }
+
+// Export clear cache function for testing/debugging
+export { clearCachedElements };

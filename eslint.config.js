@@ -15,6 +15,7 @@ export default [
         DOMParser: 'readonly',
         Node: 'readonly',
         NodeFilter: 'readonly',
+        HTMLElement: 'readonly',
         File: 'readonly',
         Blob: 'readonly',
         URL: 'readonly',

@@ -7,6 +7,9 @@ import { sanitizeHTML } from './sanitizer.js';
 import { processRegularMode } from '../modes/regular-mode.js';
 import { processShopifyBlogsMode } from '../modes/shopify-blogs-mode.js';
 import { processShopifyShoppablesMode } from '../modes/shopify-shoppables-mode.js';
+import { isValidHTMLString, isValidMode, isValidOptions } from '../utils/validation.js';
+import { VALID_MODES } from '../utils/constants.js';
+import { handleProcessingError } from '../utils/error-handler.js';
 
 /**
  * Process HTML based on selected mode and options
@@ -19,12 +22,31 @@ import { processShopifyShoppablesMode } from '../modes/shopify-shoppables-mode.j
  * @param {boolean} options.displayImages - Display images in preview (output never includes images)
  * @param {string} options.baseDomain - Base domain for internal link detection
  * @returns {string} - Cleaned HTML
+ * @throws {TypeError} If inputHTML is not a string
+ * @throws {Error} If HTML parsing fails
  */
 export function processHTML(inputHTML, mode = 'regular', options = {}) {
+  // Enhanced input validation
+  if (typeof inputHTML !== 'string') {
+    throw new TypeError('inputHTML must be a string');
+  }
+
   // Return empty string if no input
-  if (!inputHTML || inputHTML.trim() === '') {
+  if (!isValidHTMLString(inputHTML)) {
     return '';
   }
+
+  // Validate mode
+  if (!isValidMode(mode)) {
+    handleProcessingError(
+      new Error(`Invalid mode "${mode}". Valid modes are: ${VALID_MODES.join(', ')}`),
+      'Mode validation'
+    );
+    mode = 'regular'; // Default to regular mode
+  }
+
+  // Validate and normalize options
+  options = isValidOptions(options);
 
   try {
     // Step 1: Parse HTML
@@ -34,7 +56,10 @@ export function processHTML(inputHTML, mode = 'regular', options = {}) {
     // Check for parse errors
     const parseError = doc.querySelector('parsererror');
     if (parseError) {
-      throw new Error('Unable to parse HTML. Please check your input for errors.');
+      const errorText = parseError.textContent || 'Unknown parsing error';
+      throw new Error(
+        `Unable to parse HTML: ${errorText}. Please check your input for errors.`
+      );
     }
 
     // Step 2: Base sanitization (remove dangerous elements, strip styles, etc.)
@@ -58,7 +83,7 @@ export function processHTML(inputHTML, mode = 'regular', options = {}) {
     // Step 4: Return cleaned HTML
     return processed.innerHTML;
   } catch (error) {
-    console.error('Processing error:', error);
+    handleProcessingError(error, 'HTML processing');
     throw error;
   }
 }

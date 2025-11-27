@@ -3,6 +3,8 @@
  * Automatically detects the most common domain and converts it to relative paths
  */
 
+import { logWarning } from '../utils/error-handler.js';
+
 /**
  * Automatically detect and remove the most common domain from links
  * @param {HTMLElement} root - Root element to process
@@ -21,18 +23,25 @@ export function removeDomainFromLinks(root) {
   links.forEach(link => {
     const href = link.getAttribute('href');
 
-    try {
-      // Skip relative URLs, anchors, and non-http protocols
-      if (
-        !href ||
-        href.startsWith('#') ||
-        href.startsWith('/') ||
-        href.startsWith('mailto:') ||
-        href.startsWith('tel:')
-      ) {
-        return;
-      }
+    // Skip relative URLs, anchors, and non-http protocols
+    if (
+      !href ||
+      href.startsWith('#') ||
+      href.startsWith('/') ||
+      href.startsWith('mailto:') ||
+      href.startsWith('tel:')
+    ) {
+      return;
+    }
 
+    // Validate URL format before attempting to parse
+    // Only process URLs that look like http/https URLs
+    if (!/^https?:\/\//.test(href) && !href.startsWith('/')) {
+      // Invalid URL format, skip it
+      return;
+    }
+
+    try {
       const url = new URL(href, window.location.href);
 
       // Only process http/https URLs
@@ -41,8 +50,9 @@ export function removeDomainFromLinks(root) {
         domainCounts.set(hostname, (domainCounts.get(hostname) || 0) + 1);
         linkData.push({ link, url, href });
       }
-    } catch {
-      // Invalid URL, skip it
+    } catch (error) {
+      // Invalid URL, log warning in development but skip it
+      logWarning(`URL parsing failed for href: ${href}`, error);
     }
   });
 

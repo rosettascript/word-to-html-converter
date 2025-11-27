@@ -13,12 +13,12 @@ import { removeBrAndEmptyP } from '../features/remove-br-and-empty-p.js';
 import { removeH1AfterKeyTakeaways } from '../features/remove-h1-after-key-takeaways.js';
 import { removeSpaceAfterFAQHeaders } from '../features/remove-space-after-faq-headers.js';
 import { cleanAnchorWhitespace } from '../features/clean-anchor-whitespace.js';
-import { unwrapPInList } from '../features/unwrap-p-in-list.js';
 import { addParagraphSpacers } from '../features/add-paragraph-spacers.js';
-import { removeBrInLists } from '../features/remove-br-in-lists.js';
 import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
 import { convertListsToNumberedHeadings } from '../features/convert-lists-to-numbered-headings.js';
 import { cleanLinkUrls } from '../features/clean-link-urls.js';
+import { isValidOptions, isSpacerParagraph } from '../utils/validation.js';
+import { setSafeHTML } from '../utils/safe-html.js';
 
 /**
  * Handle spacer before sources section based on removeParagraphSpacers option
@@ -35,9 +35,7 @@ function handleSourcesSpacer(root, options) {
     if (headingText.includes('sources')) {
       // Check if there's already a spacer before this element
       const previousElement = heading.previousElementSibling;
-      const hasSpacer = previousElement &&
-                       previousElement.tagName === 'P' &&
-                       previousElement.innerHTML.trim() === '&nbsp;';
+      const hasSpacer = isSpacerParagraph(previousElement);
 
       if (options.removeParagraphSpacers) {
         // Remove paragraph spacers option is enabled - remove any existing spacer
@@ -48,7 +46,7 @@ function handleSourcesSpacer(root, options) {
         // Remove paragraph spacers option is disabled - add spacer if missing
         if (!hasSpacer) {
           const spacer = document.createElement('p');
-          spacer.innerHTML = '&nbsp;';
+          setSafeHTML(spacer, '&nbsp;');
           heading.parentNode.insertBefore(spacer, heading);
         }
       }
@@ -63,6 +61,9 @@ function handleSourcesSpacer(root, options) {
  * @returns {HTMLElement} - Processed element
  */
 export function processShopifyBlogsMode(element, options = {}) {
+  // Validate and normalize options
+  options = isValidOptions(options);
+
   // Clone to avoid mutations
   const processed = element.cloneNode(true);
 
@@ -95,12 +96,6 @@ export function processShopifyBlogsMode(element, options = {}) {
 
   // Clean whitespace from anchor tags
   cleanAnchorWhitespace(processed);
-
-  // Unwrap unnecessary <p> tags inside list items
-  unwrapPInList(processed);
-
-  // Remove <br> tags inside list items (invalid HTML)
-  removeBrInLists(processed);
 
   // Apply basic whitespace normalization (always on for Shopify Blogs)
   normalizeWhitespace(processed, 'basic');

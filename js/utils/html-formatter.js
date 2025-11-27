@@ -3,13 +3,15 @@
  * Formats HTML with proper indentation and line breaks
  */
 
+import { DEFAULT_INDENT_SIZE, MAX_HIGHLIGHT_SIZE } from './constants.js';
+
 /**
  * Format HTML with proper indentation
  * @param {string} html - HTML string to format
- * @param {number} indentSize - Number of spaces for indentation (default: 4)
+ * @param {number} indentSize - Number of spaces for indentation (default: DEFAULT_INDENT_SIZE)
  * @returns {string} - Formatted HTML
  */
-export function formatHTML(html, indentSize = 4) {
+export function formatHTML(html, indentSize = DEFAULT_INDENT_SIZE) {
   if (!html || html.trim() === '') {
     return '';
   }
@@ -262,7 +264,6 @@ export function applySyntaxHighlighting(html) {
 
   // Performance optimization: Skip highlighting for very large content
   // Syntax highlighting can be expensive for large HTML
-  const MAX_HIGHLIGHT_SIZE = 500 * 1024; // 500KB
   if (html.length > MAX_HIGHLIGHT_SIZE) {
     // For very large content, return unhighlighted HTML
     // This prevents UI freezing

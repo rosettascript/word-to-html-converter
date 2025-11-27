@@ -40,5 +40,20 @@
   "bugs": {
     "url": "https://github.com/rosettascript/word-to-html-converter/issues"
   },
-  "homepage": "https://rosettascript.github.io/word-to-html-converter/"
+  "homepage": "https://rosettascript.github.io/word-to-html-converter/",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "index.html",
+    "shopify.html",
+    "css/",
+    "js/",
+    "assets/",
+    "tutorials/",
+    "robots.txt",
+    "sitemap.xml",
+    "README.md",
+    "LICENSE"
+  ]
 }

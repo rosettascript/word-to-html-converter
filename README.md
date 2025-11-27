@@ -177,11 +177,13 @@ Complete documentation is available in the `_docs/` directory:
 
 ## Contributing
 
+We welcome contributions! Please see [CONTRIBUTING.md](_docs/CONTRIBUTING.md) for guidelines.
+
 This project follows the PRD specifications in the `_docs/prd/` directory. See `_docs/guide/DEVELOPMENT.md` for development guidelines.
 
 ## License
 
-Free to use for personal and commercial projects.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Author
 
