@@ -357,108 +357,126 @@ function looksLikeOrphanedListItem(list, orphanGroup) {
     }
   }
 
-  // For UL (bullet lists), be more conservative
-  // Check if the orphan matches the pattern of existing list items
+  // For UL (bullet lists), use STRUCTURAL similarity checks, not pattern matching
+  // Only convert if the orphan's structure closely matches the list items' structure
   if (list.tagName === 'UL') {
     const listItems = Array.from(list.querySelectorAll('li'));
 
-    // If no list items, can't determine pattern
+    // If no list items, can't determine structure
     if (listItems.length === 0) {
       return false;
     }
 
-    // Check if orphan starts with strong (like most list items do)
-    const firstOrphanEl = orphanGroup[0];
-    let orphanStartsWithStrong = false;
+    // Analyze STRUCTURAL properties of list items (not content patterns)
+    const listItemStructures = listItems.map(li => {
+      const hasLink = li.querySelector('a') !== null;
+      const hasParagraph = li.querySelector('p') !== null;
+      const hasHeading = li.querySelector('h1, h2, h3, h4, h5, h6') !== null;
+      const hasStrong = li.querySelector('strong') !== null;
+      const hasEm = li.querySelector('em') !== null;
+      const textLength = li.textContent.trim().length;
+      const linkCount = li.querySelectorAll('a').length;
+      const childElementCount = li.children.length;
+      
+      return {
+        hasLink,
+        hasParagraph,
+        hasHeading,
+        hasStrong,
+        hasEm,
+        textLength,
+        linkCount,
+        childElementCount,
+        // Structural type: what kind of content does this list item contain?
+        structure: hasLink ? 'link' : hasParagraph ? 'paragraph' : hasHeading ? 'heading' : 'text'
+      };
+    });
 
-    if (firstOrphanEl) {
-      // Check if the element itself is STRONG
-      if (firstOrphanEl.tagName === 'STRONG') {
-        orphanStartsWithStrong = true;
-      } else {
-        // For P or other elements, check if first element child is STRONG
-        // or if first child is STRONG (handles text nodes before STRONG)
-        const firstChild = firstOrphanEl.firstElementChild || firstOrphanEl.firstChild;
-        if (firstChild && firstChild.tagName === 'STRONG') {
-          orphanStartsWithStrong = true;
-        } else {
-          // Check if there's a STRONG element and it's the first significant element
-          const strongEl = firstOrphanEl.querySelector('strong');
-          if (strongEl) {
-            // Check if STRONG is at the start (no significant content before it)
-            const beforeStrong = strongEl.previousSibling;
-            if (
-              !beforeStrong ||
-              (beforeStrong.nodeType === Node.TEXT_NODE && beforeStrong.textContent.trim() === '')
-            ) {
-              orphanStartsWithStrong = true;
-            }
-          }
-        }
+    // Analyze STRUCTURAL properties of orphan
+    const orphanHasLink = orphanGroup.some(el => el.tagName === 'A' || el.querySelector('a'));
+    const orphanHasParagraph = orphanGroup.some(el => el.tagName === 'P');
+    const orphanHasHeading = orphanGroup.some(el => /^H[1-6]$/.test(el.tagName));
+    const orphanHasStrong = orphanGroup.some(el => el.tagName === 'STRONG' || el.querySelector('strong'));
+    const orphanHasEm = orphanGroup.some(el => el.tagName === 'EM' || el.querySelector('em'));
+    const orphanTextLength = text.length;
+    const orphanLinkCount = orphanGroup.filter(el => el.tagName === 'A' || el.querySelector('a')).length;
+    const orphanChildElementCount = orphanGroup.reduce((sum, el) => sum + (el.children ? el.children.length : 0), 0);
+    const orphanStructure = orphanHasLink ? 'link' : orphanHasParagraph ? 'paragraph' : orphanHasHeading ? 'heading' : 'text';
+
+    // STRUCTURAL SIMILARITY CHECKS:
+    
+    // 1. Structure type match: Does orphan have the same structural type as list items?
+    const allItemsSameStructure = listItemStructures.every(s => s.structure === listItemStructures[0].structure);
+    const orphanMatchesStructure = orphanStructure === listItemStructures[0].structure;
+    
+    // If all list items have the same structure type, orphan must match
+    if (allItemsSameStructure && !orphanMatchesStructure) {
+      return false; // Different structure = not an orphan
+    }
+
+    // 2. Length similarity: Is orphan similar in length to list items?
+    const listItemLengths = listItemStructures.map(s => s.textLength);
+    const avgLength = listItemLengths.reduce((a, b) => a + b, 0) / listItemLengths.length;
+    const lengthVariance = listItemLengths.reduce((sum, len) => sum + Math.pow(len - avgLength, 2), 0) / listItemLengths.length;
+    const lengthStdDev = Math.sqrt(lengthVariance);
+    const isListLengthSimilar = lengthStdDev < avgLength * 0.5; // List items are similar in length
+    
+    // If list items are similar in length, orphan should be too
+    let lengthRatio = 0;
+    if (isListLengthSimilar && avgLength > 0) {
+      const lengthDifference = Math.abs(orphanTextLength - avgLength);
+      lengthRatio = lengthDifference / avgLength;
+      // If orphan is more than 2x different in length, it's probably not an orphan
+      if (lengthRatio > 2.0) {
+        return false; // Too different in length = not an orphan
       }
     }
 
-    // Check how many list items start with strong
-    const itemsStartWithStrong = listItems.filter(li => {
-      const firstChild = li.firstElementChild || li.firstChild;
-      if (firstChild && firstChild.tagName === 'STRONG') {
-        return true;
-      }
-      // Check if STRONG is at the start of the list item
-      const strongEl = li.querySelector('strong');
-      if (strongEl) {
-        const beforeStrong = strongEl.previousSibling;
-        return (
-          !beforeStrong ||
-          (beforeStrong.nodeType === Node.TEXT_NODE && beforeStrong.textContent.trim() === '')
-        );
-      }
-      return false;
-    }).length;
-
-    const mostItemsStartWithStrong = itemsStartWithStrong > listItems.length / 2;
-
-    // If most list items start with strong, orphan should too
-    if (mostItemsStartWithStrong && !orphanStartsWithStrong) {
-      return false;
+    // 3. Element presence: Do list items consistently have certain elements?
+    const mostItemsHaveLinks = listItemStructures.filter(s => s.hasLink).length > listItems.length / 2;
+    const mostItemsHaveStrong = listItemStructures.filter(s => s.hasStrong).length > listItems.length / 2;
+    const mostItemsHaveEm = listItemStructures.filter(s => s.hasEm).length > listItems.length / 2;
+    
+    // If most list items have links, orphan should too (structural consistency)
+    if (mostItemsHaveLinks && !orphanHasLink) {
+      return false; // Missing structural element = not an orphan
+    }
+    
+    // If most list items have strong, orphan should too (structural consistency)
+    if (mostItemsHaveStrong && !orphanHasStrong) {
+      return false; // Missing structural element = not an orphan
+    }
+    
+    // If most list items have em, orphan should too (structural consistency)
+    if (mostItemsHaveEm && !orphanHasEm) {
+      return false; // Missing structural element = not an orphan
     }
 
-    // Check if orphan is too long (multiple sentences) - list items are usually shorter
+    // 4. Link count consistency: If list items have consistent link counts, orphan should match
+    const allItemsHaveOneLink = listItemStructures.every(s => s.linkCount === 1);
+    if (allItemsHaveOneLink && orphanLinkCount !== 1) {
+      return false; // Different link count = not an orphan
+    }
+
+    // 5. Sentence count: List items are usually short (1-2 sentences max)
     const sentenceCount = (text.match(/[.!?]+/g) || []).length;
     if (sentenceCount > 2) {
-      return false; // Too long to be a list item
+      return false; // Too many sentences = likely not a list item
     }
 
-    // Check if orphan is a paragraph that's clearly continuation/summary text
-    // (not a list item) - paragraphs that start with full sentences and don't match
-    // the list item pattern are likely not list items
-    if (firstOrphanEl && firstOrphanEl.tagName === 'P') {
-      // If it doesn't start with strong and has multiple sentences, it's likely not a list item
-      if (!orphanStartsWithStrong && sentenceCount >= 2) {
-        return false;
-      }
-      // If it's a long paragraph (more than ~150 chars) without strong, likely not a list item
-      if (text.length > 150 && !orphanStartsWithStrong) {
-        return false;
-      }
+    // 6. Final check: Only convert if orphan has STRONG structural similarity
+    // It must match the structure type AND have similar length AND have consistent elements
+    const hasStructuralSimilarity = orphanMatchesStructure || 
+                                    (isListLengthSimilar && lengthRatio <= 1.5) ||
+                                    (mostItemsHaveLinks && orphanHasLink) ||
+                                    (mostItemsHaveStrong && orphanHasStrong);
+    
+    if (!hasStructuralSimilarity) {
+      return false; // No structural similarity = not an orphan
     }
 
-    // Check if orphan has strong OR link (but only if it matches the pattern)
-    const hasStrong = orphanGroup.some(el => el.tagName === 'STRONG' || el.querySelector('strong'));
-
-    // CRITICAL FIX: Be more conservative - only convert if BOTH conditions are met:
-    // 1. The orphan starts with strong (matches the pattern of list items)
-    // 2. Most list items start with strong (consistent structure)
-    // This prevents converting paragraphs that just happen to have a strong tag somewhere
-
-    // Only convert if:
-    // - Orphan starts with strong AND most list items start with strong (consistent pattern), OR
-    // - Has link AND orphan starts with strong (citation-like pattern)
-    // This is more conservative than before - we require the orphan to START with strong,
-    // not just have a strong tag anywhere in it
-    if ((orphanStartsWithStrong && mostItemsStartWithStrong) || (hasLink && orphanStartsWithStrong)) {
-      return true;
-    }
+    // If we get here, the orphan has strong structural similarity to list items
+    return true;
   }
 
   // Default: don't assume it's orphaned
