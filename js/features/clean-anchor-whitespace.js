@@ -21,8 +21,10 @@ export function cleanAnchorWhitespace(root) {
     const hadLeadingSpace = /^\s/.test(originalText);
     const hadTrailingSpace = /\s$/.test(originalText);
 
-    // Set the cleaned text (no spaces inside anchor)
-    anchor.textContent = trimmedText;
+    // Preserve formatting (strong, em, etc.) while trimming whitespace
+    // Don't use textContent as it removes all HTML formatting
+    // Instead, trim whitespace from text nodes only
+    trimWhitespaceFromAnchor(anchor);
 
     // Move leading space OUTSIDE to previous sibling or create new text node
     if (hadLeadingSpace) {
@@ -52,4 +54,36 @@ export function cleanAnchorWhitespace(root) {
       }
     }
   });
+}
+
+/**
+ * Trim whitespace from anchor tag while preserving formatting
+ * Removes leading/trailing whitespace from text nodes only
+ * @param {HTMLElement} anchor - Anchor element to clean
+ */
+function trimWhitespaceFromAnchor(anchor) {
+  // Get all child nodes
+  const childNodes = Array.from(anchor.childNodes);
+  
+  // Trim leading whitespace from first text node
+  if (childNodes.length > 0 && childNodes[0].nodeType === Node.TEXT_NODE) {
+    const firstText = childNodes[0];
+    firstText.textContent = firstText.textContent.replace(/^\s+/, '');
+    // Remove empty text node if it became empty
+    if (firstText.textContent === '') {
+      firstText.remove();
+    }
+  }
+  
+  // Trim trailing whitespace from last text node
+  if (childNodes.length > 0) {
+    const lastNode = childNodes[childNodes.length - 1];
+    if (lastNode.nodeType === Node.TEXT_NODE) {
+      lastNode.textContent = lastNode.textContent.replace(/\s+$/, '');
+      // Remove empty text node if it became empty
+      if (lastNode.textContent === '') {
+        lastNode.remove();
+      }
+    }
+  }
 }

@@ -5,9 +5,15 @@
 
 /**
  * Remove <br> or empty paragraphs after FAQ headers (any heading level)
+ * This feature is ONLY for Shopify Blogs mode - it should not run in other modes
  * @param {HTMLElement} root - Root element to process
+ * @param {string} mode - Processing mode (must be 'shopify-blogs')
  */
-export function removeSpaceAfterFAQHeaders(root) {
+export function removeSpaceAfterFAQHeaders(root, mode = 'shopify-blogs') {
+  // Safety guard: Only process in Shopify Blogs mode
+  if (mode !== 'shopify-blogs') {
+    return; // Do not process in non-Blogs modes
+  }
   // Process all heading levels, not just h2
   // FAQ sections can use any heading level
   const allHeadings = root.querySelectorAll('h1, h2, h3, h4, h5, h6');

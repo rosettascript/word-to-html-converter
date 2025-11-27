@@ -5,9 +5,15 @@
 
 /**
  * Remove all h1 elements that appear after Key Takeaways sections
+ * This feature is ONLY for Shopify Blogs mode - it should not run in other modes
  * @param {HTMLElement} root - Root element to process
+ * @param {string} mode - Processing mode (must be 'shopify-blogs')
  */
-export function removeH1AfterKeyTakeaways(root) {
+export function removeH1AfterKeyTakeaways(root, mode = 'shopify-blogs') {
+  // Safety guard: Only process in Shopify Blogs mode
+  if (mode !== 'shopify-blogs') {
+    return; // Do not process in non-Blogs modes
+  }
   // Find all h1 elements first
   const allH1s = Array.from(root.querySelectorAll('h1'));
 

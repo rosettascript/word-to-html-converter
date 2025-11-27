@@ -88,9 +88,15 @@ export function clearKeyTakeawaysCache() {
 
 /**
  * Add paragraph spacers to improve readability
+ * This feature is ONLY for Shopify Blogs mode - it should not run in other modes
  * @param {HTMLElement} root - Root element to process
+ * @param {string} mode - Processing mode (must be 'shopify-blogs')
  */
-export function addParagraphSpacers(root) {
+export function addParagraphSpacers(root, mode = 'shopify-blogs') {
+  // Safety guard: Only process in Shopify Blogs mode
+  if (mode !== 'shopify-blogs') {
+    return; // Do not process in non-Blogs modes
+  }
   // Clear cache at start of processing to ensure fresh data
   clearKeyTakeawaysCache();
 

@@ -5,9 +5,15 @@
 
 /**
  * Process all "Key Takeaways" sections
+ * This feature is ONLY for Shopify Blogs mode - it should not run in other modes
  * @param {HTMLElement} root - Root element to process
+ * @param {string} mode - Processing mode (must be 'shopify-blogs')
  */
-export function processKeyTakeaways(root) {
+export function processKeyTakeaways(root, mode = 'shopify-blogs') {
+  // Safety guard: Only process in Shopify Blogs mode
+  if (mode !== 'shopify-blogs') {
+    return; // Do not process in non-Blogs modes
+  }
   const headings = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
 
   headings.forEach(heading => {
@@ -36,16 +42,26 @@ export function processKeyTakeaways(root) {
     let nextElement = heading.nextElementSibling;
     const hasListAfter = nextElement && (nextElement.tagName === 'UL' || nextElement.tagName === 'OL');
     
-    // More general: if heading contains summary-related keywords AND has a list after, treat as summary section
-    // Keywords: point, takeaway, summary, highlight, idea, item, fact, tip, note, important, key, main
-    const hasSummaryKeywords = /(point|takeaway|summary|highlight|idea|item|fact|tip|note|important|key|main|overview|recap)/i.test(normalizedHeading);
+    // More specific: only treat as Key Takeaways if heading explicitly matches summary patterns
+    // AND has a list after it. Don't use broad keyword matching to avoid false positives
+    // This prevents removing <em> tags from regular sections that happen to have lists
+    const hasExplicitSummaryKeywords = /^(key\s+(takeaways?|points?)|main\s+points?|important\s+points?|summary|highlights?|takeaways?|points?\s+to\s+remember)$/i.test(normalizedHeading);
 
-    if (isSummarySection || (hasListAfter && hasSummaryKeywords)) {
+    // Only process if it's explicitly a Key Takeaways section (exact match or explicit pattern)
+    // OR if it has explicit summary keywords AND a list immediately after
+    // This prevents false positives on regular sections
+    if (isSummarySection || (hasListAfter && hasExplicitSummaryKeywords)) {
       // Remove <em> tags from the heading (preserve <strong> and other tags)
+      // Use a document fragment to preserve nested formatting (like <strong> inside <em>)
       const emTagsInHeading = heading.querySelectorAll('em');
       emTagsInHeading.forEach(em => {
-        const textNode = document.createTextNode(em.textContent);
-        em.parentNode.replaceChild(textNode, em);
+        // Move all children out of <em> before removing it (preserves <strong> and other nested tags)
+        const fragment = document.createDocumentFragment();
+        while (em.firstChild) {
+          fragment.appendChild(em.firstChild);
+        }
+        // Replace <em> with its children (preserving all nested formatting)
+        em.parentNode.replaceChild(fragment, em);
       });
 
       // Ensure heading ends with colon (preserve existing structure)
@@ -63,14 +79,28 @@ export function processKeyTakeaways(root) {
       // Find the section following this heading (until next heading of same or higher level)
       const section = findSectionContent(heading);
 
-      // Remove <em> tags within the section
+      // Remove <em> tags only from list items within the section
+      // Preserve formatting in paragraphs and other elements
       section.forEach(element => {
-        const emTags = element.querySelectorAll('em');
-        emTags.forEach(em => {
-          // Replace <em> with its text content
-          const textNode = document.createTextNode(em.textContent);
-          em.parentNode.replaceChild(textNode, em);
-        });
+        // Only process list items (ul, ol) - don't remove formatting from paragraphs
+        if (element.tagName === 'UL' || element.tagName === 'OL') {
+          const listItems = element.querySelectorAll('li');
+          listItems.forEach(li => {
+            const emTags = li.querySelectorAll('em');
+            emTags.forEach(em => {
+              // Move all children out of <em> before removing it (preserves <strong> and other nested tags)
+              // This ensures nested formatting like <strong> inside <em> is preserved
+              const fragment = document.createDocumentFragment();
+              while (em.firstChild) {
+                fragment.appendChild(em.firstChild);
+              }
+              // Replace <em> with its children (preserving all nested formatting)
+              em.parentNode.replaceChild(fragment, em);
+            });
+          });
+        }
+        // Don't remove <em> or <strong> from paragraphs or other elements
+        // This preserves formatting in regular content
       });
     }
   });

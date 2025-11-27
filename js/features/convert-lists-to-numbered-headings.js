@@ -282,8 +282,17 @@ export function convertListsToNumberedHeadings(root) {
             number = globalNumberCounter + index + 1;
           }
           
-          const headingText = heading.textContent.trim();
-          heading.textContent = `${number}. ${headingText}`;
+          // Preserve formatting (strong, em, etc.) when adding number
+          // Don't use textContent as it removes all HTML formatting
+          // Always prepend number to preserve any existing formatting
+          const firstChild = heading.firstChild;
+          if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
+            // First child is text - prepend number to it
+            firstChild.textContent = `${number}. ${firstChild.textContent.trimStart()}`;
+          } else {
+            // No text node at start, or first child is an element - insert number at the start
+            heading.insertBefore(document.createTextNode(`${number}. `), heading.firstChild);
+          }
 
           // Separate heading from other content
           // Get all nodes from the list item

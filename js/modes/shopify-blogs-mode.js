@@ -89,16 +89,19 @@ export function processShopifyBlogsMode(element, options = {}) {
   convertListsToNumberedHeadings(processed);
 
   // Process Key Takeaways sections (remove <em>, normalize headings)
-  processKeyTakeaways(processed);
+  // Explicitly pass mode to ensure it only runs in Shopify Blogs mode
+  processKeyTakeaways(processed, 'shopify-blogs');
 
   // Remove any h1 elements after Key Takeaways sections
-  removeH1AfterKeyTakeaways(processed);
+  // Explicitly pass mode to ensure it only runs in Shopify Blogs mode
+  removeH1AfterKeyTakeaways(processed, 'shopify-blogs');
 
   // Remove <br> tags and empty <p> tags completely
   removeBrAndEmptyP(processed);
 
   // Remove spaces/br after FAQ h2 headers
-  removeSpaceAfterFAQHeaders(processed);
+  // Explicitly pass mode to ensure it only runs in Shopify Blogs mode
+  removeSpaceAfterFAQHeaders(processed, 'shopify-blogs');
 
   // Combine adjacent lists (don't combine if separated by <p>&nbsp;</p>)
   combineLists(processed, 'shopify-blogs');
@@ -118,8 +121,9 @@ export function processShopifyBlogsMode(element, options = {}) {
   // Add paragraph spacers (if not disabled by "Remove paragraph spacers" option)
   // Default: spacers are kept (removeParagraphSpacers = false - unchecked)
   // When checked: spacers are removed (removeParagraphSpacers = true)
+  // Explicitly pass mode to ensure it only runs in Shopify Blogs mode
   if (!options.removeParagraphSpacers) {
-    addParagraphSpacers(processed);
+    addParagraphSpacers(processed, 'shopify-blogs');
   }
 
   // Apply strong in headers (default: enabled for Shopify Blogs)
