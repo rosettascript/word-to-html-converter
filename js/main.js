@@ -11,6 +11,7 @@ import { setupCopyDownload } from './ui/copy-download.js';
 import { setupScrollSpy, setupHashNavigation } from './ui/scroll-spy.js';
 import { processHTML } from './core/processor.js';
 import { setupThemeToggle } from './ui/theme-toggle.js';
+import { handleProcessingError } from './utils/error-handler.js';
 
 /**
  * Initialize the application
@@ -45,7 +46,7 @@ function handleProcess(inputHTML, mode, options) {
     const cleanedHTML = processHTML(inputHTML, mode, options);
     return cleanedHTML;
   } catch (error) {
-    console.error('Processing error:', error);
+    handleProcessingError(error, 'Processing error');
     throw error;
   }
 }

@@ -5,6 +5,7 @@
 
 import { updateMode } from './converter-ui.js';
 import { updateFeatureVisibility } from './feature-toggles.js';
+import { logError } from '../utils/error-handler.js';
 
 /**
  * Set up mode selector
@@ -13,7 +14,7 @@ export function setupModeSelector() {
   const modeSelect = document.getElementById('mode-select');
 
   if (!modeSelect) {
-    console.error('Mode selector not found');
+    logError('Mode selector not found');
     return;
   }
 

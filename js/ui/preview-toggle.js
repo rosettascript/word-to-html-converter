@@ -3,6 +3,8 @@
  * Toggles between code view and rendered preview
  */
 
+import { logWarning } from '../utils/error-handler.js';
+
 let isPreviewMode = false;
 let toggleButton = null;
 let codeView = null;
@@ -17,7 +19,7 @@ export function setupPreviewToggle() {
   previewView = document.getElementById('output-preview-view');
 
   if (!toggleButton || !codeView || !previewView) {
-    console.warn('Preview toggle elements not found');
+    logWarning('Preview toggle elements not found');
     return;
   }
 

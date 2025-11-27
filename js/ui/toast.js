@@ -3,6 +3,8 @@
  * Shows temporary notification messages
  */
 
+import { logWarning } from '../utils/error-handler.js';
+
 /**
  * Show toast notification
  * @param {string} message - Message to display
@@ -13,7 +15,7 @@ export function showToast(message, type = 'success', duration = 2000) {
   const toast = document.getElementById('toast');
 
   if (!toast) {
-    console.warn('Toast element not found');
+    logWarning('Toast element not found');
     return;
   }
 

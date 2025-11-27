@@ -49,20 +49,9 @@ export function extractMisplacedListItems(root) {
       return;
     }
 
-    // #region agent log
-    const listType = list.tagName;
-    const itemCount = listItems.length;
-    const lastItemText = lastItem.textContent.trim().substring(0, 100);
-    fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'extract-misplaced-list-items.js:36',message:'Checking list for extraction',data:{listType,itemCount,lastItemText},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
-
     // Determine if this item should be extracted
     // Pass allItems to isReadOrSourcesList check
     const shouldExtract = shouldExtractListItem(list, lastItem, listItems);
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'extract-misplaced-list-items.js:53',message:'Extraction decision',data:{shouldExtract,listType,itemCount},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
     
     if (shouldExtract) {
       // Get all children from the last item (clone them)
@@ -232,17 +221,9 @@ function shouldExtractListItem(list, lastItem, allItems) {
     return false;
   }
 
-  // #region agent log
-  const isHomogeneous = isHomogeneousList(allItems);
-  fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'extract-misplaced-list-items.js:176',message:'Checking list homogeneity',data:{isHomogeneous,itemCount:allItems.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
-  // #endregion
-
   // NEVER extract from homogeneous lists - these are legitimate lists
   // Homogeneous lists have similar structure/content across all items
   if (isHomogeneousList(allItems)) {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'extract-misplaced-list-items.js:188',message:'Skipping extraction - homogeneous list',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
     return false;
   }
 
@@ -385,10 +366,6 @@ function shouldExtractByHeuristics(list, lastItem, allItems) {
     outlierScore += 1;
   }
 
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'extract-misplaced-list-items.js:251',message:'Heuristic analysis',data:{outlierScore,lastItemLength,avgLength,lastItemSentences,avgSentences,medianLength,willExtract:outlierScore >= 3 && lastItemLength >= 30},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
-
   // Extract if it's an outlier in multiple dimensions AND other items are similar to each other
   // This is more general - doesn't require specific thresholds, just "is it different?"
   // Also require minimum length to avoid extracting very short items
@@ -405,15 +382,8 @@ function shouldExtractByHeuristics(list, lastItem, allItems) {
   // 2. Other items are similar to each other (homogeneous group)
   // 3. Item is long enough to be meaningful (>= 50 chars, more strict)
   if (outlierScore >= 4 && otherItemsAreSimilar && lastItemLength >= 50) {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'extract-misplaced-list-items.js:329',message:'Extracting item - clear outlier',data:{outlierScore,otherItemsAreSimilar,lastItemLength},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
     return true;
   }
-
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'extract-misplaced-list-items.js:336',message:'Not extracting - not clear outlier',data:{outlierScore,otherItemsAreSimilar,lastItemLength,threshold:4},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
-  // #endregion
 
   return false;
 }

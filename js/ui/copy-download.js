@@ -4,6 +4,7 @@
  */
 
 import { showToast } from './toast.js';
+import { logError } from '../utils/error-handler.js';
 
 /**
  * Set up copy and download buttons
@@ -27,7 +28,7 @@ export function setupCopyDownload() {
         await navigator.clipboard.writeText(html);
         showToast('✓ Copied to clipboard');
       } catch (error) {
-        console.error('Copy failed:', error);
+        logError('Copy failed', error);
         showToast('Copy failed. Please select and copy manually.', 'error');
       }
     });
@@ -56,7 +57,7 @@ export function setupCopyDownload() {
 
         showToast('✓ Downloaded cleaned-html.html');
       } catch (error) {
-        console.error('Download failed:', error);
+        logError('Download failed', error);
         showToast('Download failed. Please copy manually.', 'error');
       }
     });

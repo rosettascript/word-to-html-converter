@@ -162,7 +162,7 @@ export function setupConverterUI({ onProcess }) {
         processInputHTML(html);
       }
     } catch (error) {
-      console.error('Paste handling error:', error);
+      handleProcessingError(error, 'Paste handling error');
       showError('Unable to process pasted content. Please try again or check the HTML format.');
       updateStatus('Paste failed', 'error');
     }
