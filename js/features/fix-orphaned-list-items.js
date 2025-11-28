@@ -464,6 +464,17 @@ function looksLikeOrphanedListItem(list, orphanGroup) {
       return false; // Too many sentences = likely not a list item
     }
 
+    // Check if orphan is a label/introductory text (e.g., "Read also:", "Read more:", "See also:")
+    // These should NOT be converted to list items, even if they match structural similarity
+    // Case-insensitive: normalize text to lowercase before matching
+    const normalizedOrphanText = text.trim().toLowerCase().replace(/:\s*$/, '');
+    const isLabelText = /^(read\s+(also|more)|related\s+(articles?|posts?|content|topics?|resources?|links?|information)|see\s+also|further\s+reading|additional\s+(resources?|information|reading|links?)|more\s+(information|resources?|reading)|explore\s+(more|further)|continue\s+reading|you\s+may\s+(also\s+)?(like|enjoy|find\s+interesting)|sources?|references?|bibliography)$/.test(normalizedOrphanText) ||
+                        /^(related|additional|more|further|explore)\s+(content|resources?|information|reading|links?|topics?)/.test(normalizedOrphanText);
+    
+    if (isLabelText) {
+      return false; // Label text should not be converted to list item
+    }
+
     // 6. Final check: Only convert if orphan has STRONG structural similarity
     // It must match the structure type AND have similar length AND have consistent elements
     const hasStructuralSimilarity = orphanMatchesStructure || 
