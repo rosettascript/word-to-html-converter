@@ -56,6 +56,11 @@ function handleSourcesSpacer(root, options) {
         }
       } else {
         // Remove paragraph spacers option is disabled - add spacer if missing
+        // Structural check: Skip if previous sibling is a header
+        const prevSibling = heading.previousElementSibling;
+        if (prevSibling && /^H[1-6]$/.test(prevSibling.tagName)) {
+          return; // Don't add spacer between consecutive headers
+        }
         if (!hasSpacer) {
           const spacer = document.createElement('p');
           setSafeHTML(spacer, '&nbsp;');

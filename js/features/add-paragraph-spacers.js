@@ -97,6 +97,7 @@ export function addParagraphSpacers(root, mode = 'shopify-blogs') {
   if (mode !== 'shopify-blogs') {
     return; // Do not process in non-Blogs modes
   }
+
   // Clear cache at start of processing to ensure fresh data
   clearKeyTakeawaysCache();
 
@@ -111,6 +112,10 @@ export function addParagraphSpacers(root, mode = 'shopify-blogs') {
 
   // 4. Remove spacer between FAQ h2 and first h3 question
   removeSpacerAfterFAQHeader(root);
+
+  // 5. Cleanup: Remove any spacers that appear after headers (structural check)
+  // Headers should never have spacers after them - they should be followed by content
+  removeSpacersAfterHeaders(root);
 }
 
 /**
@@ -120,7 +125,7 @@ export function addParagraphSpacers(root, mode = 'shopify-blogs') {
 function addSpacersBeforeHeaders(root) {
   const headers = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
 
-  headers.forEach(header => {
+  headers.forEach((header, index) => {
     // Check if header IS a summary/takeaways heading
     const headerText = header.textContent.trim().toLowerCase();
     const normalizedHeaderText = headerText.replace(/:\s*$/, '');
@@ -132,19 +137,28 @@ function addSpacersBeforeHeaders(root) {
       normalizedHeaderText === 'highlights' ||
       normalizedHeaderText === 'takeaways' ||
       /^(key|main|important)\s+(takeaways?|points?|highlights?)$/i.test(normalizedHeaderText);
-    
+
     if (isSummaryHeading) {
       return; // Skip summary/takeaways headings
     }
 
     // Check if header is in Key Takeaways section
-    if (isInKeyTakeawaysSection(header)) {
+    const inKeyTakeaways = isInKeyTakeawaysSection(header);
+
+    if (inKeyTakeaways) {
       return; // Skip headers in Key Takeaways section
     }
 
-    // Check if there's already a spacer before this header
+    // Structural check: Skip if previous sibling is a header (headers shouldn't have spacers between them)
     const prevSibling = header.previousElementSibling;
-    if (isSpacerParagraph(prevSibling)) {
+    if (prevSibling && /^H[1-6]$/.test(prevSibling.tagName)) {
+      return; // Don't add spacer between consecutive headers
+    }
+
+    // Check if there's already a spacer before this header
+    const hasSpacerBefore = isSpacerParagraph(prevSibling);
+
+    if (hasSpacerBefore) {
       return; // Already has spacer
     }
 
@@ -249,8 +263,13 @@ function addSpacerBeforeReadSections(root) {
  * @param {HTMLElement} element - Element to add spacer before
  */
 function addSpacerBeforeElement(element) {
-  // Check if there's already a spacer before this element
+  // Structural check: Skip if previous sibling is a header (headers shouldn't have spacers between them)
   const prevSibling = element.previousElementSibling;
+  if (prevSibling && /^H[1-6]$/.test(prevSibling.tagName)) {
+    return; // Don't add spacer between consecutive headers
+  }
+
+  // Check if there's already a spacer before this element
   if (isSpacerParagraph(prevSibling)) {
     return; // Already has spacer
   }
@@ -347,4 +366,25 @@ function isInKeyTakeawaysSection(element) {
   }
 
   return false;
+}
+
+/**
+ * Remove any spacers that appear after headers (structural cleanup)
+ * Headers should never have spacers after them - they should be followed by content
+ * This is a structural check, not keyword-based, so it's consistent
+ * @param {HTMLElement} root - Root element to process
+ */
+function removeSpacersAfterHeaders(root) {
+  const headers = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  
+  headers.forEach(header => {
+    let nextSibling = header.nextElementSibling;
+    
+    // Remove any spacers immediately after the header
+    while (nextSibling && isSpacerParagraph(nextSibling)) {
+      const toRemove = nextSibling;
+      nextSibling = nextSibling.nextElementSibling;
+      toRemove.remove();
+    }
+  });
 }
