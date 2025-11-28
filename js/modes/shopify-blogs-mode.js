@@ -133,6 +133,77 @@ export function processShopifyBlogsMode(element, options = {}) {
   // Handle spacer before sources section based on removeParagraphSpacers option
   handleSourcesSpacer(processed, options);
 
+  // Remove spacers between consecutive paragraphs under "Final Thoughts" section
+  // This fixes the issue where a spacer appears between paragraphs under Final Thoughts
+  // BUT preserve spacers before "Read also:" sections
+  const finalThoughtsHeader = Array.from(processed.querySelectorAll('h1, h2, h3, h4, h5, h6')).find(h => h.textContent.toLowerCase().includes('final thoughts'));
+  if (finalThoughtsHeader) {
+    let current = finalThoughtsHeader.nextElementSibling;
+    let prevWasParagraph = false;
+    while (current) {
+      // Stop if we hit another h2 or higher level header (end of Final Thoughts section)
+      if (/^H[1-2]$/.test(current.tagName)) {
+        break;
+      }
+      
+      // If current is a spacer and previous was a paragraph, check if we should remove it
+      if (isSpacerParagraph(current) && prevWasParagraph) {
+        const nextSibling = current.nextElementSibling;
+        // Don't remove if next sibling is a header or list - preserve spacer
+        if (nextSibling && (/^H[1-6]$/.test(nextSibling.tagName) || /^U[LO]$/.test(nextSibling.tagName))) {
+          prevWasParagraph = false;
+          current = current.nextElementSibling;
+          continue;
+        }
+        // Don't remove if next sibling is a "Read also:" section
+        if (nextSibling && nextSibling.tagName === 'P') {
+          const nextText = nextSibling.textContent.trim().toLowerCase();
+          const normalizedNextText = nextText.replace(/:\s*$/, '');
+          const isReadSection =
+            /^(read\s+(also|more)|related\s+(articles?|posts?|content|topics?|resources?|links?|information)|see\s+also|further\s+reading|additional\s+(resources?|information|reading|links?)|more\s+(information|resources?|reading)|explore\s+(more|further)|continue\s+reading|you\s+may\s+(also\s+)?(like|enjoy|find\s+interesting))$/i.test(normalizedNextText) ||
+            /^(related|additional|more|further|explore)\s+(content|resources?|information|reading|links?|topics?)/i.test(normalizedNextText);
+          
+          if (isReadSection) {
+            // Preserve spacer before "Read also:" section
+            prevWasParagraph = false;
+            current = current.nextElementSibling;
+            continue;
+          }
+        }
+        // Remove spacer between two regular paragraphs
+        // But double-check it's not a "Read also:" section (should have been caught above, but be safe)
+        if (nextSibling && nextSibling.tagName === 'P' && !isSpacerParagraph(nextSibling)) {
+          const nextText = nextSibling.textContent.trim().toLowerCase();
+          const normalizedNextText = nextText.replace(/:\s*$/, '');
+          const isReadSection =
+            /^(read\s+(also|more)|related\s+(articles?|posts?|content|topics?|resources?|links?|information)|see\s+also|further\s+reading|additional\s+(resources?|information|reading|links?)|more\s+(information|resources?|reading)|explore\s+(more|further)|continue\s+reading|you\s+may\s+(also\s+)?(like|enjoy|find\s+interesting))$/i.test(normalizedNextText) ||
+            /^(related|additional|more|further|explore)\s+(content|resources?|information|reading|links?|topics?)/i.test(normalizedNextText);
+          
+          // Only remove if it's NOT a "Read also:" section
+          if (!isReadSection) {
+            current.remove();
+            current = nextSibling; // Continue from next sibling
+            continue;
+          } else {
+            // Preserve spacer before "Read also:" section
+            prevWasParagraph = false;
+            current = current.nextElementSibling;
+            continue;
+          }
+        }
+      }
+      
+      // Track if current is a paragraph (not a spacer)
+      if (current.tagName === 'P' && !isSpacerParagraph(current)) {
+        prevWasParagraph = true;
+      } else {
+        prevWasParagraph = false;
+      }
+      
+      current = current.nextElementSibling;
+    }
+  }
+
   // Apply optional features
   if (options.removeDomain) {
     removeDomainFromLinks(processed);
