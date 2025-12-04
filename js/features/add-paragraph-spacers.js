@@ -110,10 +110,13 @@ export function addParagraphSpacers(root, mode = 'shopify-blogs') {
   // 3. Add spacer before Read Also/Read More sections
   addSpacerBeforeReadSections(root);
 
-  // 4. Remove spacer between FAQ h2 and first h3 question
+  // 4. Add spacer before Alt Image Text paragraphs
+  addSpacerBeforeAltImageText(root);
+
+  // 5. Remove spacer between FAQ h2 and first h3 question
   removeSpacerAfterFAQHeader(root);
 
-  // 5. Cleanup: Remove any spacers that appear after headers (structural check)
+  // 6. Cleanup: Remove any spacers that appear after headers (structural check)
   // Headers should never have spacers after them - they should be followed by content
   removeSpacersAfterHeaders(root);
 }
@@ -253,6 +256,25 @@ function addSpacerBeforeReadSections(root) {
       /^(related|additional|more|further|explore)\s+(content|resources?|information|reading|links?|topics?)/i.test(normalizedParagraphText);
 
     if (isReadSection) {
+      addSpacerBeforeElement(paragraph);
+    }
+  });
+}
+
+/**
+ * Add spacer before Alt Image Text paragraphs
+ * Handles various case formats: "Alt Image Text:", "Alt image text:", etc.
+ * @param {HTMLElement} root - Root element to process
+ */
+function addSpacerBeforeAltImageText(root) {
+  const paragraphs = root.querySelectorAll('p');
+
+  paragraphs.forEach(paragraph => {
+    const paragraphText = paragraph.textContent.trim();
+
+    // Match "Alt image text:" or "Alt Image Text:" (case-insensitive)
+    // Pattern: starts with "alt" + whitespace + "image" + whitespace + "text" + optional ":"
+    if (/^alt\s+image\s+text\s*:/i.test(paragraphText)) {
       addSpacerBeforeElement(paragraph);
     }
   });

@@ -174,8 +174,8 @@ export function processShopifyBlogsMode(element, options = {}) {
         nextSibling && nextSibling.tagName === 'P' && !isSpacerParagraph(nextSibling)) {
       
       // Before removing, check if next paragraph is a special section label
-      const nextText = nextSibling.textContent.trim().toLowerCase();
-      const normalizedNextText = nextText.replace(/:\s*$/, '');
+      const nextText = nextSibling.textContent.trim();
+      const normalizedNextText = nextText.toLowerCase().replace(/:\s*$/, '');
       
       // Check for "Read also:" type sections
       const isReadSection =
@@ -187,15 +187,16 @@ export function processShopifyBlogsMode(element, options = {}) {
       const isSourcesSection =
         /^(sources?|references?|bibliography|works?\s+cited|citations?|notes?|endnotes?|footnotes?)$/i.test(normalizedNextText);
       
-      // PRESERVE if next paragraph is a section label
-      if (isReadSection || isSourcesSection) {
-        return; // Keep spacer before Read/Sources section labels
+      // Check for "Alt Image Text:" paragraphs
+      // Pattern: starts with "alt" + whitespace + "image" + whitespace + "text" + optional ":"
+      const isAltImageText = /^alt\s+image\s+text\s*:/i.test(nextText);
+      
+      // PRESERVE if next paragraph is a section label or Alt Image Text
+      if (isReadSection || isSourcesSection || isAltImageText) {
+        return; // Keep spacer before Read/Sources/Alt Image Text
       }
       
       // REMOVE spacer between two regular paragraphs
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'shopify-blogs-mode.js:202',message:'REMOVING SPACER (cleanup - two regular paragraphs)',data:{prevText:prevSibling.textContent.trim().substring(0,60),prevEndsWithColon:prevSibling.textContent.trim().endsWith(':'),nextText:nextSibling.textContent.trim().substring(0,60)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'COLON'})}).catch(()=>{});
-      // #endregion
       paragraph.remove();
     }
   });
