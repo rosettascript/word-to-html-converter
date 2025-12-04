@@ -412,13 +412,17 @@ function removeSpacerAfterFAQHeader(root) {
 
   h2Headers.forEach(h2 => {
     const text = h2.textContent.toLowerCase();
-    const normalizedText = text.replace(/:\s*$/, '');
     
-    // Match FAQ sections at the START of text (not requiring exact end match)
-    // This allows for variations like "FAQ About X" or "Frequently Asked Questions About Y"
+    // Match FAQ sections at the START of text
+    // Allow for variations like:
+    // - "FAQ"
+    // - "Frequently Asked Questions"
+    // - "Frequently Asked Questions About [Topic]"
+    // - "Frequently Asked Questions: [Topic]"
+    // Pattern allows space, colon, or end of string after keywords
     const isFAQSection = 
-      /^(faq|frequently\s+asked\s+questions?|questions?\s+and\s+answers?|q\s*&\s*a|q\s+and\s+a|common\s+questions?)(\s|$)/i.test(normalizedText) ||
-      /^(help\s+(center|desk|section))$/i.test(normalizedText);
+      /^(faq|frequently\s+asked\s+questions?|questions?\s+and\s+answers?|q\s*&\s*a|q\s+and\s+a|common\s+questions?)(\s|:|$)/i.test(text) ||
+      /^(help\s+(center|desk|section))$/i.test(text);
     
     if (isFAQSection) {
       // Find next sibling that's a spacer followed by h3

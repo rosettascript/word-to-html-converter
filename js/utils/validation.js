@@ -62,11 +62,18 @@ export function isValidOptions(options) {
  * @returns {boolean} - True if element is a spacer paragraph
  */
 export function isSpacerParagraph(element) {
-  return (
-    element &&
-    element.tagName === 'P' &&
-    element.innerHTML.trim() === '&nbsp;' &&
-    !element.hasAttributes()
-  );
+  if (!element || element.tagName !== 'P') {
+    return false;
+  }
+  
+  // Get text content (strips all HTML tags)
+  const textContent = element.textContent || '';
+  
+  // A spacer paragraph contains only whitespace and/or non-breaking spaces
+  // \u00A0 is the unicode for &nbsp;
+  const trimmedText = textContent.trim();
+  
+  // Empty or only contains nbsp/whitespace characters
+  return trimmedText === '' || trimmedText === '\u00A0' || /^[\s\u00A0]+$/.test(trimmedText);
 }
 
