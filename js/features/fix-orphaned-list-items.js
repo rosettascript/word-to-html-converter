@@ -9,7 +9,17 @@
  * @param {HTMLElement} root - Root element to process
  */
 export function fixOrphanedListItems(root) {
+  // Early return for empty/null root
+  if (!root || !root.innerHTML || !root.innerHTML.trim()) {
+    return root;
+  }
+  
   const lists = root.querySelectorAll('ul, ol');
+  
+  // Early return if no lists to process
+  if (lists.length === 0) {
+    return root;
+  }
 
   lists.forEach(list => {
     // Check both element siblings AND text nodes

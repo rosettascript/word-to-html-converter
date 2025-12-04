@@ -14,7 +14,18 @@ export function processKeyTakeaways(root, mode = 'shopify-blogs') {
   if (mode !== 'shopify-blogs') {
     return; // Do not process in non-Blogs modes
   }
+  
+  // Early return for empty/null root
+  if (!root || !root.innerHTML || !root.innerHTML.trim()) {
+    return;
+  }
+  
   const headings = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  
+  // Early return if no headings to process
+  if (headings.length === 0) {
+    return;
+  }
 
   headings.forEach(heading => {
     const headingText = heading.textContent.trim().toLowerCase();

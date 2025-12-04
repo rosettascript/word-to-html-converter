@@ -48,8 +48,18 @@ const ALLOWED_ATTRIBUTES = {
  * @returns {HTMLElement} - Sanitized element
  */
 export function sanitizeHTML(element) {
+  // Early return for null/undefined element
+  if (!element) {
+    return element;
+  }
+  
   // Clone the element to avoid mutating the original
   const cloned = element.cloneNode(true);
+  
+  // Early return for empty element
+  if (!cloned.innerHTML || !cloned.innerHTML.trim()) {
+    return cloned;
+  }
 
   // Remove all images (PRD requirement: images never in output)
   const images = cloned.querySelectorAll('img');

@@ -68,6 +68,10 @@ export function formatHTML(html, indentSize = DEFAULT_INDENT_SIZE) {
 
   // Parse HTML into tokens (tags and text)
   const tokens = tokenizeHTML(html);
+  
+  // OPTIMIZATION: Pre-build tag pair map in O(n) instead of nested O(n²) loops
+  // This maps opening tag indices to their corresponding closing tag indices
+  const tagPairMap = buildTagPairMap(tokens);
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
@@ -79,25 +83,10 @@ export function formatHTML(html, indentSize = DEFAULT_INDENT_SIZE) {
 
       // Check if this is a block element that might contain inline content
       if (isBlock) {
-        // Find the closing tag for this block element
-        let closingTagIndex = -1;
-        let depth = 1;
-        for (let j = i + 1; j < tokens.length; j++) {
-          if (tokens[j].type === 'openingTag' && extractTagName(tokens[j].content) === tagName) {
-            depth++;
-          } else if (
-            tokens[j].type === 'closingTag' &&
-            extractTagName(tokens[j].content) === tagName
-          ) {
-            depth--;
-            if (depth === 0) {
-              closingTagIndex = j;
-              break;
-            }
-          }
-        }
+        // OPTIMIZATION: O(1) lookup instead of O(n) nested loop
+        const closingTagIndex = tagPairMap.get(i);
 
-        if (closingTagIndex !== -1) {
+        if (closingTagIndex !== undefined) {
           // Check if content between opening and closing is all inline/text
           let hasOnlyInlineContent = true;
           for (let j = i + 1; j < closingTagIndex; j++) {
@@ -251,6 +240,40 @@ function tokenizeHTML(html) {
   }
 
   return tokens;
+}
+
+/**
+ * Build a map of opening tag indices to closing tag indices
+ * This replaces the O(n²) nested loop approach with O(n) single pass
+ * @param {Array} tokens - Array of tokens from tokenizeHTML
+ * @returns {Map<number, number>} - Map of opening index -> closing index
+ */
+function buildTagPairMap(tokens) {
+  const pairMap = new Map();
+  const stack = []; // Stack to track nested tags: [{tagName, index}]
+  
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    
+    if (token.type === 'openingTag') {
+      const tagName = extractTagName(token.content);
+      stack.push({ tagName, index: i });
+    } else if (token.type === 'closingTag') {
+      const tagName = extractTagName(token.content);
+      
+      // Find the matching opening tag (search backwards from end of stack)
+      for (let j = stack.length - 1; j >= 0; j--) {
+        if (stack[j].tagName === tagName) {
+          // Found matching pair - map opening index to closing index
+          pairMap.set(stack[j].index, i);
+          stack.splice(j, 1); // Remove from stack
+          break;
+        }
+      }
+    }
+  }
+  
+  return pairMap;
 }
 
 /**

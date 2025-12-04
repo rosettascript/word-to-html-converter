@@ -14,9 +14,20 @@ export function removeSpaceAfterFAQHeaders(root, mode = 'shopify-blogs') {
   if (mode !== 'shopify-blogs') {
     return; // Do not process in non-Blogs modes
   }
+  
+  // Early return for empty/null root
+  if (!root || !root.innerHTML || !root.innerHTML.trim()) {
+    return;
+  }
+  
   // Process all heading levels, not just h2
   // FAQ sections can use any heading level
   const allHeadings = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  
+  // Early return if no headings to process
+  if (allHeadings.length === 0) {
+    return;
+  }
 
   allHeadings.forEach(heading => {
     // Check if this is an FAQ section (any heading level)
