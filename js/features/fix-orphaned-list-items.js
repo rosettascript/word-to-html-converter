@@ -345,14 +345,16 @@ function looksLikeOrphanedListItem(list, orphanGroup) {
     
     // If score is high enough (>= 3) OR matches strict criteria, it's a citation
     // Also accept split citations and completion cases even with lower scores if existing items are citations
-    if (citationScore >= 3 ||
+    const shouldConvertOL = citationScore >= 3 ||
         isSplitCitation ||
         orphanCompletesLastItem ||
         (hasItalics && (hasLink || looksLikeCitation || hasDoiOrUrl)) ||
         (looksLikeCitation && existingItemsMatchCitationPattern) ||
         (hasItalics && existingItemsHaveItalics && text.length > 50) ||
         (hasDoiOrUrl && existingItemsMatchCitationPattern) ||
-        (hasYear && hasItalics && existingItemsHaveYears && existingItemsHaveItalics && text.length > 100)) {
+        (hasYear && hasItalics && existingItemsHaveYears && existingItemsHaveItalics && text.length > 100);
+    
+    if (shouldConvertOL) {
       return true; // Likely an orphaned citation
     }
   }
@@ -364,6 +366,12 @@ function looksLikeOrphanedListItem(list, orphanGroup) {
 
     // If no list items, can't determine structure
     if (listItems.length === 0) {
+      return false;
+    }
+    
+    // CRITICAL FIX: Require minimum list size to avoid false positives
+    // Small lists (1-3 items) are often legitimate and shouldn't have orphans
+    if (listItems.length < 4) {
       return false;
     }
 
@@ -476,17 +484,25 @@ function looksLikeOrphanedListItem(list, orphanGroup) {
     }
 
     // 6. Final check: Only convert if orphan has STRONG structural similarity
-    // It must match the structure type AND have similar length AND have consistent elements
-    const hasStructuralSimilarity = orphanMatchesStructure || 
-                                    (isListLengthSimilar && lengthRatio <= 1.5) ||
-                                    (mostItemsHaveLinks && orphanHasLink) ||
-                                    (mostItemsHaveStrong && orphanHasStrong);
+    // CRITICAL FIX: Require MULTIPLE strong signals, not just one
+    // Regular paragraphs should NOT be converted just because they have similar length
     
-    if (!hasStructuralSimilarity) {
-      return false; // No structural similarity = not an orphan
+    let similarityScore = 0;
+    
+    // Add points for each strong similarity indicator
+    if (orphanMatchesStructure && allItemsSameStructure) similarityScore += 3; // Very strong
+    if (isListLengthSimilar && lengthRatio <= 0.5) similarityScore += 2; // Strong match
+    if (mostItemsHaveLinks && orphanHasLink && allItemsHaveOneLink && orphanLinkCount === 1) similarityScore += 3; // Very strong
+    if (mostItemsHaveStrong && orphanHasStrong) similarityScore += 2;
+    if (mostItemsHaveEm && orphanHasEm) similarityScore += 1;
+    
+    // CRITICAL: Require score >= 5 to convert (very high bar)
+    // This prevents regular paragraphs from being incorrectly identified as orphans
+    if (similarityScore < 5) {
+      return false; // Not enough similarity = not an orphan
     }
 
-    // If we get here, the orphan has strong structural similarity to list items
+    // If we get here, the orphan has VERY strong structural similarity to list items
     return true;
   }
 

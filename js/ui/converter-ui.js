@@ -7,7 +7,6 @@ import { debounce } from '../utils/debounce.js';
 import { showError, clearError } from './error-handler.js';
 import { updateStatus } from './status-handler.js';
 import { formatHTML, applySyntaxHighlighting } from '../utils/html-formatter.js';
-import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
 import { isPreviewModeActive } from './preview-toggle.js';
 import {
   LARGE_DOCUMENT_THRESHOLD,
@@ -150,8 +149,10 @@ export function setupConverterUI({ onProcess }) {
           brTags.forEach(br => br.remove());
         });
 
-        // Fix orphaned list items in input display
-        fixOrphanedListItems(inputDiv);
+        // REMOVED: fixOrphanedListItems from input display
+        // Reason: It was modifying the user's pasted HTML, corrupting the source.
+        // The function should only run during OUTPUT processing, not on the input display.
+        // This fixes the bug where regular paragraphs appear as list items in the input area.
 
         // Update character count (text only)
         const textContent = inputDiv.textContent || inputDiv.innerText || '';
