@@ -193,6 +193,9 @@ export function processShopifyBlogsMode(element, options = {}) {
       }
       
       // REMOVE spacer between two regular paragraphs
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/d0a5da0d-7b92-4e34-bc77-29d00d6fcbf0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'shopify-blogs-mode.js:202',message:'REMOVING SPACER (cleanup - two regular paragraphs)',data:{prevText:prevSibling.textContent.trim().substring(0,60),prevEndsWithColon:prevSibling.textContent.trim().endsWith(':'),nextText:nextSibling.textContent.trim().substring(0,60)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'COLON'})}).catch(()=>{});
+      // #endregion
       paragraph.remove();
     }
   });

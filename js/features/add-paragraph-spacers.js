@@ -144,7 +144,7 @@ function addSpacersBeforeHeaders(root) {
 
     // Check if header is in Key Takeaways section
     const inKeyTakeaways = isInKeyTakeawaysSection(header);
-
+    
     if (inKeyTakeaways) {
       return; // Skip headers in Key Takeaways section
     }
@@ -291,16 +291,10 @@ function removeSpacerAfterFAQHeader(root) {
     const text = h2.textContent.toLowerCase();
     const normalizedText = text.replace(/:\s*$/, '');
     
-    // Match FAQ sections more generally
+    // Match FAQ sections MORE STRICTLY - use regex patterns at start of text
+    // Avoid broad .includes() that match regular words like "help" or "questions"
     const isFAQSection = 
-      normalizedText.includes('faq') ||
-      normalizedText.includes('frequently asked questions') ||
-      normalizedText === 'questions' ||
-      normalizedText === 'q&a' ||
-      normalizedText === 'q and a' ||
-      normalizedText.includes('common questions') ||
-      normalizedText.includes('help') ||
-      /^(questions?\s+and\s+answers?|q\s*&\s*a|faq|frequently\s+asked)/i.test(normalizedText);
+      /^(faq|frequently\s+asked\s+questions?|questions?\s+and\s+answers?|q\s*&\s*a|q\s+and\s+a|common\s+questions?|help\s+(center|desk|section))$/i.test(normalizedText);
     
     if (isFAQSection) {
       // Find next sibling that's a spacer followed by h3
