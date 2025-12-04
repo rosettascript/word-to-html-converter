@@ -15,6 +15,7 @@ import {
 } from '../utils/constants.js';
 import { handleProcessingError, logWarning } from '../utils/error-handler.js';
 import { setSafeHTML } from '../utils/safe-html.js';
+import { calculateShopifyBlogsConfidence, getConfidenceDescription } from '../utils/confidence-calculator.js';
 
 let processCallback = null;
 let currentMode = 'regular';
@@ -433,7 +434,16 @@ function processInputHTML(inputHTML) {
     }
 
     clearError();
-    updateStatus('HTML cleaned successfully', 'success');
+    
+    // Calculate confidence score for Shopify Blogs mode
+    let statusMessage = 'HTML cleaned successfully';
+    if (currentMode === 'shopify-blogs') {
+      const confidenceScore = calculateShopifyBlogsConfidence(cleanedHTML);
+      const confidenceLevel = getConfidenceDescription(confidenceScore);
+      statusMessage = `HTML cleaned successfully • Confidence: ${confidenceScore}% (${confidenceLevel})`;
+    }
+    
+    updateStatus(statusMessage, 'success');
     if (outputView) outputView.removeAttribute('aria-busy');
     if (spinner) spinner.classList.remove('show');
     
