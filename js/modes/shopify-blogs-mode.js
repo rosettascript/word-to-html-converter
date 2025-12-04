@@ -13,7 +13,7 @@ import { removeBrAndEmptyP } from '../features/remove-br-and-empty-p.js';
 import { removeH1AfterKeyTakeaways } from '../features/remove-h1-after-key-takeaways.js';
 import { removeSpaceAfterFAQHeaders } from '../features/remove-space-after-faq-headers.js';
 import { cleanAnchorWhitespace } from '../features/clean-anchor-whitespace.js';
-import { addParagraphSpacers } from '../features/add-paragraph-spacers.js';
+import { addParagraphSpacers, scoreReadAlsoSection } from '../features/add-paragraph-spacers.js';
 import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
 import { extractMisplacedListItems } from '../features/extract-misplaced-list-items.js';
 import { convertListsToNumberedHeadings } from '../features/convert-lists-to-numbered-headings.js';
@@ -168,6 +168,16 @@ export function processShopifyBlogsMode(element, options = {}) {
       return; // Keep spacer after lists
     }
     
+    // PRESERVE spacers before tables (structural purpose)
+    if (nextSibling && nextSibling.tagName === 'TABLE') {
+      return; // Keep spacer before tables
+    }
+    
+    // PRESERVE spacers after tables (structural purpose - separates table from following content)
+    if (prevSibling && prevSibling.tagName === 'TABLE') {
+      return; // Keep spacer after tables
+    }
+    
     // REMOVE spacers between two consecutive paragraphs (from input HTML)
     // BUT first check if the next paragraph is a special section label
     if (prevSibling && prevSibling.tagName === 'P' && !isSpacerParagraph(prevSibling) &&
@@ -177,10 +187,9 @@ export function processShopifyBlogsMode(element, options = {}) {
       const nextText = nextSibling.textContent.trim();
       const normalizedNextText = nextText.toLowerCase().replace(/:\s*$/, '');
       
-      // Check for "Read also:" type sections
-      const isReadSection =
-        /^(read\s+(also|more)|related\s+(articles?|posts?|content|topics?|resources?|links?|information)|see\s+also|further\s+reading|additional\s+(resources?|information|reading|links?)|more\s+(information|resources?|reading)|explore\s+(more|further)|continue\s+reading|you\s+may\s+(also\s+)?(like|enjoy|find\s+interesting))$/i.test(normalizedNextText) ||
-        /^(related|additional|more|further|explore)\s+(content|resources?|information|reading|links?|topics?)/i.test(normalizedNextText);
+      // Check for "Read also:" type sections using scoring system (min score: 3)
+      const readAlsoScore = scoreReadAlsoSection(nextSibling);
+      const isReadSection = readAlsoScore >= 3;
       
       // Check for "Sources:", "References:", "Bibliography:" sections
       // Use STRICT regex only - .includes() is too broad and matches "resources", "reference" in regular text

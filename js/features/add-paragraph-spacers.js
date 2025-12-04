@@ -113,10 +113,13 @@ export function addParagraphSpacers(root, mode = 'shopify-blogs') {
   // 4. Add spacer before Alt Image Text paragraphs
   addSpacerBeforeAltImageText(root);
 
-  // 5. Remove spacer between FAQ h2 and first h3 question
+  // 5. Add spacers around tables (before and after)
+  addSpacersAroundTables(root);
+
+  // 6. Remove spacer between FAQ h2 and first h3 question
   removeSpacerAfterFAQHeader(root);
 
-  // 6. Cleanup: Remove any spacers that appear after headers (structural check)
+  // 7. Cleanup: Remove any spacers that appear after headers (structural check)
   // Headers should never have spacers after them - they should be followed by content
   removeSpacersAfterHeaders(root);
 }
@@ -152,10 +155,18 @@ function addSpacersBeforeHeaders(root) {
       return; // Skip headers in Key Takeaways section
     }
 
-    // Structural check: Skip if previous sibling is a header (headers shouldn't have spacers between them)
+    // Structural check: Skip if previous sibling is a header at same or higher level
+    // We want spacers when going from parent to child (H2 -> H3), but not between siblings (H3 -> H3) or child to parent (H3 -> H2)
     const prevSibling = header.previousElementSibling;
     if (prevSibling && /^H[1-6]$/.test(prevSibling.tagName)) {
-      return; // Don't add spacer between consecutive headers
+      const currentLevel = parseInt(header.tagName.substring(1)); // H3 -> 3
+      const prevLevel = parseInt(prevSibling.tagName.substring(1)); // H2 -> 2
+      
+      // Skip spacer only if current level <= previous level (same level or going up in hierarchy)
+      // e.g., H3 -> H3 (skip), H3 -> H2 (skip), but H2 -> H3 (don't skip, add spacer)
+      if (currentLevel <= prevLevel) {
+        return; // Don't add spacer between same-level headers or when going from child to parent
+      }
     }
 
     // Check if there's already a spacer before this header
@@ -222,6 +233,7 @@ function addSpacerAfterKeyTakeawaysList(root) {
 
 /**
  * Add spacer before Read Also/Read More sections
+ * Uses a scoring system to identify "Read Also" equivalent sections
  * @param {HTMLElement} root - Root element to process
  */
 function addSpacerBeforeReadSections(root) {
@@ -245,20 +257,71 @@ function addSpacerBeforeReadSections(root) {
     }
   });
 
-  // Process paragraphs (e.g., <p><strong>Read also:</strong></p>)
+  // Process paragraphs using scoring system
   paragraphs.forEach(paragraph => {
-    const paragraphText = paragraph.textContent.trim().toLowerCase();
-
-    // Match related content sections more generally (same pattern as headings)
-    const normalizedParagraphText = paragraphText.replace(/:\s*$/, '');
-    const isReadSection =
-      /^(read\s+(also|more)|related\s+(articles?|posts?|content|topics?|resources?|links?|information)|see\s+also|further\s+reading|additional\s+(resources?|information|reading|links?)|more\s+(information|resources?|reading)|explore\s+(more|further)|continue\s+reading|you\s+may\s+(also\s+)?(like|enjoy|find\s+interesting))$/i.test(normalizedParagraphText) ||
-      /^(related|additional|more|further|explore)\s+(content|resources?|information|reading|links?|topics?)/i.test(normalizedParagraphText);
-
-    if (isReadSection) {
+    const score = scoreReadAlsoSection(paragraph);
+    
+    // Require a minimum score of 3 to be considered a "Read Also" section
+    if (score >= 3) {
       addSpacerBeforeElement(paragraph);
     }
   });
+}
+
+/**
+ * Score a paragraph to determine if it's a "Read Also" equivalent section
+ * Uses multiple criteria to avoid false positives
+ * @param {HTMLElement} paragraph - The paragraph to score
+ * @returns {number} Score (0-5+), higher = more likely to be "Read Also" section
+ */
+export function scoreReadAlsoSection(paragraph) {
+  let score = 0;
+  const paragraphText = paragraph.textContent.trim();
+  const paragraphTextLower = paragraphText.toLowerCase();
+  
+  // Criterion 1: Contains strong/bold tag (1 point)
+  const hasStrongTag = paragraph.querySelector('strong') || paragraph.querySelector('b');
+  if (hasStrongTag) {
+    score += 1;
+  }
+  
+  // Criterion 2: Ends with colon (1 point)
+  if (paragraphText.trim().endsWith(':')) {
+    score += 1;
+  }
+  
+  // Criterion 3: Followed by a list (ul/ol) containing links (2 points)
+  // Skip over spacer paragraphs to find the actual next content element
+  let nextSibling = paragraph.nextElementSibling;
+  while (nextSibling && isSpacerParagraph(nextSibling)) {
+    nextSibling = nextSibling.nextElementSibling;
+  }
+  
+  if (nextSibling && (nextSibling.tagName === 'UL' || nextSibling.tagName === 'OL')) {
+    const hasLinks = nextSibling.querySelectorAll('a').length > 0;
+    if (hasLinks) {
+      score += 2;
+    }
+  }
+  
+  // Criterion 4: Contains keywords suggesting related content (1 point)
+  const keywords = [
+    'read also', 'read more', 'related', 'check out', 'want to learn',
+    'learn more', 'past blogs', 'further reading', 'see also',
+    'additional resources', 'more information', 'explore', 'continue reading'
+  ];
+  
+  const containsKeyword = keywords.some(keyword => paragraphTextLower.includes(keyword));
+  if (containsKeyword) {
+    score += 1;
+  }
+  
+  // Criterion 5: Short text (less than 100 characters) suggests it's a label, not content (0.5 points)
+  if (paragraphText.length < 100) {
+    score += 0.5;
+  }
+  
+  return score;
 }
 
 /**
@@ -276,6 +339,44 @@ function addSpacerBeforeAltImageText(root) {
     // Pattern: starts with "alt" + whitespace + "image" + whitespace + "text" + optional ":"
     if (/^alt\s+image\s+text\s*:/i.test(paragraphText)) {
       addSpacerBeforeElement(paragraph);
+    }
+  });
+}
+
+/**
+ * Add spacers around tables (before and after)
+ * Skip if table is the first element or if spacers already exist
+ * @param {HTMLElement} root - Root element to process
+ */
+function addSpacersAroundTables(root) {
+  const tables = root.querySelectorAll('table');
+  
+  tables.forEach(table => {
+    // Add spacer BEFORE table (if not first element and no spacer exists)
+    const prevSibling = table.previousElementSibling;
+    if (prevSibling) { // Not the first element
+      if (!isSpacerParagraph(prevSibling)) {
+        // No spacer exists, add one
+        const spacer = document.createElement('p');
+        setSafeHTML(spacer, '&nbsp;');
+        table.parentNode.insertBefore(spacer, table);
+      }
+    }
+    
+    // Add spacer AFTER table (if no spacer exists)
+    const nextSibling = table.nextElementSibling;
+    if (nextSibling) { // Not the last element
+      if (!isSpacerParagraph(nextSibling)) {
+        // No spacer exists, add one
+        const spacer = document.createElement('p');
+        setSafeHTML(spacer, '&nbsp;');
+        table.parentNode.insertBefore(spacer, nextSibling);
+      }
+    } else {
+      // Table is the last element, add spacer after it
+      const spacer = document.createElement('p');
+      setSafeHTML(spacer, '&nbsp;');
+      table.parentNode.appendChild(spacer);
     }
   });
 }
@@ -313,10 +414,11 @@ function removeSpacerAfterFAQHeader(root) {
     const text = h2.textContent.toLowerCase();
     const normalizedText = text.replace(/:\s*$/, '');
     
-    // Match FAQ sections MORE STRICTLY - use regex patterns at start of text
-    // Avoid broad .includes() that match regular words like "help" or "questions"
+    // Match FAQ sections at the START of text (not requiring exact end match)
+    // This allows for variations like "FAQ About X" or "Frequently Asked Questions About Y"
     const isFAQSection = 
-      /^(faq|frequently\s+asked\s+questions?|questions?\s+and\s+answers?|q\s*&\s*a|q\s+and\s+a|common\s+questions?|help\s+(center|desk|section))$/i.test(normalizedText);
+      /^(faq|frequently\s+asked\s+questions?|questions?\s+and\s+answers?|q\s*&\s*a|q\s+and\s+a|common\s+questions?)(\s|$)/i.test(normalizedText) ||
+      /^(help\s+(center|desk|section))$/i.test(normalizedText);
     
     if (isFAQSection) {
       // Find next sibling that's a spacer followed by h3
@@ -386,8 +488,9 @@ function isInKeyTakeawaysSection(element) {
 
 /**
  * Remove any spacers that appear after headers (structural cleanup)
- * Headers should never have spacers after them - they should be followed by content
- * This is a structural check, not keyword-based, so it's consistent
+ * Headers should never have spacers after them UNLESS followed by a child header
+ * Keep spacers when: H2 -> spacer -> H3 (parent to child)
+ * Remove spacers when: H2 -> spacer -> P (header to content)
  * @param {HTMLElement} root - Root element to process
  */
 function removeSpacersAfterHeaders(root) {
@@ -396,11 +499,23 @@ function removeSpacersAfterHeaders(root) {
   headers.forEach(header => {
     let nextSibling = header.nextElementSibling;
     
-    // Remove any spacers immediately after the header
+    // Check if there's a spacer after the header
     while (nextSibling && isSpacerParagraph(nextSibling)) {
-      const toRemove = nextSibling;
-      nextSibling = nextSibling.nextElementSibling;
-      toRemove.remove();
+      const spacer = nextSibling;
+      const afterSpacer = nextSibling.nextElementSibling;
+      
+      // Check if the element after the spacer is a child header (higher level number)
+      const headerLevel = parseInt(header.tagName.substring(1)); // H2 -> 2
+      const isChildHeader = afterSpacer && /^H[1-6]$/.test(afterSpacer.tagName) && parseInt(afterSpacer.tagName.substring(1)) > headerLevel;
+      
+      // Only remove the spacer if it's NOT before a child header
+      if (!isChildHeader) {
+        nextSibling = spacer.nextElementSibling;
+        spacer.remove();
+      } else {
+        // Keep the spacer, move to next sibling
+        break;
+      }
     }
   });
 }
