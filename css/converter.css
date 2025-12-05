@@ -639,6 +639,37 @@ a[href$="#faq"] {
   background: var(--color-error);
 }
 
+/* Confidence Suggestions */
+.confidence-suggestions {
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-accent-taupe-01);
+  border-left: 3px solid var(--color-accent-taupe);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-sm);
+}
+
+.confidence-suggestions-title {
+  font-weight: 600;
+  color: var(--color-accent-taupe);
+  margin-bottom: var(--space-xs);
+}
+
+.confidence-suggestions ul {
+  margin: 0;
+  padding-left: var(--space-lg);
+  list-style-type: disc;
+}
+
+.confidence-suggestions li {
+  margin-bottom: var(--space-xs);
+  color: var(--color-text-primary);
+}
+
+.confidence-suggestions li:last-child {
+  margin-bottom: 0;
+}
+
 /* ==========================================================================
    Error Display
    ========================================================================== */

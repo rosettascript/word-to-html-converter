@@ -15,7 +15,7 @@ import {
 } from '../utils/constants.js';
 import { handleProcessingError, logWarning } from '../utils/error-handler.js';
 import { setSafeHTML } from '../utils/safe-html.js';
-import { calculateShopifyBlogsConfidence, getConfidenceDescription } from '../utils/confidence-calculator.js';
+import { getConfidenceAnalysis } from '../utils/confidence-calculator.js';
 
 let processCallback = null;
 let currentMode = 'regular';
@@ -438,9 +438,14 @@ function processInputHTML(inputHTML) {
     // Calculate confidence score for Shopify Blogs mode
     let statusMessage = 'HTML cleaned successfully';
     if (currentMode === 'shopify-blogs') {
-      const confidenceScore = calculateShopifyBlogsConfidence(cleanedHTML);
-      const confidenceLevel = getConfidenceDescription(confidenceScore);
-      statusMessage = `HTML cleaned successfully • Confidence: ${confidenceScore}% (${confidenceLevel})`;
+      const analysis = getConfidenceAnalysis(cleanedHTML, currentOptions);
+      statusMessage = `HTML cleaned successfully • Confidence: ${analysis.score}% (${analysis.level})`;
+      
+      // Display improvement suggestions if score < 100%
+      displayConfidenceSuggestions(analysis);
+    } else {
+      // Hide suggestions for non-Shopify Blogs modes
+      hideConfidenceSuggestions();
     }
     
     updateStatus(statusMessage, 'success');
@@ -699,6 +704,63 @@ function updateCharCount(text, element) {
       // > 5MB
       element.textContent += ' ⚠️ Large document may take longer to process';
     }
+  }
+}
+
+/**
+ * Display confidence improvement suggestions
+ * @param {Object} analysis - Confidence analysis object
+ */
+function displayConfidenceSuggestions(analysis) {
+  const suggestionsElement = document.getElementById('confidence-suggestions');
+  
+  if (!suggestionsElement) return;
+  
+  // Hide if no suggestions (show even at 100% if there are best practice warnings)
+  if (analysis.suggestions.length === 0) {
+    suggestionsElement.style.display = 'none';
+    return;
+  }
+  
+  // Separate required fixes from best practice warnings
+  const requiredFixes = analysis.suggestions.filter(s => !s.startsWith('⚠️'));
+  const bestPractices = analysis.suggestions.filter(s => s.startsWith('⚠️'));
+  
+  // Build suggestions HTML
+  let html = '';
+  
+  if (requiredFixes.length > 0) {
+    html += '<div class="confidence-suggestions-title">❌ Required Fixes:</div>';
+    html += '<ul>';
+    requiredFixes.forEach(suggestion => {
+      html += `<li>${suggestion}</li>`;
+    });
+    html += '</ul>';
+  }
+  
+  if (bestPractices.length > 0) {
+    if (requiredFixes.length > 0) html += '<br>';
+    html += '<div class="confidence-suggestions-title">💡 Best Practices:</div>';
+    html += '<ul>';
+    bestPractices.forEach(suggestion => {
+      // Remove the ⚠️ emoji since it's already in the title
+      const cleanSuggestion = suggestion.replace(/^⚠️\s*/, '');
+      html += `<li>${cleanSuggestion}</li>`;
+    });
+    html += '</ul>';
+  }
+  
+  setSafeHTML(suggestionsElement, html);
+  suggestionsElement.style.display = 'block';
+}
+
+/**
+ * Hide confidence suggestions
+ */
+function hideConfidenceSuggestions() {
+  const suggestionsElement = document.getElementById('confidence-suggestions');
+  if (suggestionsElement) {
+    suggestionsElement.style.display = 'none';
   }
 }
 
