@@ -189,7 +189,10 @@ function addSpacersBeforeHeaders(root) {
  */
 function addSpacerAfterKeyTakeawaysList(root) {
   const headings = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  const paragraphs = root.querySelectorAll('p');
+  let keyTakeawaysElement = null;
 
+  // Check headings first
   headings.forEach(heading => {
     const headingText = heading.textContent.trim().toLowerCase();
     const normalizedHeadingText = headingText.replace(/:\s*$/, '');
@@ -202,33 +205,51 @@ function addSpacerAfterKeyTakeawaysList(root) {
       normalizedHeadingText === 'takeaways' ||
       /^(key|main|important)\s+(takeaways?|points?|highlights?)$/i.test(normalizedHeadingText);
     
-    if (isSummarySection) {
-      // Find the next list (ul or ol) after this heading
-      let nextElement = heading.nextElementSibling;
-      while (nextElement) {
-        if (nextElement.tagName === 'UL' || nextElement.tagName === 'OL') {
-          // Check if there's already a spacer after the list
-          const nextSibling = nextElement.nextElementSibling;
-          if (isSpacerParagraph(nextSibling)) {
-            return; // Already has spacer
-          }
-
-          // Create and insert spacer after the list
-          const spacer = document.createElement('p');
-          setSafeHTML(spacer, '&nbsp;');
-          nextElement.parentNode.insertBefore(spacer, nextElement.nextSibling);
-          break;
-        }
-
-        // Stop if we hit another heading
-        if (/^H[1-6]$/.test(nextElement.tagName)) {
-          break;
-        }
-
-        nextElement = nextElement.nextElementSibling;
-      }
+    if (isSummarySection && !keyTakeawaysElement) {
+      keyTakeawaysElement = heading;
     }
   });
+
+  // If not found in headings, check paragraphs
+  if (!keyTakeawaysElement) {
+    Array.from(paragraphs).forEach(p => {
+      const text = p.textContent.trim();
+      const hasStrongOrBold = p.querySelector('strong') || p.querySelector('b');
+      
+      // Match paragraph format: <p><strong>Key Takeaways:</strong></p>
+      if (hasStrongOrBold && /^key\s+takeaways?:?$/i.test(text) && !keyTakeawaysElement) {
+        keyTakeawaysElement = p;
+      }
+    });
+  }
+
+  // If we found a Key Takeaways element (heading or paragraph), add spacer after the list
+  if (keyTakeawaysElement) {
+    // Find the next list (ul or ol) after this element
+    let nextElement = keyTakeawaysElement.nextElementSibling;
+    while (nextElement) {
+      if (nextElement.tagName === 'UL' || nextElement.tagName === 'OL') {
+        // Check if there's already a spacer after the list
+        const nextSibling = nextElement.nextElementSibling;
+        if (isSpacerParagraph(nextSibling)) {
+          return; // Already has spacer
+        }
+
+        // Create and insert spacer after the list
+        const spacer = document.createElement('p');
+        setSafeHTML(spacer, '&nbsp;');
+        nextElement.parentNode.insertBefore(spacer, nextElement.nextSibling);
+        break;
+      }
+
+      // Stop if we hit another heading
+      if (/^H[1-6]$/.test(nextElement.tagName)) {
+        break;
+      }
+
+      nextElement = nextElement.nextElementSibling;
+    }
+  }
 }
 
 /**

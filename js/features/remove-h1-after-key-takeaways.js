@@ -17,10 +17,12 @@ export function removeH1AfterKeyTakeaways(root, mode = 'shopify-blogs') {
   // Find all h1 elements first
   const allH1s = Array.from(root.querySelectorAll('h1'));
 
-  // Find if there's a Key Takeaways heading
+  // Find if there's a Key Takeaways section (in heading OR paragraph)
   const allHeadings = root.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  let keyTakeawaysHeading = null;
+  const allParagraphs = root.querySelectorAll('p');
+  let keyTakeawaysElement = null;
 
+  // Check headings first
   allHeadings.forEach(heading => {
     const text = heading.textContent.trim().toLowerCase();
     const normalizedText = text.replace(/:\s*$/, '');
@@ -36,15 +38,28 @@ export function removeH1AfterKeyTakeaways(root, mode = 'shopify-blogs') {
       /^(key|main|important)\s+(takeaways?|points?|highlights?)$/i.test(normalizedText);
     
     if (isSummarySection) {
-      keyTakeawaysHeading = heading;
+      keyTakeawaysElement = heading;
     }
   });
 
-  // If we found a Key Takeaways heading, remove all H1s that come after it
-  if (keyTakeawaysHeading) {
+  // If not found in headings, check paragraphs
+  if (!keyTakeawaysElement) {
+    Array.from(allParagraphs).forEach(p => {
+      const text = p.textContent.trim();
+      const hasStrongOrBold = p.querySelector('strong') || p.querySelector('b');
+      
+      // Match paragraph format: <p><strong>Key Takeaways:</strong></p>
+      if (hasStrongOrBold && /^key\s+takeaways?:?$/i.test(text)) {
+        keyTakeawaysElement = p;
+      }
+    });
+  }
+
+  // If we found a Key Takeaways section (heading or paragraph), remove all H1s that come after it
+  if (keyTakeawaysElement) {
     allH1s.forEach(h1 => {
-      // Check if this h1 comes after the Key Takeaways heading in the DOM
-      if (isAfter(h1, keyTakeawaysHeading)) {
+      // Check if this h1 comes after the Key Takeaways element in the DOM
+      if (isAfter(h1, keyTakeawaysElement)) {
         h1.remove();
       }
     });
