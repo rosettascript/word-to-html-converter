@@ -258,6 +258,166 @@ export function getConfidenceDescription(score) {
 }
 
 /**
+ * Calculate confidence score for Shopify Shoppables conversion
+ * @param {string} html - The processed HTML
+ * @param {Object} options - Processing options
+ * @returns {number} Confidence score (0-100)
+ */
+export function calculateShopifyShoppablesConfidence(html, options = {}) {
+  if (!html || typeof html !== 'string') {
+    return 0;
+  }
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  
+  // Core Requirements for Shoppables (simpler than Blogs)
+  const coreRequirements = {
+    hasFAQ: false,
+    hasProperHeaders: false,
+    hasNoEmptyHeaders: false,
+    hasWellFormedLists: false,
+    hasValidLinks: false,
+    hasValidSources: false,
+    hasCompactSpacing: false,
+    hasCleanFormatting: false,
+    hasCorrectHeaderFormatting: false,
+    hasReadAlso: false,
+  };
+
+  let metRequirements = 0;
+  const totalRequirements = Object.keys(coreRequirements).length;
+  
+  const allHeaders = Array.from(doc.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+  const allParagraphs = doc.querySelectorAll('p');
+
+  // 1. FAQ Section
+  coreRequirements.hasFAQ = allHeaders.some(h => 
+    /frequently\s+asked\s+questions?|faq|common\s+questions?/i.test(h.textContent.trim())
+  );
+  if (coreRequirements.hasFAQ) metRequirements++;
+
+  // 2. Header Hierarchy (H2 and H3)
+  const hasH2 = allHeaders.some(h => h.tagName === 'H2');
+  const hasH3 = allHeaders.some(h => h.tagName === 'H3');
+  coreRequirements.hasProperHeaders = hasH2 && hasH3;
+  if (coreRequirements.hasProperHeaders) metRequirements++;
+
+  // 3. No Empty Headers
+  const emptyHeaders = allHeaders.filter(h => h.textContent.trim() === '');
+  coreRequirements.hasNoEmptyHeaders = emptyHeaders.length === 0;
+  if (coreRequirements.hasNoEmptyHeaders) metRequirements++;
+
+  // 4. Well-Formed Lists
+  const lists = doc.querySelectorAll('ul, ol');
+  if (lists.length > 0) {
+    const validLists = Array.from(lists).filter(list => list.querySelectorAll('li').length > 0);
+    coreRequirements.hasWellFormedLists = validLists.length === lists.length;
+  } else {
+    coreRequirements.hasWellFormedLists = true;
+  }
+  if (coreRequirements.hasWellFormedLists) metRequirements++;
+
+  // 5. Valid Links
+  const links = doc.querySelectorAll('a');
+  if (links.length > 0) {
+    const validLinks = Array.from(links).filter(a => {
+      const href = a.getAttribute('href');
+      return href && href.trim() !== '' && href !== '#';
+    });
+    coreRequirements.hasValidLinks = validLinks.length >= (links.length * 0.8);
+  } else {
+    coreRequirements.hasValidLinks = true;
+  }
+  if (coreRequirements.hasValidLinks) metRequirements++;
+
+  // 6. Compact Spacing (Shoppables should have minimal spacers: 0-20%)
+  if (allParagraphs.length > 0) {
+    const spacers = Array.from(allParagraphs).filter(p => {
+      const text = p.textContent.trim();
+      return text === '' || text === '\u00A0' || /^[\s\u00A0]+$/.test(text);
+    });
+    const spacerRatio = spacers.length / allParagraphs.length;
+    
+    // Shoppables should be compact: 0-20% spacers
+    coreRequirements.hasCompactSpacing = spacerRatio >= 0 && spacerRatio <= 0.20;
+  } else {
+    coreRequirements.hasCompactSpacing = true;
+  }
+  if (coreRequirements.hasCompactSpacing) metRequirements++;
+
+  // 7. Clean Formatting
+  const hasProblematicPatterns = html.includes('<p></p>') ||
+                                  html.includes('<h2></h2>') ||
+                                  html.includes('<h3></h3>');
+  
+  const hasSuperscript = html.includes('<sup>') || html.includes('</sup>');
+  let properSuperscripts = true;
+  if (hasSuperscript) {
+    const supOpen = (html.match(/<sup>/g) || []).length;
+    const supClose = (html.match(/<\/sup>/g) || []).length;
+    properSuperscripts = supOpen === supClose;
+  }
+  
+  coreRequirements.hasCleanFormatting = !hasProblematicPatterns && properSuperscripts;
+  if (coreRequirements.hasCleanFormatting) metRequirements++;
+
+  // 8. Header Formatting (strong tags)
+  if (allHeaders.length > 0) {
+    if (options.strongInHeaders !== false) {
+      const headersWithStrong = allHeaders.filter(h => h.querySelector('strong') || h.querySelector('b'));
+      coreRequirements.hasCorrectHeaderFormatting = headersWithStrong.length >= (allHeaders.length * 0.8);
+    } else {
+      const headersWithoutStrong = allHeaders.filter(h => !h.querySelector('strong') && !h.querySelector('b'));
+      coreRequirements.hasCorrectHeaderFormatting = headersWithoutStrong.length >= (allHeaders.length * 0.8);
+    }
+  } else {
+    coreRequirements.hasCorrectHeaderFormatting = true;
+  }
+  if (coreRequirements.hasCorrectHeaderFormatting) metRequirements++;
+
+  // 6. Sources Section (Optional - auto-pass if not present)
+  const hasSourcesSection = Array.from(allParagraphs).some(p => {
+    const text = p.textContent.trim().toLowerCase();
+    return /^(sources?|references?|bibliography|works?\s+cited|citations?)$/i.test(text);
+  });
+  
+  if (hasSourcesSection) {
+    const sourcesElement = Array.from(allParagraphs).find(p => {
+      const text = p.textContent.trim().toLowerCase();
+      return /^(sources?|references?|bibliography|works?\s+cited|citations?)$/i.test(text);
+    });
+    
+    if (sourcesElement) {
+      let nextElement = sourcesElement.nextElementSibling;
+      while (nextElement && nextElement.tagName === 'P' && /^[\s\u00A0]*$/.test(nextElement.textContent)) {
+        nextElement = nextElement.nextElementSibling;
+      }
+      const isFollowedByList = nextElement && (nextElement.tagName === 'UL' || nextElement.tagName === 'OL');
+      coreRequirements.hasValidSources = isFollowedByList;
+    }
+  } else {
+    coreRequirements.hasValidSources = true; // Auto-pass if no Sources
+  }
+  if (coreRequirements.hasValidSources) metRequirements++;
+
+  // 7. Read Also Section
+  const hasReadAlso = Array.from(allParagraphs).some(p => {
+    const text = p.textContent.trim().toLowerCase();
+    return /^(read\s+(also|more)|related|check\s+out)/i.test(text);
+  });
+  coreRequirements.hasReadAlso = hasReadAlso;
+  if (coreRequirements.hasReadAlso) metRequirements++;
+
+  // Threshold Logic
+  if (metRequirements === totalRequirements) {
+    return 100;
+  }
+
+  return Math.max(0, Math.min(100, Math.round((metRequirements / totalRequirements) * 100)));
+}
+
+/**
  * Get detailed confidence analysis with improvement suggestions
  * @param {string} html - The processed HTML
  * @param {Object} options - Processing options
@@ -476,6 +636,182 @@ export function getConfidenceAnalysis(html, options = {}) {
   }
   
   const score = calculateShopifyBlogsConfidence(html, options);
+  const level = getConfidenceDescription(score);
+  
+  return {
+    score,
+    level,
+    failedRequirements: failed,
+    suggestions
+  };
+}
+
+/**
+ * Get detailed confidence analysis for Shopify Shoppables with improvement suggestions
+ * @param {string} html - The processed HTML
+ * @param {Object} options - Processing options
+ * @returns {Object} Analysis object with score, level, failedRequirements, and suggestions
+ */
+export function getShoppablesConfidenceAnalysis(html, options = {}) {
+  if (!html || typeof html !== 'string') {
+    return {
+      score: 0,
+      level: 'Needs Review',
+      failedRequirements: [],
+      suggestions: ['Invalid HTML input']
+    };
+  }
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  
+  const failed = [];
+  const suggestions = [];
+  
+  const allHeaders = Array.from(doc.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+  const allParagraphs = doc.querySelectorAll('p');
+  
+  // 1. FAQ
+  const hasFAQ = allHeaders.some(h => 
+    /frequently\s+asked\s+questions?|faq|common\s+questions?/i.test(h.textContent.trim())
+  );
+  if (!hasFAQ) {
+    failed.push('FAQ Section');
+    suggestions.push('Add a "Frequently Asked Questions" section');
+  }
+  
+  // 2. Header Hierarchy
+  const hasH2 = allHeaders.some(h => h.tagName === 'H2');
+  const hasH3 = allHeaders.some(h => h.tagName === 'H3');
+  if (!hasH2 || !hasH3) {
+    failed.push('Header Hierarchy');
+    suggestions.push('Use both H2 and H3 headers for proper content structure');
+  }
+  
+  // 3. Empty Headers
+  const emptyHeaders = allHeaders.filter(h => h.textContent.trim() === '');
+  if (emptyHeaders.length > 0) {
+    failed.push('Empty Headers');
+    suggestions.push(`Remove or fill ${emptyHeaders.length} empty header(s)`);
+  }
+  
+  // 4. Lists
+  const lists = doc.querySelectorAll('ul, ol');
+  if (lists.length > 0) {
+    const invalidLists = Array.from(lists).filter(list => list.querySelectorAll('li').length === 0);
+    if (invalidLists.length > 0) {
+      failed.push('List Structure');
+      suggestions.push(`Fix ${invalidLists.length} empty list(s)`);
+    }
+  }
+  
+  // 5. Links
+  const links = doc.querySelectorAll('a');
+  if (links.length > 0) {
+    const invalidLinks = Array.from(links).filter(a => {
+      const href = a.getAttribute('href');
+      return !href || href.trim() === '' || href === '#';
+    });
+    if (invalidLinks.length >= (links.length * 0.2)) {
+      failed.push('Invalid Links');
+      suggestions.push(`Fix ${invalidLinks.length} link(s) with invalid href`);
+    }
+  }
+  
+  // 6. Sources (optional)
+  const hasSourcesSection = Array.from(allParagraphs).some(p => {
+    const text = p.textContent.trim().toLowerCase();
+    return /^(sources?|references?|bibliography|works?\s+cited|citations?)$/i.test(text);
+  });
+  
+  if (hasSourcesSection) {
+    const sourcesElement = Array.from(allParagraphs).find(p => {
+      const text = p.textContent.trim().toLowerCase();
+      return /^(sources?|references?|bibliography)$/i.test(text);
+    });
+    
+    if (sourcesElement) {
+      let nextElement = sourcesElement.nextElementSibling;
+      while (nextElement && nextElement.tagName === 'P' && /^[\s\u00A0]*$/.test(nextElement.textContent)) {
+        nextElement = nextElement.nextElementSibling;
+      }
+      const isFollowedByList = nextElement && (nextElement.tagName === 'UL' || nextElement.tagName === 'OL');
+      if (!isFollowedByList) {
+        failed.push('Sources Format');
+        suggestions.push('Sources section should be followed by a list');
+      }
+    }
+  }
+  
+  // 7. Compact Spacing
+  if (allParagraphs.length > 0) {
+    const spacers = Array.from(allParagraphs).filter(p => {
+      const text = p.textContent.trim();
+      return text === '' || text === '\u00A0' || /^[\s\u00A0]+$/.test(text);
+    });
+    const spacerRatio = spacers.length / allParagraphs.length;
+    
+    if (spacerRatio > 0.20) {
+      failed.push('Excessive Spacing');
+      suggestions.push(`Too many spacers (${(spacerRatio * 100).toFixed(1)}%). Shoppables should be compact (0-20%)`);
+    }
+  }
+  
+  // 7. Clean Formatting
+  const hasProblematicPatterns = html.includes('<p></p>') || html.includes('<h2></h2>') || html.includes('<h3></h3>');
+  const hasSuperscript = html.includes('<sup>') || html.includes('</sup>');
+  let properSuperscripts = true;
+  if (hasSuperscript) {
+    const supOpen = (html.match(/<sup>/g) || []).length;
+    const supClose = (html.match(/<\/sup>/g) || []).length;
+    properSuperscripts = supOpen === supClose;
+  }
+  
+  if (hasProblematicPatterns) {
+    failed.push('Broken HTML');
+    suggestions.push('Fix empty tags or excessive whitespace');
+  }
+  if (!properSuperscripts) {
+    failed.push('Unclosed Superscripts');
+    suggestions.push('Fix unclosed <sup> tags');
+  }
+  
+  // 8. Header Formatting
+  if (allHeaders.length > 0) {
+    const shouldHaveStrong = options.strongInHeaders !== false;
+    if (shouldHaveStrong) {
+      const headersWithStrong = allHeaders.filter(h => h.querySelector('strong') || h.querySelector('b'));
+      if (headersWithStrong.length < (allHeaders.length * 0.8)) {
+        failed.push('Header Formatting');
+        suggestions.push('Most headers should have <strong> tags');
+      }
+    } else {
+      const headersWithoutStrong = allHeaders.filter(h => !h.querySelector('strong') && !h.querySelector('b'));
+      if (headersWithoutStrong.length < (allHeaders.length * 0.8)) {
+        failed.push('Header Formatting');
+        suggestions.push('Remove <strong> tags from headers (option disabled)');
+      }
+    }
+  }
+  
+  // 9. Read Also
+  const hasReadAlso = Array.from(allParagraphs).some(p => {
+    const text = p.textContent.trim().toLowerCase();
+    return /^(read\s+(also|more)|related|check\s+out)/i.test(text);
+  });
+  if (!hasReadAlso) {
+    // Optional for Shoppables, so just a best practice suggestion
+    suggestions.push('⚠️ Consider adding a "Read Also" section for related products');
+  }
+  
+  // 10. Detect suspicious paragraphs (same as Blogs)
+  const suspiciousParagraphs = detectPossibleHeaderParagraphs(doc);
+  if (suspiciousParagraphs.length > 0) {
+    const previews = suspiciousParagraphs.slice(0, 2).map(p => p.textContent.trim().substring(0, 47) + '...');
+    suggestions.push(`⚠️ Found ${suspiciousParagraphs.length} paragraph(s) that may be headers (e.g., "${previews[0]}")`);
+  }
+  
+  const score = calculateShopifyShoppablesConfidence(html, options);
   const level = getConfidenceDescription(score);
   
   return {

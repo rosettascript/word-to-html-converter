@@ -15,7 +15,7 @@ import {
 } from '../utils/constants.js';
 import { handleProcessingError, logWarning } from '../utils/error-handler.js';
 import { setSafeHTML } from '../utils/safe-html.js';
-import { getConfidenceAnalysis } from '../utils/confidence-calculator.js';
+import { getConfidenceAnalysis, getShoppablesConfidenceAnalysis } from '../utils/confidence-calculator.js';
 
 let processCallback = null;
 let currentMode = 'regular';
@@ -435,16 +435,18 @@ function processInputHTML(inputHTML) {
 
     clearError();
     
-    // Calculate confidence score for Shopify Blogs mode
+    // Calculate confidence score for Shopify modes
     let statusMessage = 'HTML cleaned successfully';
     if (currentMode === 'shopify-blogs') {
       const analysis = getConfidenceAnalysis(cleanedHTML, currentOptions);
       statusMessage = `HTML cleaned successfully • Confidence: ${analysis.score}% (${analysis.level})`;
-      
-      // Display improvement suggestions if score < 100%
+      displayConfidenceSuggestions(analysis);
+    } else if (currentMode === 'shopify-shoppables') {
+      const analysis = getShoppablesConfidenceAnalysis(cleanedHTML, currentOptions);
+      statusMessage = `HTML cleaned successfully • Confidence: ${analysis.score}% (${analysis.level})`;
       displayConfidenceSuggestions(analysis);
     } else {
-      // Hide suggestions for non-Shopify Blogs modes
+      // Hide suggestions for Regular mode
       hideConfidenceSuggestions();
     }
     

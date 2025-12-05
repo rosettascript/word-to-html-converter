@@ -14,6 +14,7 @@ import { removeH1AfterKeyTakeaways } from '../features/remove-h1-after-key-takea
 import { removeSpaceAfterFAQHeaders } from '../features/remove-space-after-faq-headers.js';
 import { cleanAnchorWhitespace } from '../features/clean-anchor-whitespace.js';
 import { addParagraphSpacers, scoreReadAlsoSection } from '../features/add-paragraph-spacers.js';
+import { splitSectionMarkers } from '../features/split-section-markers.js';
 import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
 import { extractMisplacedListItems } from '../features/extract-misplaced-list-items.js';
 import { convertListsToNumberedHeadings } from '../features/convert-lists-to-numbered-headings.js';
@@ -103,6 +104,9 @@ export function processShopifyBlogsMode(element, options = {}) {
 
   // Remove <br> tags and empty <p> tags completely
   removeBrAndEmptyP(processed);
+
+  // Split paragraphs containing section markers (Read also, Sources, etc.)
+  splitSectionMarkers(processed);
 
   // Remove spaces/br after FAQ h2 headers
   // Explicitly pass mode to ensure it only runs in Shopify Blogs mode

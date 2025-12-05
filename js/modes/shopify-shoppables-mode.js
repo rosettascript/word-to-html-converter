@@ -16,6 +16,7 @@ import { convertListsToNumberedHeadings } from '../features/convert-lists-to-num
 import { removeEmptyP } from '../features/remove-empty-p.js';
 import { cleanLinkUrls } from '../features/clean-link-urls.js';
 import { addShoppablesSpacers } from '../features/add-shoppables-spacers.js';
+import { splitSectionMarkers } from '../features/split-section-markers.js';
 import { isValidOptions } from '../utils/validation.js';
 
 /**
@@ -42,6 +43,9 @@ export function processShopifyShoppablesMode(element, options = {}) {
 
   // Replace <br> tags with empty <p></p> tags
   replaceBrWithParagraph(processed);
+
+  // Split paragraphs containing section markers (Read also, Sources, etc.)
+  splitSectionMarkers(processed);
 
   // Remove empty <p></p> tags
   removeEmptyP(processed);
