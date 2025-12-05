@@ -462,6 +462,19 @@ export function getConfidenceAnalysis(html, options = {}) {
     }
   }
   
+  // 12. Detect paragraphs that may be headers (best practice warning)
+  const suspiciousParagraphs = detectPossibleHeaderParagraphs(doc);
+  if (suspiciousParagraphs.length > 0) {
+    // Don't add to failed requirements, but warn user
+    const previews = suspiciousParagraphs.slice(0, 2).map(p => {
+      const text = p.textContent.trim();
+      return text.length > 50 ? text.substring(0, 47) + '...' : text;
+    });
+    const count = suspiciousParagraphs.length;
+    const exampleText = previews.length > 0 ? ` (e.g., "${previews[0]}")` : '';
+    suggestions.push(`⚠️ Found ${count} paragraph(s) that may be headers${exampleText}. Verify in source document and convert to H2/H3 if needed`);
+  }
+  
   const score = calculateShopifyBlogsConfidence(html, options);
   const level = getConfidenceDescription(score);
   
@@ -471,5 +484,46 @@ export function getConfidenceAnalysis(html, options = {}) {
     failedRequirements: failed,
     suggestions
   };
+}
+
+/**
+ * Detect paragraphs that may actually be headers based on formatting patterns
+ * @param {Document} doc - Parsed HTML document
+ * @returns {Array<HTMLElement>} Array of suspicious paragraph elements
+ */
+function detectPossibleHeaderParagraphs(doc) {
+  const paragraphs = doc.querySelectorAll('p');
+  
+  return Array.from(paragraphs).filter(p => {
+    const text = p.textContent.trim();
+    
+    // Skip spacer paragraphs
+    if (text === '' || text === '\u00A0' || /^[\s\u00A0]+$/.test(text)) {
+      return false;
+    }
+    
+    // Skip known special paragraphs
+    if (/^(alt\s+image\s+text|sources?|references?|read\s+also|read\s+more):?/i.test(text)) {
+      return false;
+    }
+    
+    // Check for header-like characteristics
+    const hasStrong = p.querySelector('strong, b');
+    const isShort = text.length < 80 && text.length > 5;
+    const noPeriodEnd = !text.endsWith('.');
+    
+    // Check if entire content is bold (strong tag wraps all text)
+    let entirelyBold = false;
+    if (hasStrong) {
+      const strongElement = p.querySelector('strong, b');
+      const strongText = strongElement ? strongElement.textContent.trim() : '';
+      entirelyBold = strongText === text || strongText.length > (text.length * 0.9);
+    }
+    
+    // A paragraph is suspicious if:
+    // - It's short AND entirely bold AND doesn't end with period
+    // This pattern strongly suggests it's meant to be a header
+    return isShort && entirelyBold && noPeriodEnd;
+  });
 }
 
