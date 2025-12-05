@@ -639,14 +639,26 @@ a[href$="#faq"] {
   background: var(--color-error);
 }
 
-/* Confidence Suggestions */
+/* Confidence Suggestions (in toolbar sidebar) */
 .confidence-suggestions {
-  padding: var(--space-md) var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
   background: var(--color-accent-taupe-01);
+  border: 1px solid var(--color-accent-taupe-02);
   border-left: 3px solid var(--color-accent-taupe);
+  border-radius: var(--border-radius);
   font-size: var(--font-size-caption);
   color: var(--color-text-secondary);
-  margin-top: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.suggestions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.suggestions-column {
+  min-width: 0; /* Prevent grid overflow */
 }
 
 .confidence-suggestions-title {

@@ -429,7 +429,6 @@
           </div>
           
           <!-- Domain Input (for internal link detection) - Hidden: automatic detection -->
-          </div>
           <div class="domain-input-wrapper" style="display: none;">
             <label for="base-domain">Your website domain (optional):</label>
             <input 
@@ -438,6 +437,10 @@
               placeholder="https://example.com"
               aria-label="Base domain for internal link detection"
             >
+          </div>
+          
+          <!-- Confidence Suggestions (in toolbar sidebar) -->
+          <div id="confidence-suggestions" class="confidence-suggestions" style="display: none;" role="status" aria-live="polite"></div>
           </div>
         </div>
         
@@ -516,9 +519,6 @@
                 <span class="status-message" id="status-message" aria-live="polite"></span>
                 <div id="processing-spinner" class="processing-spinner" aria-hidden="true" title="Processing"></div>
               </div>
-              
-              <!-- Confidence Suggestions (shown when score < 100%) -->
-              <div id="confidence-suggestions" class="confidence-suggestions" style="display: none;" role="status" aria-live="polite"></div>
             </div>
           </div>
           

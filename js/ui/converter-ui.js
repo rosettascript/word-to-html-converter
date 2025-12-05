@@ -209,6 +209,7 @@ export function setupConverterUI({ onProcess }) {
       if (outputCode) outputCode.textContent = '';
       updateCharCount('', charCount);
       clearError();
+      hideConfidenceSuggestions(); // Hide suggestions when clearing input
       updateStatus('', 'idle');
       updatePlaceholder();
 
@@ -327,6 +328,7 @@ function processInputHTML(inputHTML) {
       previewFrame.srcdoc = '';
     }
     clearError();
+    hideConfidenceSuggestions(); // Hide suggestions when input is cleared
     updateStatus('', 'idle');
     return;
   }
@@ -728,20 +730,22 @@ function displayConfidenceSuggestions(analysis) {
   const requiredFixes = analysis.suggestions.filter(s => !s.startsWith('⚠️'));
   const bestPractices = analysis.suggestions.filter(s => s.startsWith('⚠️'));
   
-  // Build suggestions HTML
-  let html = '';
+  // Build suggestions HTML with side-by-side layout
+  let html = '<div class="suggestions-grid">';
   
   if (requiredFixes.length > 0) {
+    html += '<div class="suggestions-column">';
     html += '<div class="confidence-suggestions-title">❌ Required Fixes:</div>';
     html += '<ul>';
     requiredFixes.forEach(suggestion => {
       html += `<li>${suggestion}</li>`;
     });
     html += '</ul>';
+    html += '</div>';
   }
   
   if (bestPractices.length > 0) {
-    if (requiredFixes.length > 0) html += '<br>';
+    html += '<div class="suggestions-column">';
     html += '<div class="confidence-suggestions-title">💡 Best Practices:</div>';
     html += '<ul>';
     bestPractices.forEach(suggestion => {
@@ -750,7 +754,10 @@ function displayConfidenceSuggestions(analysis) {
       html += `<li>${cleanSuggestion}</li>`;
     });
     html += '</ul>';
+    html += '</div>';
   }
+  
+  html += '</div>';
   
   setSafeHTML(suggestionsElement, html);
   suggestionsElement.style.display = 'block';
