@@ -19,6 +19,7 @@ import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
 import { extractMisplacedListItems } from '../features/extract-misplaced-list-items.js';
 import { convertListsToNumberedHeadings } from '../features/convert-lists-to-numbered-headings.js';
 import { cleanLinkUrls } from '../features/clean-link-urls.js';
+import { removeEmptyHeaders } from '../features/remove-empty-headers.js';
 import { isValidOptions, isSpacerParagraph } from '../utils/validation.js';
 import { setSafeHTML } from '../utils/safe-html.js';
 
@@ -104,6 +105,9 @@ export function processShopifyBlogsMode(element, options = {}) {
 
   // Remove <br> tags and empty <p> tags completely
   removeBrAndEmptyP(processed);
+
+  // Remove empty headers (headers with no text content)
+  removeEmptyHeaders(processed);
 
   // Split paragraphs containing section markers (Read also, Sources, etc.)
   splitSectionMarkers(processed);

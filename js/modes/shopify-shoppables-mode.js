@@ -14,6 +14,7 @@ import { fixOrphanedListItems } from '../features/fix-orphaned-list-items.js';
 import { extractMisplacedListItems } from '../features/extract-misplaced-list-items.js';
 import { convertListsToNumberedHeadings } from '../features/convert-lists-to-numbered-headings.js';
 import { removeEmptyP } from '../features/remove-empty-p.js';
+import { removeEmptyHeaders } from '../features/remove-empty-headers.js';
 import { cleanLinkUrls } from '../features/clean-link-urls.js';
 import { addShoppablesSpacers } from '../features/add-shoppables-spacers.js';
 import { splitSectionMarkers } from '../features/split-section-markers.js';
@@ -49,6 +50,9 @@ export function processShopifyShoppablesMode(element, options = {}) {
 
   // Remove empty <p></p> tags
   removeEmptyP(processed);
+
+  // Remove empty headers (headers with no text content)
+  removeEmptyHeaders(processed);
 
   // Apply safe minification (aggressive whitespace removal)
   normalizeWhitespace(processed, 'minify');
