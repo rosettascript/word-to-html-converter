@@ -99,6 +99,38 @@ export function setupConverterUI({ onProcess }) {
         // Update placeholder visibility
         updatePlaceholder();
 
+        // Remove empty/whitespace-only anchor tags (Word footnote reference links)
+        // Only remove if anchor has no meaningful content (no text, no child elements with content)
+        const allAnchors = inputDiv.querySelectorAll('a');
+        allAnchors.forEach(anchor => {
+          const textContent = anchor.textContent.trim();
+          // Check if anchor has any child elements (not just text)
+          const hasChildElements = anchor.children.length > 0;
+          // Check if any child element has meaningful content
+          let hasContentInChildren = false;
+          if (hasChildElements) {
+            for (const child of anchor.children) {
+              if (child.textContent.trim() || child.tagName === 'IMG') {
+                hasContentInChildren = true;
+                break;
+              }
+            }
+          }
+          
+          // Only remove if: no text content AND (no child elements OR no content in children)
+          // This preserves links with images, formatting elements with text, etc.
+          if (!textContent && (!hasChildElements || !hasContentInChildren)) {
+            // Replace with its children (if any) or just remove it
+            const parent = anchor.parentNode;
+            if (parent) {
+              while (anchor.firstChild) {
+                parent.insertBefore(anchor.firstChild, anchor);
+              }
+              anchor.remove();
+            }
+          }
+        });
+
         // Clean whitespace from anchor tags in the input display
         const anchors = inputDiv.querySelectorAll('a');
         anchors.forEach(anchor => {
@@ -142,6 +174,7 @@ export function setupConverterUI({ onProcess }) {
             }
           }
         });
+
 
         // Remove <br> tags inside list items (invalid HTML)
         const listItems = inputDiv.querySelectorAll('li');

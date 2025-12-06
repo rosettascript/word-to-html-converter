@@ -94,6 +94,8 @@ export function sanitizeHTML(element) {
 
   // Process all elements
   const allElements = cloned.querySelectorAll('*');
+  const emptyAnchorsToRemove = [];
+  
   allElements.forEach(el => {
     const tagName = el.tagName.toLowerCase();
 
@@ -133,7 +135,31 @@ export function sanitizeHTML(element) {
       if (href.startsWith('javascript:') || href.startsWith('data:')) {
         el.setAttribute('href', '#');
       }
+      // Mark empty/whitespace-only anchor tags for removal
+      // These are often Word footnote reference links that shouldn't be displayed
+      // Only remove if anchor has no meaningful content (no text, no child elements with content)
+      const textContent = el.textContent.trim();
+      const hasChildElements = el.children.length > 0;
+      let hasContentInChildren = false;
+      if (hasChildElements) {
+        for (const child of el.children) {
+          // Check if child has text content or is an image (though images are removed earlier)
+          if (child.textContent.trim()) {
+            hasContentInChildren = true;
+            break;
+          }
+        }
+      }
+      // Only remove if: no text content AND (no child elements OR no content in children)
+      if (!textContent && (!hasChildElements || !hasContentInChildren)) {
+        emptyAnchorsToRemove.push(el);
+      }
     }
+  });
+
+  // Remove empty anchor tags (after processing to avoid modifying collection during iteration)
+  emptyAnchorsToRemove.forEach(anchor => {
+    replaceWithChildren(anchor);
   });
 
   // Remove empty spans
