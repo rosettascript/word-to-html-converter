@@ -136,12 +136,27 @@
         const blogsFeatures = document.getElementById('blogsFeatures');
         const shoppablesFeatures = document.getElementById('shoppablesFeatures');
         
+        // Helper function to collapse a features section
+        function collapseFeatures(featuresElement) {
+            if (!featuresElement) return;
+            const content = featuresElement.querySelector('.features-content');
+            const toggle = featuresElement.querySelector('.btn-features-toggle');
+            if (content) content.classList.add('collapsed');
+            if (toggle) toggle.classList.add('collapsed');
+        }
+        
         if (currentMode === 'blogs') {
-            if (blogsFeatures) blogsFeatures.style.display = 'block';
+            if (blogsFeatures) {
+                blogsFeatures.style.display = 'block';
+                collapseFeatures(blogsFeatures); // Collapse by default
+            }
             if (shoppablesFeatures) shoppablesFeatures.style.display = 'none';
         } else if (currentMode === 'shoppables') {
             if (blogsFeatures) blogsFeatures.style.display = 'none';
-            if (shoppablesFeatures) shoppablesFeatures.style.display = 'block';
+            if (shoppablesFeatures) {
+                shoppablesFeatures.style.display = 'block';
+                collapseFeatures(shoppablesFeatures); // Collapse by default
+            }
         } else {
             if (blogsFeatures) blogsFeatures.style.display = 'none';
             if (shoppablesFeatures) shoppablesFeatures.style.display = 'none';
@@ -986,6 +1001,19 @@
         outputArea.innerHTML = modeProcessedHtml;
         
         updateCopyButtonState();
+        
+        // Auto-run validation if validator is available
+        if (window.HTMLValidator && typeof window.HTMLValidator.quickTest === 'function') {
+            // Run validation asynchronously to not block UI
+            setTimeout(() => {
+                try {
+                    window.HTMLValidator.quickTest();
+                } catch (e) {
+                    // Silently fail if validation errors occur
+                    console.warn('Validation failed:', e);
+                }
+            }, 100);
+        }
     }
 
     // Update copy button disabled state
@@ -1169,9 +1197,56 @@
         }
     }
 
+    // Toggle features section
+    function toggleFeatures(featuresId) {
+        const featuresElement = document.getElementById(featuresId);
+        if (!featuresElement) return;
+        
+        const content = featuresElement.querySelector('.features-content');
+        const toggle = featuresElement.querySelector('.btn-features-toggle');
+        
+        if (!content || !toggle) return;
+        
+        const isCollapsed = content.classList.contains('collapsed');
+        
+        if (isCollapsed) {
+            content.classList.remove('collapsed');
+            toggle.classList.remove('collapsed');
+        } else {
+            content.classList.add('collapsed');
+            toggle.classList.add('collapsed');
+        }
+    }
+    
+    // Make toggleFeatures available globally
+    window.toggleFeatures = toggleFeatures;
+    
+    // Toggle validation details section
+    function toggleValidationDetails() {
+        const validationDetails = document.getElementById('validationDetails');
+        const toggle = document.querySelector('.btn-validation-details-toggle');
+        
+        if (!validationDetails || !toggle) return;
+        
+        const isCollapsed = validationDetails.classList.contains('collapsed');
+        
+        if (isCollapsed) {
+            validationDetails.classList.remove('collapsed');
+            toggle.classList.remove('collapsed');
+        } else {
+            validationDetails.classList.add('collapsed');
+            toggle.classList.add('collapsed');
+        }
+    }
+    
+    // Make toggleValidationDetails available globally
+    window.toggleValidationDetails = toggleValidationDetails;
+
     // Initialize on DOM load
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
     } else {
         init();
     }

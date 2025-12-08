@@ -27,77 +27,128 @@
         </header>
 
         <main>
-            <!-- Mode Selection Toolbar -->
-            <div class="mode-toolbar card-panel">
-                <div class="mode-selection">
-                    <label class="mode-label">Output Format:</label>
-                    <div class="radio-group">
-                        <label class="radio-option">
-                            <input type="radio" name="outputMode" value="regular" checked>
-                            <span>Regular</span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="outputMode" value="blogs">
-                            <span>Blogs</span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="outputMode" value="shoppables">
-                            <span>Shoppables</span>
-                        </label>
+            <!-- Sidebar Container: Toolbar + Validation -->
+            <div class="sidebar-container">
+                <!-- Mode Selection Toolbar -->
+                <div class="mode-toolbar card-panel">
+                    <div class="mode-selection">
+                        <label class="mode-label">Output Format:</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="outputMode" value="regular" checked>
+                                <span>Regular</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="outputMode" value="blogs">
+                                <span>Blogs</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="outputMode" value="shoppables">
+                                <span>Shoppables</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="blogsFeatures" class="mode-features" style="display: none;">
+                        <div class="features-header" onclick="toggleFeatures('blogsFeatures')">
+                            <label class="features-label">Blogs Features:</label>
+                            <button class="btn-icon btn-features-toggle collapsed" type="button" aria-label="Toggle Blogs Features">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="features-content collapsed">
+                            <div class="checkbox-group">
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="blogsFeature" value="headingStrong" checked>
+                                <span>Heading Strong Tags</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="blogsFeature" value="keyTakeaways" checked>
+                                <span>Key Takeaways Formatting</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="blogsFeature" value="h1Removal" checked>
+                                <span>Remove H1 after Key Takeaways</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="blogsFeature" value="linkAttributes" checked>
+                                <span>Link Attributes</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="blogsFeature" value="spacing" checked>
+                                <span>Spacing Rules</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="blogsFeature" value="relativePaths">
+                                <span>Relative Paths</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="blogsFeature" value="olHeaderConversion" checked>
+                                <span>OL Header Conversion</span>
+                            </label>
+                        </div>
+                        </div>
+                    </div>
+                    <div id="shoppablesFeatures" class="mode-features" style="display: none;">
+                        <div class="features-header" onclick="toggleFeatures('shoppablesFeatures')">
+                            <label class="features-label">Shoppables Features:</label>
+                            <button class="btn-icon btn-features-toggle collapsed" type="button" aria-label="Toggle Shoppables Features">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="features-content collapsed">
+                            <div class="checkbox-group">
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="shoppablesFeature" value="headingStrong" checked>
+                                <span>Heading Strong Tags</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="shoppablesFeature" value="linkAttributes" checked>
+                                <span>Link Attributes</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="shoppablesFeature" value="relativePaths">
+                                <span>Relative Paths</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="shoppablesFeature" value="olHeaderConversion" checked>
+                                <span>OL Header Conversion</span>
+                            </label>
+                        </div>
+                        </div>
                     </div>
                 </div>
-                <div id="blogsFeatures" class="mode-features" style="display: none;">
-                    <label class="features-label">Blogs Features:</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-option">
-                            <input type="checkbox" name="blogsFeature" value="headingStrong" checked>
-                            <span>Heading Strong Tags</span>
-                        </label>
-                        <label class="checkbox-option">
-                            <input type="checkbox" name="blogsFeature" value="keyTakeaways" checked>
-                            <span>Key Takeaways Formatting</span>
-                        </label>
-                        <label class="checkbox-option">
-                            <input type="checkbox" name="blogsFeature" value="h1Removal" checked>
-                            <span>Remove H1 after Key Takeaways</span>
-                        </label>
-                        <label class="checkbox-option">
-                            <input type="checkbox" name="blogsFeature" value="linkAttributes" checked>
-                            <span>Link Attributes</span>
-                        </label>
-                        <label class="checkbox-option">
-                            <input type="checkbox" name="blogsFeature" value="spacing" checked>
-                            <span>Spacing Rules</span>
-                        </label>
-                        <label class="checkbox-option">
-                            <input type="checkbox" name="blogsFeature" value="relativePaths">
-                            <span>Relative Paths</span>
-                        </label>
-                        <label class="checkbox-option">
-                            <input type="checkbox" name="blogsFeature" value="olHeaderConversion" checked>
-                            <span>OL Header Conversion</span>
-                        </label>
+
+                <!-- Validation Panel -->
+                <div id="validationPanel" class="validation-panel card-panel" style="display: none;">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <div class="section-icon bg-primary-light">
+                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 12l2 2 4-4"/>
+                                    <path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.999.398-.999.95v8a1 1 0 0 0 1 1z"/>
+                                    <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+                                </svg>
+                            </div>
+                            <span class="section-label">VALIDATION</span>
+                        </div>
                     </div>
-                </div>
-                <div id="shoppablesFeatures" class="mode-features" style="display: none;">
-                    <label class="features-label">Shoppables Features:</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-option">
-                            <input type="checkbox" name="shoppablesFeature" value="headingStrong" checked>
-                            <span>Heading Strong Tags</span>
-                        </label>
-                        <label class="checkbox-option">
-                            <input type="checkbox" name="shoppablesFeature" value="linkAttributes" checked>
-                            <span>Link Attributes</span>
-                        </label>
-                        <label class="checkbox-option">
-                            <input type="checkbox" name="shoppablesFeature" value="relativePaths">
-                            <span>Relative Paths</span>
-                        </label>
-                        <label class="checkbox-option">
-                            <input type="checkbox" name="shoppablesFeature" value="olHeaderConversion" checked>
-                            <span>OL Header Conversion</span>
-                        </label>
+                    <div id="validationContent" class="validation-content">
+                        <div id="validationSummary" class="validation-summary"></div>
+                        <div class="validation-details-wrapper">
+                            <div class="validation-details-header" onclick="toggleValidationDetails()">
+                                <label class="validation-details-label">Details</label>
+                                <button class="btn-icon btn-validation-details-toggle collapsed" type="button" aria-label="Toggle Validation Details">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="validationDetails" class="validation-details collapsed"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -184,6 +235,9 @@
 
         <footer>
             <p>Supports paragraphs, headers, lists, and basic formatting</p>
+            <p style="margin-top: 10px; font-size: 0.85em; opacity: 0.7;">
+                <strong>Validator:</strong> Open browser console (F12) and run <code>window.HTMLValidator.quickTest()</code> to validate current output
+            </p>
         </footer>
     </div>
 
@@ -201,6 +255,7 @@
     <script src="js/utils/mode-processor.js"></script>
     <script src="js/core/sanitizer.js"></script>
     <script src="js/core/converter.js"></script>
+    <script src="js/core/validator.js"></script>
 </body>
 </html>
 
