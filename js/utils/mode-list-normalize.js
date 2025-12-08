@@ -23,11 +23,11 @@
                 // Find all <li> elements
                 const listItems = doc.querySelectorAll('li');
                 
-                listItems.forEach(li => {
+                listItems.forEach((li, liIndex) => {
                     // Find <strong> tags within this list item
                     const strongTags = li.querySelectorAll('strong');
                     
-                    strongTags.forEach(strong => {
+                    strongTags.forEach((strong, strongIndex) => {
                         // Get the text content of the strong tag
                         const strongText = strong.textContent || '';
                         
@@ -54,12 +54,20 @@
                                 }
                             } else {
                                 // No text node after strong, or next node is an element
-                                // Insert a text node with a space
+                                // Insert a text node with a space right after the strong element
+                                // This ensures strong.nextSibling is the space text node
                                 const spaceNode = doc.createTextNode(' ');
-                                if (nextNode) {
-                                    li.insertBefore(spaceNode, nextNode);
+                                const strongParent = strong.parentNode;
+                                if (strongParent) {
+                                    // Insert right after strong by inserting before strong.nextSibling (which is nextNode)
+                                    strongParent.insertBefore(spaceNode, strong.nextSibling);
                                 } else {
-                                    li.appendChild(spaceNode);
+                                    // Fallback: insert into li
+                                    if (nextNode) {
+                                        li.insertBefore(spaceNode, nextNode);
+                                    } else {
+                                        li.appendChild(spaceNode);
+                                    }
                                 }
                             }
                         }

@@ -133,7 +133,16 @@
                 }
             } else if (node.nodeType === Node.TEXT_NODE) {
                 const text = node.textContent;
-                if (text.trim()) {
+                // Preserve text nodes that contain spaces, even if they're only whitespace
+                // This is important for normalization (e.g., space after </strong>)
+                // Check if this is a space-only text node between elements
+                const isSpaceOnly = text.trim() === '' && text.length > 0 && /^\s+$/.test(text);
+                const prevSibling = node.previousSibling;
+                const nextSibling = node.nextSibling;
+                const isBetweenElements = (prevSibling && prevSibling.nodeType === Node.ELEMENT_NODE) ||
+                                         (nextSibling && nextSibling.nodeType === Node.ELEMENT_NODE);
+                
+                if (text.trim() || (isSpaceOnly && isBetweenElements)) {
                     content += text;
                     hasContent = true;
                 }
