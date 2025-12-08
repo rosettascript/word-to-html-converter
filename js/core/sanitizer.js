@@ -13,7 +13,7 @@
         // Lists
         'ul', 'ol', 'li',
         // Emphasis
-        'em', 'i', 'strong', 'b', 'u',
+        'em', 'i', 'strong', 'b',
         // Superscript/Subscript
         'sup', 'sub',
         // Links
@@ -93,14 +93,11 @@
         });
         
         // Check for formatting styles
-        const hasUnderline = styleObj['text-decoration'] && styleObj['text-decoration'].toLowerCase().includes('underline');
-        const hasTextDecorationLine = styleObj['text-decoration-line'] && styleObj['text-decoration-line'].toLowerCase().includes('underline');
         const isItalic = styleObj['font-style'] && styleObj['font-style'].toLowerCase().includes('italic');
         const isBold = styleObj['font-weight'] && (
             styleObj['font-weight'].toLowerCase() === 'bold' || 
             parseInt(styleObj['font-weight']) >= 700
         );
-        const isUnderline = hasUnderline || hasTextDecorationLine;
         const isSuperscript = styleObj['vertical-align'] && (
             styleObj['vertical-align'].toLowerCase() === 'super' ||
             styleObj['vertical-align'].includes('super') ||
@@ -115,22 +112,15 @@
         );
         
         // If no formatting styles, return null
-        if (!isItalic && !isBold && !isUnderline && !isSuperscript && !isSubscript) {
+        if (!isItalic && !isBold && !isSuperscript && !isSubscript) {
             return null;
         }
         
-        // Build nested structure: sup/sub (outermost) > strong > em > u (innermost)
+        // Build nested structure: sup/sub (outermost) > strong > em (innermost)
         // Move children directly instead of using innerHTML to preserve already-sanitized content
         const children = Array.from(element.childNodes);
         
         let current = null;
-        
-        // Create innermost tag (underline)
-        if (isUnderline) {
-            const underline = document.createElement('u');
-            children.forEach(child => underline.appendChild(child));
-            current = underline;
-        }
         
         // Wrap with italic if needed
         if (isItalic) {
@@ -234,16 +224,13 @@
                         }
                     });
                     
-                    const hasUnderline = styleObj['text-decoration'] && styleObj['text-decoration'].toLowerCase().includes('underline');
-                    const hasTextDecorationLine = styleObj['text-decoration-line'] && styleObj['text-decoration-line'].toLowerCase().includes('underline');
                     isItalic = styleObj['font-style'] && styleObj['font-style'].toLowerCase().includes('italic');
                     isBold = styleObj['font-weight'] && (
                         styleObj['font-weight'].toLowerCase() === 'bold' || 
                         parseInt(styleObj['font-weight']) >= 700
                     );
-                    const isUnderline = hasUnderline || hasTextDecorationLine;
                     
-                    hasFormatting = isItalic || isBold || isUnderline;
+                    hasFormatting = isItalic || isBold;
                     
                     // If element has formatting, wrap its content with semantic tags
                     if (hasFormatting) {
@@ -254,41 +241,18 @@
                         const children = Array.from(node.childNodes);
                         let wrapper = null;
                         
-                        // Build nested structure: strong > em > u (innermost)
-                        if (isItalic && isBold && isUnderline) {
-                            // All three: strong > em > u
-                            wrapper = document.createElement('strong');
-                            const em = document.createElement('em');
-                            const u = document.createElement('u');
-                            children.forEach(child => u.appendChild(child));
-                            em.appendChild(u);
-                            wrapper.appendChild(em);
-                        } else if (isItalic && isBold) {
+                        // Build nested structure: strong > em (innermost)
+                        if (isItalic && isBold) {
                             // Both italic and bold: strong > em
                             wrapper = document.createElement('strong');
                             const em = document.createElement('em');
                             children.forEach(child => em.appendChild(child));
                             wrapper.appendChild(em);
-                        } else if (isItalic && isUnderline) {
-                            // Italic and underline: em > u
-                            wrapper = document.createElement('em');
-                            const u = document.createElement('u');
-                            children.forEach(child => u.appendChild(child));
-                            wrapper.appendChild(u);
-                        } else if (isBold && isUnderline) {
-                            // Bold and underline: strong > u
-                            wrapper = document.createElement('strong');
-                            const u = document.createElement('u');
-                            children.forEach(child => u.appendChild(child));
-                            wrapper.appendChild(u);
                         } else if (isItalic) {
                             wrapper = document.createElement('em');
                             children.forEach(child => wrapper.appendChild(child));
                         } else if (isBold) {
                             wrapper = document.createElement('strong');
-                            children.forEach(child => wrapper.appendChild(child));
-                        } else if (isUnderline) {
-                            wrapper = document.createElement('u');
                             children.forEach(child => wrapper.appendChild(child));
                         }
                         
