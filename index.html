@@ -27,6 +27,73 @@
         </header>
 
         <main>
+            <!-- Mode Selection Toolbar -->
+            <div class="mode-toolbar card-panel">
+                <div class="mode-selection">
+                    <label class="mode-label">Output Format:</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="outputMode" value="regular" checked>
+                            <span>Regular</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="outputMode" value="blogs">
+                            <span>Blogs</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="outputMode" value="shoppables">
+                            <span>Shoppables</span>
+                        </label>
+                    </div>
+                </div>
+                <div id="blogsFeatures" class="mode-features" style="display: none;">
+                    <label class="features-label">Blogs Features:</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="blogsFeature" value="headingStrong" checked>
+                            <span>Heading Strong Tags</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="blogsFeature" value="keyTakeaways" checked>
+                            <span>Key Takeaways Formatting</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="blogsFeature" value="h1Removal" checked>
+                            <span>Remove H1 after Key Takeaways</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="blogsFeature" value="linkAttributes" checked>
+                            <span>Link Attributes</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="blogsFeature" value="spacing" checked>
+                            <span>Spacing Rules</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="blogsFeature" value="relativePaths">
+                            <span>Relative Paths</span>
+                        </label>
+                    </div>
+                </div>
+                <div id="shoppablesFeatures" class="mode-features" style="display: none;">
+                    <label class="features-label">Shoppables Features:</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="shoppablesFeature" value="headingStrong" checked>
+                            <span>Heading Strong Tags</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="shoppablesFeature" value="linkAttributes" checked>
+                            <span>Link Attributes</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="shoppablesFeature" value="relativePaths">
+                            <span>Relative Paths</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <div class="input-section card-panel">
                 <div class="section-header">
                     <div class="section-title">
@@ -114,6 +181,15 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="js/utils/html-cleaner.js"></script>
+    <script src="js/utils/html-formatter.js"></script>
+    <script src="js/utils/mode-heading-strong.js"></script>
+    <script src="js/utils/mode-key-takeaways.js"></script>
+    <script src="js/utils/mode-h1-removal.js"></script>
+    <script src="js/utils/mode-link-attributes.js"></script>
+    <script src="js/utils/mode-relative-paths.js"></script>
+    <script src="js/utils/mode-spacing.js"></script>
+    <script src="js/utils/mode-processor.js"></script>
     <script src="js/core/sanitizer.js"></script>
     <script src="js/core/converter.js"></script>
 </body>

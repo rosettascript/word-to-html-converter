@@ -18,6 +18,15 @@
 
     let isShowingSource = true; // Start with HTML source view by default
     let currentHtmlText = ''; // Store the raw HTML text for copying
+    let currentMode = 'regular'; // Current output mode
+    let currentFeatures = {
+        headingStrong: true,
+        keyTakeaways: true,
+        h1Removal: true,
+        linkAttributes: true,
+        relativePaths: false, // Disabled by default
+        spacing: true
+    }; // Current feature flags
 
     // Initialize
     function init() {
@@ -46,12 +55,96 @@
             toggleViewPreviewBtn.addEventListener('click', () => toggleView(false));
         }
         
+        // Mode selection handlers
+        setupModeHandlers();
+        updateModeFeaturesVisibility(); // Set initial visibility
+        
         // Set initial view to show HTML source
         htmlSource.classList.remove('hide');
         outputArea.classList.remove('show');
         updateToggleButtons();
         updateClearButtonVisibility();
         updateCopyButtonState();
+    }
+
+    // Sync currentFeatures with actual checkbox states
+    function syncFeaturesFromCheckboxes() {
+        
+        // Sync blogs features
+        const blogsCheckboxes = document.querySelectorAll('input[name="blogsFeature"]');
+        blogsCheckboxes.forEach(checkbox => {
+            currentFeatures[checkbox.value] = checkbox.checked;
+        });
+        
+        // Sync shoppables features
+        const shoppablesCheckboxes = document.querySelectorAll('input[name="shoppablesFeature"]');
+        shoppablesCheckboxes.forEach(checkbox => {
+            currentFeatures[checkbox.value] = checkbox.checked;
+        });
+    }
+
+    // Setup mode selection and feature handlers
+    function setupModeHandlers() {
+        // Sync features from checkboxes first
+        syncFeaturesFromCheckboxes();
+        
+        // Mode radio buttons
+        const modeRadios = document.querySelectorAll('input[name="outputMode"]');
+        modeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                currentMode = e.target.value;
+                syncFeaturesFromCheckboxes(); // Re-sync when mode changes
+                updateModeFeaturesVisibility();
+                // Re-process current content if available
+                if (inputArea.innerHTML.trim()) {
+                    const cleanedHtml = cleanWordHtml(inputArea.innerHTML);
+                    convertToHtml(cleanedHtml);
+                }
+            });
+        });
+
+        // Blogs feature checkboxes
+        const blogsCheckboxes = document.querySelectorAll('input[name="blogsFeature"]');
+        blogsCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                currentFeatures[e.target.value] = e.target.checked;
+                // Re-process current content if available
+                if (inputArea.innerHTML.trim()) {
+                    const cleanedHtml = cleanWordHtml(inputArea.innerHTML);
+                    convertToHtml(cleanedHtml);
+                }
+            });
+        });
+
+        // Shoppables feature checkboxes
+        const shoppablesCheckboxes = document.querySelectorAll('input[name="shoppablesFeature"]');
+        shoppablesCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                currentFeatures[e.target.value] = e.target.checked;
+                // Re-process current content if available
+                if (inputArea.innerHTML.trim()) {
+                    const cleanedHtml = cleanWordHtml(inputArea.innerHTML);
+                    convertToHtml(cleanedHtml);
+                }
+            });
+        });
+    }
+
+    // Update mode features visibility based on selected mode
+    function updateModeFeaturesVisibility() {
+        const blogsFeatures = document.getElementById('blogsFeatures');
+        const shoppablesFeatures = document.getElementById('shoppablesFeatures');
+        
+        if (currentMode === 'blogs') {
+            if (blogsFeatures) blogsFeatures.style.display = 'block';
+            if (shoppablesFeatures) shoppablesFeatures.style.display = 'none';
+        } else if (currentMode === 'shoppables') {
+            if (blogsFeatures) blogsFeatures.style.display = 'none';
+            if (shoppablesFeatures) shoppablesFeatures.style.display = 'block';
+        } else {
+            if (blogsFeatures) blogsFeatures.style.display = 'none';
+            if (shoppablesFeatures) shoppablesFeatures.style.display = 'none';
+        }
     }
 
     // Handle paste event
@@ -511,7 +604,7 @@
             if (styleObj['font-style'] && styleObj['font-style'].toLowerCase().includes('italic')) {
                 // If it's a simple span with mostly just italic, convert it
                 if (otherStyles.length <= 1) {
-                    const italic = document.createElement('i');
+                    const italic = document.createElement('em');
                     // Preserve other styles
                     if (otherStyles.length > 0) {
                         const preservedStyle = otherStyles.map(k => `${k}: ${styleObj[k]}`).join('; ');
@@ -852,8 +945,26 @@
 
     // Convert HTML to output
     function convertToHtml(html) {
+        // Sanitize HTML to remove styling and unsafe attributes
+        let sanitizedHtml = html;
+        if (window.HTMLSanitizer && typeof window.HTMLSanitizer.sanitize === 'function') {
+            sanitizedHtml = window.HTMLSanitizer.sanitize(html);
+        }
+        
+        // Clean HTML structure (remove unnecessary tags, unwrap elements)
+        let cleanedHtml = sanitizedHtml;
+        if (window.HTMLCleaner && typeof window.HTMLCleaner.clean === 'function') {
+            cleanedHtml = window.HTMLCleaner.clean(sanitizedHtml);
+        }
+        
+        // Apply mode-specific processing
+        let modeProcessedHtml = cleanedHtml;
+        if (window.ModeProcessor && typeof window.ModeProcessor.process === 'function') {
+            modeProcessedHtml = window.ModeProcessor.process(cleanedHtml, currentMode, currentFeatures);
+        }
+        
         // Format and display HTML source code
-        const formattedHtml = formatHtml(html);
+        const formattedHtml = formatHtml(modeProcessedHtml);
         currentHtmlText = formattedHtml;
         
         if (htmlSourceCode) {
@@ -871,7 +982,7 @@
         htmlSource.style.height = '';
         
         // Always update rendered HTML for preview (even if hidden)
-        outputArea.innerHTML = html;
+        outputArea.innerHTML = modeProcessedHtml;
         
         updateCopyButtonState();
     }
@@ -909,8 +1020,14 @@
         convertToHtml(html);
     }
 
-    // Format HTML for display (basic indentation)
+    // Format HTML for display (compact style with nested tags on same line)
     function formatHtml(html) {
+        // Use compact formatter if available, otherwise fallback to basic formatting
+        if (window.HTMLFormatter && typeof window.HTMLFormatter.formatCompact === 'function') {
+            return window.HTMLFormatter.formatCompact(html);
+        }
+        
+        // Fallback: basic formatting
         let formatted = html;
         let indent = 0;
         const indentSize = 2;
