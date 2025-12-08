@@ -568,6 +568,110 @@
     }
 
     /**
+     * Validate Sources Normalization feature
+     */
+    function validateSourcesNormalize(html, mode) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const paragraphs = doc.querySelectorAll('p');
+        
+        // Find Sources paragraph
+        let sourcesParagraph = null;
+        for (let p of paragraphs) {
+            const text = p.textContent.trim().toLowerCase();
+            if (text === 'sources' || text === 'sources:') {
+                sourcesParagraph = p;
+                break;
+            }
+        }
+        
+        if (!sourcesParagraph) {
+            return new TestResult(
+                'Sources Normalization',
+                mode,
+                true,
+                'No Sources section found (skipped)'
+            );
+        }
+        
+        const issues = [];
+        
+        // Check 1: Sources paragraph should be <p><strong><em>Sources:</em></strong></p>
+        const strongTag = sourcesParagraph.querySelector('strong');
+        if (!strongTag) {
+            issues.push('Sources paragraph missing <strong> tag');
+        } else {
+            const emTag = strongTag.querySelector('em');
+            if (!emTag) {
+                issues.push('Sources paragraph missing <em> tag inside <strong>');
+            } else {
+                const emText = emTag.textContent.trim().toLowerCase();
+                if (emText !== 'sources:') {
+                    issues.push(`Sources <em> tag should contain "Sources:" but found "${emTag.textContent.trim()}"`);
+                }
+            }
+        }
+        
+        // Check 2: Find the next <ol> after Sources paragraph
+        let nextSibling = sourcesParagraph.nextElementSibling;
+        while (nextSibling && nextSibling.tagName.toLowerCase() !== 'ol') {
+            nextSibling = nextSibling.nextElementSibling;
+        }
+        
+        if (!nextSibling || nextSibling.tagName.toLowerCase() !== 'ol') {
+            return new TestResult(
+                'Sources Normalization',
+                mode,
+                issues.length === 0,
+                issues.length === 0 
+                    ? 'Sources paragraph formatted correctly but no <ol> list found' 
+                    : issues.join('; ')
+            );
+        }
+        
+        // Check 3: All list items should have content wrapped in <em>
+        const listItems = nextSibling.querySelectorAll('li');
+        if (listItems.length === 0) {
+            return new TestResult(
+                'Sources Normalization',
+                mode,
+                issues.length === 0,
+                issues.length === 0 
+                    ? 'Sources paragraph formatted correctly but <ol> has no items' 
+                    : issues.join('; ')
+            );
+        }
+        
+        listItems.forEach((li, index) => {
+            // Check if list item has exactly one child and it's an <em>
+            if (li.children.length === 1 && li.children[0].tagName.toLowerCase() === 'em') {
+                // Check if there are any text nodes outside the <em>
+                const hasTextOutside = Array.from(li.childNodes).some(node => 
+                    node.nodeType === Node.TEXT_NODE && 
+                    node !== li.children[0] && 
+                    node.textContent.trim()
+                );
+                if (hasTextOutside) {
+                    issues.push(`List item ${index + 1} has text outside <em> tag`);
+                }
+            } else {
+                // List item is not properly wrapped in <em>
+                issues.push(`List item ${index + 1} is not wrapped in <em> tag`);
+            }
+        });
+        
+        return new TestResult(
+            'Sources Normalization',
+            mode,
+            issues.length === 0,
+            issues.length === 0 
+                ? `Sources section correctly formatted (${listItems.length} item(s))` 
+                : `${issues.length} issue(s) found: ${issues.join('; ')}`,
+            issues.length > 0 ? issues : null
+        );
+    }
+
+    /**
      * Validate List Normalization feature
      */
     function validateListNormalize(html, mode) {
@@ -731,6 +835,7 @@
             results.addResult(validateOlHeaderConversion(html, mode));
             results.addResult(validateRelativePaths(html, mode, features));
             results.addResult(validateListNormalize(html, mode));
+            results.addResult(validateSourcesNormalize(html, mode));
         }
         
         // Shoppables mode validations
@@ -740,6 +845,7 @@
             results.addResult(validateOlHeaderConversion(html, mode));
             results.addResult(validateRelativePaths(html, mode, features));
             results.addResult(validateListNormalize(html, mode));
+            results.addResult(validateSourcesNormalize(html, mode));
             // Explicitly check that Key Takeaways formatting is NOT applied
             const keyTakeawaysResult = validateKeyTakeaways(html, mode);
             results.addResult(new TestResult(
@@ -800,7 +906,8 @@
                 linkAttributes: features.linkAttributes !== false,
                 spacing: features.spacing !== false,
                 olHeaderConversion: features.olHeaderConversion !== false,
-                relativePaths: features.relativePaths === true
+                relativePaths: features.relativePaths === true,
+                sourcesNormalize: features.sourcesNormalize !== false
             };
             const blogsHtml = window.ModeProcessor.process(testHtml, 'blogs', blogsFeatures);
             allResults.blogs = validateMode(blogsHtml, 'blogs', blogsFeatures);
@@ -810,7 +917,8 @@
                 headingStrong: features.headingStrong !== false,
                 linkAttributes: features.linkAttributes !== false,
                 olHeaderConversion: features.olHeaderConversion !== false,
-                relativePaths: features.relativePaths === true
+                relativePaths: features.relativePaths === true,
+                sourcesNormalize: features.sourcesNormalize !== false
             };
             const shoppablesHtml = window.ModeProcessor.process(testHtml, 'shoppables', shoppablesFeatures);
             allResults.shoppables = validateMode(shoppablesHtml, 'shoppables', shoppablesFeatures);
@@ -964,7 +1072,8 @@
             linkAttributes: true,
             spacing: true,
             olHeaderConversion: true,
-            relativePaths: false
+            relativePaths: false,
+            sourcesNormalize: true
         };
         
         // Sync features from checkboxes

@@ -64,6 +64,11 @@
             if (features.relativePaths === true && window.ModeRelativePaths) {
                 processedHtml = window.ModeRelativePaths.convert(processedHtml);
             }
+
+            // Sources normalization
+            if (features.sourcesNormalize !== false && window.ModeSourcesNormalize) {
+                processedHtml = window.ModeSourcesNormalize.normalize(processedHtml);
+            }
         }
 
         // Shoppables mode features
@@ -86,6 +91,11 @@
             // OL Header Conversion (enabled by default)
             if (features.olHeaderConversion !== false && window.ModeOlHeaderConversion) {
                 processedHtml = window.ModeOlHeaderConversion.convert(processedHtml);
+            }
+
+            // Sources normalization
+            if (features.sourcesNormalize !== false && window.ModeSourcesNormalize) {
+                processedHtml = window.ModeSourcesNormalize.normalize(processedHtml);
             }
         }
 
