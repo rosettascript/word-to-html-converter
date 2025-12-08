@@ -568,6 +568,73 @@
     }
 
     /**
+     * Validate List Normalization feature
+     */
+    function validateListNormalize(html, mode) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const listItems = doc.querySelectorAll('li');
+        
+        if (listItems.length === 0) {
+            return new TestResult(
+                'List Normalization',
+                mode,
+                true,
+                'No list items found (skipped)'
+            );
+        }
+        
+        const issues = [];
+        
+        listItems.forEach(li => {
+            // Find <strong> tags within this list item
+            const strongTags = li.querySelectorAll('strong');
+            
+            strongTags.forEach(strong => {
+                // Get the text content of the strong tag
+                const strongText = strong.textContent || '';
+                
+                // Check if the text ends with a colon (with or without trailing space)
+                if (strongText.trim().endsWith(':')) {
+                    // Check 1: No trailing space before </strong>
+                    // Get the last text node within strong to check for trailing space
+                    const strongHTML = strong.innerHTML;
+                    // Check if innerHTML ends with colon followed by whitespace
+                    const trimmedHTML = strongHTML.trim();
+                    if (trimmedHTML.endsWith(': ') || trimmedHTML.match(/:\s+$/)) {
+                        issues.push(`List item has trailing space before </strong> in "${strongText.trim().substring(0, 30)}..."`);
+                    }
+                    
+                    // Check 2: Exactly one space after </strong>
+                    let nextNode = strong.nextSibling;
+                    
+                    if (nextNode && nextNode.nodeType === Node.TEXT_NODE) {
+                        const text = nextNode.textContent || '';
+                        // Should start with exactly one space (not zero, not multiple)
+                        if (text.length === 0 || !text.startsWith(' ')) {
+                            issues.push(`List item missing space after </strong> in "${strongText.trim().substring(0, 30)}..."`);
+                        } else if (text.startsWith('  ')) {
+                            // More than one space
+                            issues.push(`List item has multiple spaces after </strong> in "${strongText.trim().substring(0, 30)}..."`);
+                        }
+                    } else {
+                        // No text node after strong - should have one with a space
+                        issues.push(`List item missing text node with space after </strong> in "${strongText.trim().substring(0, 30)}..."`);
+                    }
+                }
+            });
+        });
+        
+        return new TestResult(
+            'List Normalization',
+            mode,
+            issues.length === 0,
+            issues.length === 0 ? 'All list items with colons are properly normalized' : `${issues.length} list normalization issue(s) found`,
+            issues.length > 0 ? issues : null
+        );
+    }
+
+    /**
      * Validate Relative Paths feature
      */
     function validateRelativePaths(html, mode, features) {
@@ -651,6 +718,7 @@
             results.addResult(validateBasicStructure(html, mode));
             results.addResult(validateHeadingStrong(html, mode));
             results.addResult(validateLinkAttributes(html, mode));
+            results.addResult(validateListNormalize(html, mode));
         }
         
         // Blogs mode validations
@@ -662,6 +730,7 @@
             results.addResult(validateSpacing(html, mode));
             results.addResult(validateOlHeaderConversion(html, mode));
             results.addResult(validateRelativePaths(html, mode, features));
+            results.addResult(validateListNormalize(html, mode));
         }
         
         // Shoppables mode validations
@@ -670,6 +739,7 @@
             results.addResult(validateLinkAttributes(html, mode));
             results.addResult(validateOlHeaderConversion(html, mode));
             results.addResult(validateRelativePaths(html, mode, features));
+            results.addResult(validateListNormalize(html, mode));
             // Explicitly check that Key Takeaways formatting is NOT applied
             const keyTakeawaysResult = validateKeyTakeaways(html, mode);
             results.addResult(new TestResult(

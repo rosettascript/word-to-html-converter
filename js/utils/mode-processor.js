@@ -18,7 +18,12 @@
 
         let processedHtml = html;
 
-        // Regular mode: no special processing
+        // List normalization - applies to all modes (regular, blogs, shoppables)
+        if (window.ModeListNormalize) {
+            processedHtml = window.ModeListNormalize.normalize(processedHtml);
+        }
+
+        // Regular mode: no special processing beyond list normalization
         if (mode === 'regular') {
             return processedHtml;
         }

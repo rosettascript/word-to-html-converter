@@ -1111,6 +1111,11 @@
                 Prism.highlightElement(htmlSourceCode);
             }
         }
+        // Hide validation panel when input is cleared
+        const validationPanel = document.getElementById('validationPanel');
+        if (validationPanel) {
+            validationPanel.style.display = 'none';
+        }
         updateClearButtonVisibility();
         inputArea.focus();
     }

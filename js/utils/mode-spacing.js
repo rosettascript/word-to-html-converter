@@ -228,10 +228,23 @@
         
         paragraphs.forEach(p => {
             const text = p.textContent.trim().toLowerCase();
-            if (text.startsWith('disclaimer:') &&
-                p.previousElementSibling &&
-                p.previousElementSibling.tagName.toLowerCase() === 'p' &&
-                p.previousElementSibling.innerHTML.trim() !== '&nbsp;') {
+            if (text.startsWith('disclaimer:')) {
+                
+                // Check if spacing already exists
+                let prevSibling = p.previousElementSibling;
+                const hasExistingSpacing = prevSibling && isSpacingElement(prevSibling);
+                if (hasExistingSpacing) {
+                    return; // Spacing already exists
+                }
+                
+                // Check previous sibling (could be text node)
+                let node = p.previousSibling;
+                while (node && node.nodeType === Node.TEXT_NODE && !node.textContent.trim()) {
+                    node = node.previousSibling;
+                }
+                if (node && node.nodeType === Node.ELEMENT_NODE && isSpacingElement(node)) {
+                    return; // Spacing already exists
+                }
                 
                 // Create spacing element
                 const spacing = doc.createElement('p');
