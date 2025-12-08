@@ -34,6 +34,9 @@
                 // Post-process: Remove <br> tags that are siblings after block elements
                 removeBrAfterBlockElements(doc.body);
                 
+                // Post-process: Trim whitespace from anchor tags
+                trimAnchorWhitespace(doc.body);
+                
                 // Serialize back to HTML
                 return doc.body.innerHTML;
             } catch (e) {
@@ -312,6 +315,88 @@
                     mergeAdjacentEmTags(element);
                     return;
                 }
+            }
+        }
+    }
+
+    /**
+     * Trim leading and trailing whitespace from anchor tag text content
+     * Handles cases like: <a> text </a> → <a>text</a>
+     * 
+     * @param {Element} element - Element to process
+     */
+    function trimAnchorWhitespace(element) {
+        if (!element || element.nodeType !== Node.ELEMENT_NODE) {
+            return;
+        }
+        
+        // Process all children recursively first
+        const children = Array.from(element.childNodes);
+        for (let i = 0; i < children.length; i++) {
+            if (children[i].nodeType === Node.ELEMENT_NODE) {
+                trimAnchorWhitespace(children[i]);
+            }
+        }
+        
+        // Check if this element is an anchor tag
+        const tagName = element.tagName.toLowerCase();
+        if (tagName !== 'a') {
+            return;
+        }
+        
+        // Find first and last text nodes
+        let firstTextNode = null;
+        let lastTextNode = null;
+        
+        for (let i = 0; i < element.childNodes.length; i++) {
+            const node = element.childNodes[i];
+            if (node.nodeType === Node.TEXT_NODE) {
+                if (firstTextNode === null) {
+                    firstTextNode = node;
+                }
+                lastTextNode = node;
+            }
+        }
+        
+        // Handle edge case: no text nodes (only nested elements)
+        if (firstTextNode === null && lastTextNode === null) {
+            return;
+        }
+        
+        // Trim leading whitespace from first text node
+        if (firstTextNode) {
+            const originalText = firstTextNode.textContent;
+            const trimmedText = originalText.replace(/^\s+/, '');
+            
+            if (trimmedText.length === 0) {
+                // Remove empty text node
+                element.removeChild(firstTextNode);
+            } else {
+                firstTextNode.textContent = trimmedText;
+            }
+        }
+        
+        // Trim trailing whitespace from last text node (if different from first)
+        if (lastTextNode && lastTextNode !== firstTextNode) {
+            const originalText = lastTextNode.textContent;
+            const trimmedText = originalText.replace(/\s+$/, '');
+            
+            if (trimmedText.length === 0) {
+                // Remove empty text node
+                element.removeChild(lastTextNode);
+            } else {
+                lastTextNode.textContent = trimmedText;
+            }
+        } else if (lastTextNode && lastTextNode === firstTextNode && firstTextNode) {
+            // Same node, trim both ends
+            const originalText = firstTextNode.textContent;
+            const trimmedText = originalText.trim();
+            
+            if (trimmedText.length === 0) {
+                // Remove empty text node
+                element.removeChild(firstTextNode);
+            } else {
+                firstTextNode.textContent = trimmedText;
             }
         }
     }
