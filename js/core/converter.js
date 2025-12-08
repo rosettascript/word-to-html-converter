@@ -25,7 +25,8 @@
         h1Removal: true,
         linkAttributes: true,
         relativePaths: false, // Disabled by default
-        spacing: true
+        spacing: true,
+        olHeaderConversion: true // Enabled by default
     }; // Current feature flags
 
     // Initialize

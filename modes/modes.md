@@ -117,6 +117,40 @@ Add `<p>&nbsp;</p>` (non-breaking space paragraph) in the following locations:
 
 6. **Before "Alt Image Text:" paragraphs:** Add `<p>&nbsp;</p>` before any paragraph containing "Alt Image Text:" text.
 
+### 5. OL Header Conversion
+
+Convert single `<ol>` elements containing headers into manually numbered headers. This only applies if the header list is NOT followed by another header list.
+
+**Regular output format:**
+
+```html
+<ol>
+  <li><strong>
+    <h3>Hand-Painted Belgium Beer Glasses</h3></strong></li>
+</ol>
+<p>Beer in Belgium is more than a beverage...</p>
+<ol>
+  <li><strong>
+    <h3>Flemish Tapestry And Lace</h3></strong></li>
+</ol>
+<p>Belgium's reputation for craftsmanship...</p>
+```
+
+**Blogs output format:**
+
+```html
+<h3><strong>1. Hand-Painted Belgium Beer Glasses</strong></h3>
+<p>Beer in Belgium is more than a beverage...</p>
+<h3><strong>2. Flemish Tapestry And Lace</strong></h3>
+<p>Belgium's reputation for craftsmanship...</p>
+```
+
+**Rules:**
+- Only applies to `<ol>` elements that contain only headers wrapped in `<li><strong><hX>...</hX></strong></li>`
+- Only converts if the header list is NOT immediately followed by another header list
+- Headers are manually numbered (1., 2., 3., etc.) and the `<ol>` wrapper is removed
+- The original heading level (h1-h6) is preserved
+
 **Regular output format example:**
 
 ```html
@@ -181,6 +215,7 @@ Shoppables mode uses the same formatting as Blogs mode, but with the following d
 **Included features (same as Blogs):**
 - Heading formatting: All headings must have their content wrapped in `<strong>` tags
 - Link attributes: All links must include `target="_blank" rel="noopener noreferrer"`
+- OL Header Conversion: Converts single `<ol>` elements containing headers into manually numbered headers (only if not followed by another header list)
 
 **Excluded features (different from Blogs):**
 - Key Takeaways formatting: Does NOT remove `<em>` tags from Key Takeaways section

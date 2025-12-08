@@ -45,7 +45,12 @@
                 processedHtml = window.ModeLinkAttributes.add(processedHtml);
             }
 
-            // Spacing
+            // OL Header Conversion (enabled by default, before spacing so converted headings get spacing)
+            if (features.olHeaderConversion !== false && window.ModeOlHeaderConversion) {
+                processedHtml = window.ModeOlHeaderConversion.convert(processedHtml);
+            }
+
+            // Spacing (after OL conversion so converted headings get spacing)
             if (features.spacing !== false && window.ModeSpacing) {
                 processedHtml = window.ModeSpacing.add(processedHtml);
             }
@@ -71,6 +76,11 @@
             // Relative paths (disabled by default)
             if (features.relativePaths === true && window.ModeRelativePaths) {
                 processedHtml = window.ModeRelativePaths.convert(processedHtml);
+            }
+
+            // OL Header Conversion (enabled by default)
+            if (features.olHeaderConversion !== false && window.ModeOlHeaderConversion) {
+                processedHtml = window.ModeOlHeaderConversion.convert(processedHtml);
             }
         }
 
