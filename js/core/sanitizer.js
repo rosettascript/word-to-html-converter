@@ -302,9 +302,16 @@
                 return;
             }
 
-            // Special validation for href and src
+            // Special validation and cleaning for href and src
             if (attrName === 'href' || attrName === 'src') {
-                if (!isSafeUrl(attr.value)) {
+                // Clean the URL first
+                const cleanedUrl = cleanUrl(attr.value);
+                if (cleanedUrl !== attr.value) {
+                    element.setAttribute(attr.name, cleanedUrl);
+                }
+                
+                // Then check if it's safe
+                if (!isSafeUrl(cleanedUrl)) {
                     attrsToRemove.push(attr.name);
                 }
             }
@@ -314,6 +321,69 @@
         attrsToRemove.forEach(attrName => {
             element.removeAttribute(attrName);
         });
+    }
+
+    /**
+     * Clean URL by replacing special characters with hyphens
+     * @param {string} url - URL to clean
+     * @returns {string} - Cleaned URL
+     */
+    function cleanUrl(url) {
+        if (!url || typeof url !== 'string') {
+            return url;
+        }
+
+        try {
+            // Decode URL-encoded characters first
+            let cleaned = decodeURIComponent(url);
+            
+            // Replace various dash/hyphen-like characters with regular hyphens
+            // En-dash (U+2013), em-dash (U+2014), non-breaking hyphen (U+2011), figure dash (U+2012)
+            cleaned = cleaned.replace(/[\u2011\u2012\u2013\u2014\u2015]/g, '-');
+            
+            // Replace other problematic characters that might appear in URLs
+            // Non-breaking space (U+00A0) -> regular space -> hyphen
+            cleaned = cleaned.replace(/\u00A0/g, ' ');
+            // Multiple spaces -> single hyphen
+            cleaned = cleaned.replace(/\s+/g, '-');
+            // Multiple consecutive hyphens -> single hyphen
+            cleaned = cleaned.replace(/-+/g, '-');
+            // Remove leading/trailing hyphens from path segments
+            cleaned = cleaned.replace(/\/-+/g, '/').replace(/-+\//g, '/');
+            
+            // Re-encode if needed (preserve the cleaned structure)
+            // Only re-encode if the URL structure changed
+            if (cleaned !== decodeURIComponent(url)) {
+                // Parse and reconstruct the URL to properly encode it
+                try {
+                    const urlObj = new URL(cleaned, window.location.href);
+                    // Clean the pathname
+                    const cleanPath = urlObj.pathname
+                        .split('/')
+                        .map(segment => encodeURIComponent(decodeURIComponent(segment)))
+                        .join('/');
+                    return urlObj.origin + cleanPath + urlObj.search + urlObj.hash;
+                } catch (e) {
+                    // If URL parsing fails, just return the cleaned string
+                    return cleaned;
+                }
+            }
+            
+            return url; // No changes needed
+        } catch (e) {
+            // If decoding fails, try to clean the encoded URL directly
+            // Replace encoded special characters
+            let cleaned = url.replace(/%E2%80%91/g, '-')  // Non-breaking hyphen
+                            .replace(/%E2%80%93/g, '-')  // En-dash
+                            .replace(/%E2%80%94/g, '-')  // Em-dash
+                            .replace(/%E2%80%95/g, '-')  // Horizontal bar
+                            .replace(/%C2%A0/g, '-');    // Non-breaking space
+            
+            // Clean up multiple consecutive hyphens
+            cleaned = cleaned.replace(/-+/g, '-');
+            
+            return cleaned;
+        }
     }
 
     /**
